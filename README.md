@@ -1,2 +1,2 @@
 # HEASM
-High entropy materials mining/based
+High entropy alloys mining/based
