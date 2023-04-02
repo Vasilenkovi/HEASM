@@ -1,6 +1,11 @@
 # HEASM
 High entropy alloys mining/based
 
+Зависимости:
+tkinter
+mysql.connector
+VerticalFrame https://stackoverflow.com/questions/16188420/tkinter-scrollbar-for-frame
+
 Предложения по стандартизации кода
 Идентификаторы: переменные – со строчной буквы, Классы – с заглавной буквы, КОНСТАНТЫ – заглавными буквами.
 Имена идентификаторов как части речи: переменные, классы, константы – существительные, методы – глаголы.
