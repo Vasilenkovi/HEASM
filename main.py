@@ -137,7 +137,8 @@ class SelectFrame(Frame):
         INNER JOIN measurements ON synthesis_product.PRODUCT_ID = measurements.PRODUCT_ID
         INNER JOIN bibliography ON synthesis_product.DOI = bibliography.DOI
         INNER JOIN source ON bibliography.JOURNAL = source.JOURNAL
-        INNER JOIN key_word ON bibliography.DOI = key_word.DOI """.replace("\n", " ")
+        INNER JOIN key_word ON bibliography.DOI = key_word.DOI 
+        INNER JOIN countries ON bibliography.DOI = countries.DOI""".replace("\n", " ")
 
         if len(where) > 0: #if any filters were checked for "WHERE"
             querry += "WHERE "
