@@ -5,6 +5,7 @@ High entropy alloys mining/based
 tkinter  
 mysql.connector  
 VerticalFrame https://stackoverflow.com/questions/16188420/tkinter-scrollbar-for-frame
+flask
 ------------------------------------------------------------------------------------------
 Предложения по стандартизации кода:  
 Идентификаторы: переменные – со строчной буквы, Классы – с заглавной буквы, КОНСТАНТЫ – заглавными буквами.  
