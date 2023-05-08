@@ -27,8 +27,8 @@
                 <form action="/edit" method="get">
                     {% for filter in cols %}
                     <div>
-                        <input type="checkbox" name="filters" value="{{ filter[1].decode('utf-8', 'ignore') }}" />
-                        <label>{{ filter[1].decode('utf-8', 'ignore') }}</label>
+                        <input type="checkbox" name="filters" value="{{ filter[1] }}" />
+                        <label>{{ filter[1] }}</label>
                     </div>
                     <br> {% endfor %}
                     <input type="submit" value="выбрать">
@@ -86,9 +86,10 @@
                 </form>
             </div>
             <div class="scrollable_div">
+                {% if ready %}
                 <table class="bordered">
                     <tr class="bordered">
-                        {% for i in shown %}
+                        {% for i in selected %}
                         <th class="bordered">{{i}}</th>
                         {% endfor %}
                     </tr>
@@ -100,6 +101,7 @@
                     </tr>
                     {% endfor %}
                 </table>
+                {% endif %}
             </div>
         </div>
         </form>

@@ -25,8 +25,8 @@
             <form action="/select" method="get">
                 {% for filter in cols %}
                 <div>
-                    <input type="checkbox" name="filters" value="{{ filter[1].decode('utf-8', 'ignore') }}" />
-                    <label>{{ filter[1].decode('utf-8', 'ignore') }}</label>
+                    <input type="checkbox" name="filters" value="{{ filter[1] }}" />
+                    <label>{{ filter[1] }}</label>
                 </div>
                 <br> {% endfor %}
                 <input type="submit" value="применить">

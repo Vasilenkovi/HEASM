@@ -83,7 +83,7 @@ class QuerryBuilder():
 
         for i in selected_filters:
             for j in range(len(self.columnComments)):
-                if self.columnComments[j][1].decode('utf-8', 'ignore') == i:
+                if self.columnComments[j][1] == i:
                     preselect.append(self.columnComments[j][0]) 
 
         if len(preselect) > 1:
@@ -103,7 +103,7 @@ class QuerryBuilder():
 
         for i in where_filters:
             for j in range(len(self.columnComments)):
-                if self.columnComments[j][1].decode('utf-8', 'ignore') == i:
+                if self.columnComments[j][1] == i:
                     for table in self.lookUp[self.columnComments[j][0]]:
                         if table in tables:
                             where.append(table + "." + self.columnComments[j][0]) #if checked as "WHERE" add to select with table disambiguation from lookup
@@ -111,8 +111,8 @@ class QuerryBuilder():
         for i in self.columnComments:
             numericAllowed = True
 
-            tClause = requestArgs.get('comp_clause_' + i[1].decode('utf-8', 'ignore'))
-            tOp = requestArgs.get('comp_op_' + i[1].decode('utf-8', 'ignore'))
+            tClause = requestArgs.get('comp_clause_' + i[1])
+            tOp = requestArgs.get('comp_op_' + i[1])
             if tClause != None and tOp != None:
                 try:
                     temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
@@ -130,7 +130,7 @@ class QuerryBuilder():
                 else:
                     whereSymbol.append("=")
 
-            t = requestArgs.get('rad_' + i[1].decode('utf-8', 'ignore'))
+            t = requestArgs.get('rad_' + i[1])
             if t != None:
                 if t == "no":
                     sort = 0
@@ -184,7 +184,7 @@ class QuerryBuilder():
 
         for i in selected:
             for j in range(len(self.columnComments)):
-                if self.columnComments[j][1].decode('utf-8', 'ignore') == i:
+                if self.columnComments[j][1] == i:
                     preselect.append(self.columnComments[j][0]) 
 
         if len(preselect) > 1:
@@ -205,8 +205,8 @@ class QuerryBuilder():
         for i in self.columnComments:
             numericAllowed = True
 
-            tClause = requestArgs.get('comp_clause_' + i[1].decode('utf-8', 'ignore'))
-            tOp = requestArgs.get('comp_op_' + i[1].decode('utf-8', 'ignore'))
+            tClause = requestArgs.get('comp_clause_' + i[1])
+            tOp = requestArgs.get('comp_op_' + i[1])
             if tClause != None and tOp != None:
                 try:
                     temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed

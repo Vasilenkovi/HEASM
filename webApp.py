@@ -58,7 +58,7 @@ def auth():
     password = str(escape(request.args.get("password", "")))
 
     try:
-        connection = mysql.connector.connect(user=login, password=password, host=HOST, port=PORT, database=DATABASE)
+        connection = mysql.connector.connect(user=login, password=password, host=HOST, port=PORT, database=DATABASE, use_pure=True)
         cursor = connection.cursor()
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
         columnComments = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
@@ -114,7 +114,7 @@ def edit():
     
     if checkConnected():       
         selected = request.args.getlist('filters') 
-        return render_template('edit.html', cols=columnComments, selected=selected)
+        return render_template('edit.html', cols=columnComments, selected=selected, ready = False)
     else:
         return redirect("/", code=302)
     
@@ -126,7 +126,7 @@ def edit_retrieve():
         q = querryBuilder.editRetrieveQuerry(request.args, selected)
         if q != "":
             results = execute(q)
-            return render_template('edit.html', cols=columnComments, selected=selected, results=results)
+            return render_template('edit.html', cols=columnComments, selected=selected, ready = True ,results=results)
         else:
             return redirect("/edit", code=302)
     else:
