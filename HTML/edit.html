@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HEASM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <header>
+        <div>
+            <form action="/logout" method="get">
+                <input type="submit" value="Выйти">
+            </form>
+        </div>
+        <div>
+            <form action="/options" method="get">
+                <input type="submit" value="К выбору функции">
+            </form>
+        </div>
+    </header>
+    <div>
+        <div class="grid-container3col">
+            <div class="scrollable_div">
+                <p>Что вы хотите изменить?</p><br>
+                <form action="/edit" method="get">
+                    {% for filter in cols %}
+                    <div>
+                        <input type="checkbox" name="filters" value="{{ filter[1].decode('utf-8', 'ignore') }}" />
+                        <label>{{ filter[1].decode('utf-8', 'ignore') }}</label>
+                    </div>
+                    <br> {% endfor %}
+                    <input type="submit" value="выбрать">
+                </form>
+            </div>
+            <div class="scrollable_div">
+                <p>Отбор (опционально)</p>
+                <form action="/edit_retrieve" method="get">
+                    {% for s in selected %}
+                    <div id="{{ 'div_' + s}}">
+                        <table class="bordered">
+                            <tr>
+                                <td>
+                                    <div class="bordered">
+                                        {{s}}
+                                    </div>
+                                </td>
+                                <td id="{{s}}">
+                                    <script>
+                                        {
+                                            var button = document.createElement('input');
+                                            button.type = "button"
+                                            button.value = "X";
+                                            button.id = "{{'but_' + s}}";
+                                            button.onclick = function updateButton() {
+                                                var div = document.getElementById("{{'div_' + s}}");
+                                                div.remove();
+                                            }
+                                            var container = document.getElementById("{{s}}");
+                                            container.appendChild(button);
+                                        }
+                                    </script>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Оператор</label>
+                                </td>
+                                <td>
+                                    <label>Выражение</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" name="{{'comp_op_' + s}}">
+                                </td>
+                                <td>
+                                    <input type="text" name="{{'comp_clause_' + s}}">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br> {% endfor %}
+                    <input type="submit" value="Исполнить">
+                </form>
+            </div>
+            <div class="scrollable_div">
+                <table class="bordered">
+                    <tr class="bordered">
+                        {% for i in shown %}
+                        <th class="bordered">{{i}}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for entry in results %}
+                    <tr class="bordered">
+                        {% for atr in entry %}
+                        <td class="bordered">{{atr}}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        </form>
+    </div>
+</body>
+
+</html>

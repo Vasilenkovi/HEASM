@@ -14,10 +14,15 @@
                 <input type="submit" value="Выйти">
             </form>
         </div>
+        <div>
+            <form action="/options" method="get">
+                <input type="submit" value="К выбору функции">
+            </form>
+        </div>
     </header>
     <div class="grid-container3col">
         <div class="scrollable_div">
-            <form action="" method="get">
+            <form action="/select" method="get">
                 {% for filter in cols %}
                 <div>
                     <input type="checkbox" name="filters" value="{{ filter[1].decode('utf-8', 'ignore') }}" />
@@ -92,7 +97,20 @@
             </form>
         </div>
         <div class="scrollable_div">
-            {{results}}
+            <table class="bordered">
+                <tr class="bordered">
+                    {% for i in shown %}
+                    <th class="bordered">{{i}}</th>
+                    {% endfor %}
+                </tr>
+                {% for entry in results %}
+                <tr class="bordered">
+                    {% for atr in entry %}
+                    <td class="bordered">{{atr}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 </body>
