@@ -45,17 +45,17 @@ def execute(query: str) -> list:
         cursor.execute(query)
         return cursor.fetchall() #Retrieving all results from cursor
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def main():
     return render_template('main.html')
 
-@app.route("/auth")
+@app.route("/auth", methods=['GET', 'POST'])
 def auth():
 
     global querryBuilder, connection, cursor, lookUp, columnComments
 
-    login = str(escape(request.args.get("login", "")))
-    password = str(escape(request.args.get("password", "")))
+    login = str(escape(request.form.get("login", "")))
+    password = str(escape(request.form.get("password", "")))
 
     try:
         connection = mysql.connector.connect(user=login, password=password, host=HOST, port=PORT, database=DATABASE, use_pure=True)
@@ -68,14 +68,14 @@ def auth():
         flash("Invalid credentials")
         return redirect("/", code=302)
 
-@app.route("/options")
+@app.route("/options", methods=['GET', 'POST'])
 def options():
     if checkConnected():
         return render_template('options.html')
     else:
         return redirect("/", code=302)
 
-@app.route("/logout")
+@app.route("/logout", methods=['GET', 'POST'])
 def logout():
     global connection
 
@@ -84,46 +84,46 @@ def logout():
         connection = None
     return redirect("/", code=302)
 
-@app.route("/select")
+@app.route("/select", methods=['GET', 'POST'])
 def select():
     global connection, cursor, lookUp, columnComments, selected
     
     if checkConnected():
-        selected = request.args.getlist('filters')        
+        selected = request.form.getlist('filters')        
         return render_template('select.html', cols=columnComments, selected=selected)
     else:
         return redirect("/", code=302)
 
-@app.route("/select_exec")
+@app.route("/select_exec", methods=['GET', 'POST'])
 def select_exec():
     global connection, cursor, lookUp, columnComments, selected, results
 
     if checkConnected():
-        q = querryBuilder.buildQuerry(request.args, selected)
+        q = querryBuilder.buildQuerry(request.form, selected)
         if q != "":
             results = execute(q)
-            return render_template('select.html', cols=columnComments, selected=selected, shown = request.args.getlist('select_filters'), results=results)
+            return render_template('select.html', cols=columnComments, selected=selected, shown = request.form.getlist('select_filters'), results=results)
         else:
             return redirect("/select", code=302)
     else:
         return redirect("/", code=302)
 
-@app.route("/edit")
+@app.route("/edit", methods=['GET', 'POST'])
 def edit():
     global connection, cursor, lookUp, columnComments, selected
     
     if checkConnected():       
-        selected = request.args.getlist('filters') 
+        selected = request.form.getlist('filters') 
         return render_template('edit.html', cols=columnComments, selected=selected, ready = False)
     else:
         return redirect("/", code=302)
     
-@app.route("/edit_retrieve")
+@app.route("/edit_retrieve", methods=['GET', 'POST'])
 def edit_retrieve():
     global connection, cursor, lookUp, columnComments, selected, results
 
     if checkConnected():
-        q = querryBuilder.editRetrieveQuerry(request.args, selected)
+        q = querryBuilder.editRetrieveQuerry(request.form, selected)
         if q != "":
             results = execute(q)
             return render_template('edit.html', cols=columnComments, selected=selected, ready = True ,results=results)
@@ -132,7 +132,7 @@ def edit_retrieve():
     else:
         return redirect("/", code=302)
 
-@app.route("/add")
+@app.route("/add", methods=['GET', 'POST'])
 def add():
     global connection, cursor, lookUp, columnComments, selected
     

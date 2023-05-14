@@ -100,6 +100,7 @@ class QuerryBuilder():
             for table in self.lookUp[col]:
                 if table in tables:
                     select.append(table + "." + col) #if checked as "SELECT" add to select with table disambiguation from lookup
+                    break
 
         for i in where_filters:
             for j in range(len(self.columnComments)):
@@ -115,7 +116,10 @@ class QuerryBuilder():
             tOp = requestArgs.get('comp_op_' + i[1])
             if tClause != None and tOp != None:
                 try:
-                    temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                    if tOp.lower() != 'like':
+                        temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                    else:
+                        raise ValueError()
                     whereCondition.append(temp)
                 except:
                     if tOp.lower() == 'like':
@@ -144,19 +148,21 @@ class QuerryBuilder():
         querry += ",".join(select)
         querry += " FROM "
         querry += tables[0] + " "
-        for i in range(1, len(tables)):
-            left = QuerryBuilder.TABLES[tables[i]]
-            right = QuerryBuilder.TABLES[tables[i-1]]
-            joinCol = QuerryBuilder.TABLES_ADJACENCY[left][right]
-            if joinCol != None:
-                querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[left] + " ON " + QuerryBuilder.TABLES_INVERSE[right] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[left] + "." + joinCol + " "
-            else:
-                for j in range(len(tables)):
-                    left = QuerryBuilder.TABLES[tables[i]]
-                    right = QuerryBuilder.TABLES[tables[j]]
-                    joinCol = QuerryBuilder.TABLES_ADJACENCY[left][right]
-                    if joinCol != None:
-                        querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[left] + " ON " + QuerryBuilder.TABLES_INVERSE[right] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[left] + "." + joinCol + " "
+
+        counted = [False for i in range(len(tables))]
+        counted[0] = True
+        
+        bfs = []
+        bfs.insert(0, QuerryBuilder.TABLES[tables[0]])
+        while len(bfs) > 0:
+            current = bfs.pop(0)
+            for i in range(len(tables)):
+                nextV = QuerryBuilder.TABLES[tables[i]]
+                joinCol = QuerryBuilder.TABLES_ADJACENCY[current][nextV]
+                if joinCol != None and not counted[i]:
+                    counted[i] = True
+                    bfs.append(nextV)
+                    querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON " + QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol + " "
 
         if len(where) > 0: #if any filters were checked for "WHERE"
                 querry += " WHERE "
@@ -178,9 +184,12 @@ class QuerryBuilder():
         querry = "SELECT " #base of querry
         preselect = []
         select = [] #all columns to select
+        where = []
         whereSymbol = [] #all "WHERE" comparison operators
         whereCondition = [] #all "WHERE" conditions
         tables = []
+
+        useWhere = False
 
         for i in selected:
             for j in range(len(self.columnComments)):
@@ -201,15 +210,24 @@ class QuerryBuilder():
             for table in self.lookUp[col]:
                 if table in tables:
                     select.append(table + "." + col) #if checked as "SELECT" add to select with table disambiguation from lookup
+        where = [False for i in range(len(select))]
 
+        order = 0
         for i in self.columnComments:
             numericAllowed = True
 
             tClause = requestArgs.get('comp_clause_' + i[1])
             tOp = requestArgs.get('comp_op_' + i[1])
             if tClause != None and tOp != None:
+                if tClause != "" and tOp != "":
+                    where[order] = True
+                    useWhere = True
+                order+=1
                 try:
-                    temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                    if tOp.lower() != 'like':
+                        temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                    else:
+                        raise ValueError()
                     whereCondition.append(temp)
                 except:
                     if tOp.lower() == 'like':
@@ -240,11 +258,12 @@ class QuerryBuilder():
                     joinCol = QuerryBuilder.TABLES_ADJACENCY[left][right]
                     if joinCol != None:
                         querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[left] + " ON " + QuerryBuilder.TABLES_INVERSE[right] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[left] + "." + joinCol + " "
-
         
-        querry += " WHERE "
-        for w in range(len(select)):
-            querry += select[w] + whereSymbol[w] + whereCondition[w] + " AND "
-        querry = querry[:-5] + "\n" #last boolean logic operator is removed, because it has no right hand side condition. Currently only 'AND' is supported
+        if useWhere:
+            querry += " WHERE "
+            for w in range(len(select)):
+                if where[w]:
+                    querry += select[w] + whereSymbol[w] + whereCondition[w] + " AND "
+            querry = querry[:-5] + "\n" #last boolean logic operator is removed, because it has no right hand side condition. Currently only 'AND' is supported
 
         return querry

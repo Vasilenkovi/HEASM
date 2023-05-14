@@ -10,12 +10,12 @@
 <body>
     <header>
         <div>
-            <form action="/logout" method="get">
+            <form action="/logout" method="post">
                 <input type="submit" value="Выйти">
             </form>
         </div>
         <div>
-            <form action="/options" method="get">
+            <form action="/options" method="post">
                 <input type="submit" value="К выбору функции">
             </form>
         </div>
@@ -24,7 +24,7 @@
         <div class="grid-container3col">
             <div class="scrollable_div">
                 <p>Что вы хотите изменить?</p><br>
-                <form action="/edit" method="get">
+                <form action="/edit" method="post">
                     {% for filter in cols %}
                     <div>
                         <input type="checkbox" name="filters" value="{{ filter[1] }}" />
@@ -36,7 +36,7 @@
             </div>
             <div class="scrollable_div">
                 <p>Отбор (опционально)</p>
-                <form action="/edit_retrieve" method="get">
+                <form action="/edit_retrieve" method="post">
                     {% for s in selected %}
                     <div id="{{ 'div_' + s}}">
                         <table class="bordered">
@@ -87,20 +87,47 @@
             </div>
             <div class="scrollable_div">
                 {% if ready %}
-                <table class="bordered">
-                    <tr class="bordered">
-                        {% for i in selected %}
-                        <th class="bordered">{{i}}</th>
+                <form action="/edit" method="post">
+                    <table class="bordered">
+                        <tr class="bordered">
+                            {% for i in selected %}
+                            <th class="bordered">{{i}}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for entry in range(results| length) %}
+                        <tr class="bordered">
+                            {% for atr in results[entry] %}
+                            <td class="bordered" id="{{'parent' + entry|string + '_' + atr}}">
+                                <script>
+                                    {
+                                        var target = document.createElement('input');
+                                        var data = document.createElement('input');
+
+                                        data.type = "hidden"
+                                        data.value = "0";
+                                        data.name = "{{'changed' + entry|string + '_' + atr}}";
+                                        data.id = "{{'changed' + entry|string + '_' + atr}}";
+
+                                        target.type = "text"
+                                        target.value = "{{atr}}";
+                                        target.name = "{{entry|string + '_' + atr}}";
+                                        target.id = "{{'changed' + entry|string + '_' + atr}}";
+
+                                        target.oninput = function updated() {
+                                            data.value = "1"
+                                            target.value = target.value
+                                        }
+                                        var container = document.getElementById("{{'parent' + entry|string + '_' + atr}}");
+                                        container.appendChild(target);
+                                        container.appendChild(data);
+                                    }
+                                </script>
+                            </td>
+                            {% endfor %}
+                        </tr>
                         {% endfor %}
-                    </tr>
-                    {% for entry in results %}
-                    <tr class="bordered">
-                        {% for atr in entry %}
-                        <td class="bordered">{{atr}}</td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </table>
+                    </table>
+                </form>
                 {% endif %}
             </div>
         </div>

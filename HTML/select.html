@@ -10,19 +10,19 @@
 <body>
     <header>
         <div>
-            <form action="/logout" method="get">
+            <form action="/logout" method="post">
                 <input type="submit" value="Выйти">
             </form>
         </div>
         <div>
-            <form action="/options" method="get">
+            <form action="/options" method="post">
                 <input type="submit" value="К выбору функции">
             </form>
         </div>
     </header>
     <div class="grid-container3col">
         <div class="scrollable_div">
-            <form action="/select" method="get">
+            <form action="/select" method="post">
                 {% for filter in cols %}
                 <div>
                     <input type="checkbox" name="filters" value="{{ filter[1] }}" />
@@ -33,7 +33,7 @@
             </form>
         </div>
         <div class="scrollable_div">
-            <form action="/select_exec" method="get">
+            <form action="/select_exec" method="post">
                 {% for s in selected %}
                 <div id="{{ 'div_' + s}}">
                     <table class="bordered">
