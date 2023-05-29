@@ -4,6 +4,8 @@ class QuerryBuilder():
 
     lookUp = []
     columnComments = []
+    editSelected = []
+    editTables = []
 
     TABLES = {"bib_source": 0, "bibliography": 1, "countries": 2, "ingredients": 3, "key_word": 4, "measurements": 5, "synthesis_parameter": 6, "synthesis_product": 7}
     TABLES_INVERSE = ["bib_source", "bibliography", "countries", "ingredients", "key_word", "measurements", "synthesis_parameter", "synthesis_product"]
@@ -18,6 +20,8 @@ class QuerryBuilder():
         [None, None, None, None, None, None, None, 'PRODUCT_ID'],
         [None, 'DOI', None, 'PRODUCT_ID', None, 'PRODUCT_ID', 'PRODUCT_ID', None]
     ]
+
+    PARENT_TABLES = {"JOURNAL": "bib_source", "DOI": "bibliography", "PRODUCT_ID": "synthesis_product"}
 
     def __init__(self, in_lookUp: dict, in_columnComments: list) -> None:
         self.lookUp = in_lookUp
@@ -110,40 +114,41 @@ class QuerryBuilder():
                             where.append(table + "." + self.columnComments[j][0]) #if checked as "WHERE" add to select with table disambiguation from lookup
 
         for i in self.columnComments:
-            numericAllowed = True
+            if i[1] in where_filters:
+                numericAllowed = True
 
-            tClause = requestArgs.get('comp_clause_' + i[1])
-            tOp = requestArgs.get('comp_op_' + i[1])
-            if tClause != None and tOp != None:
-                try:
-                    if tOp.lower() != 'like':
-                        temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                tClause = requestArgs.get('comp_clause_' + i[1])
+                tOp = requestArgs.get('comp_op_' + i[1])
+                if tClause != None and tOp != None:
+                    try:
+                        if tOp.lower() != 'like':
+                            temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                        else:
+                            raise ValueError()
+                        whereCondition.append(temp)
+                    except:
+                        if tOp.lower() == 'like':
+                            tClause = "%" + tClause + "%"
+                        temp = "'" + tClause + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
+                        numericAllowed = False
+                        whereCondition.append(temp)
+                    if numericAllowed and tOp in ('=', '>', '<', '>=', '<='):
+                        whereSymbol.append(tOp)
+                    elif tOp.lower() == 'like':
+                        whereSymbol.append(" LIKE ")
                     else:
-                        raise ValueError()
-                    whereCondition.append(temp)
-                except:
-                    if tOp.lower() == 'like':
-                        tClause = "%" + tClause + "%"
-                    temp = "'" + tClause + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
-                    numericAllowed = False
-                    whereCondition.append(temp)
-                if numericAllowed and tOp in ('=', '>', '<', '>=', '<='):
-                    whereSymbol.append(tOp)
-                elif tOp.lower() == 'like':
-                    whereSymbol.append(" LIKE ")
-                else:
-                    whereSymbol.append("=")
+                        whereSymbol.append("=")
 
-            t = requestArgs.get('rad_' + i[1])
-            if t != None:
-                if t == "no":
-                    sort = 0
-                elif t == "asc":
-                    sort = 1
-                    sortCol = i[0]
-                else:
-                    sort = 2
-                    sortCol = i[0]
+                t = requestArgs.get('rad_' + i[1])
+                if t != None:
+                    if t == "no":
+                        sort = 0
+                    elif t == "asc":
+                        sort = 1
+                        sortCol = i[0]
+                    else:
+                        sort = 2
+                        sortCol = i[0]
 
         querry += ",".join(select)
         querry += " FROM "
@@ -168,12 +173,12 @@ class QuerryBuilder():
                 querry += " WHERE "
                 for w in range(len(where)):
                     querry += where[w] + whereSymbol[w] + whereCondition[w] + " AND "
-                querry = querry[:-5] + "\n" #last boolean logic operator is removed, because it has no right hand side condition. Currently only 'AND' is supported
+                querry = querry[:-5] #last boolean logic operator is removed, because it has no right hand side condition. Currently only 'AND' is supported
 
         if sort == 1:
-            querry += "ORDER BY " + sortCol + " ASC" #if ascending sorting was chosen 
+            querry += " ORDER BY " + sortCol + " ASC" #if ascending sorting was chosen 
         elif sort == 2:
-            querry += "ORDER BY " + sortCol + " DESC" #if descending sorting was chosen
+            querry += " ORDER BY " + sortCol + " DESC" #if descending sorting was chosen
 
         return querry
 
@@ -181,7 +186,7 @@ class QuerryBuilder():
         if len(selected) == 0:
             return ""
 
-        querry = "SELECT " #base of querry
+        querry = "SELECT DISTINCT " #base of querry
         preselect = []
         select = [] #all columns to select
         where = []
@@ -210,6 +215,7 @@ class QuerryBuilder():
             for table in self.lookUp[col]:
                 if table in tables:
                     select.append(table + "." + col) #if checked as "SELECT" add to select with table disambiguation from lookup
+                    break
         where = [False for i in range(len(select))]
 
         order = 0
@@ -245,20 +251,22 @@ class QuerryBuilder():
         querry += ",".join(select)
         querry += " FROM "
         querry += tables[0] + " "
-        for i in range(1, len(tables)):
-            left = QuerryBuilder.TABLES[tables[i]]
-            right = QuerryBuilder.TABLES[tables[i-1]]
-            joinCol = QuerryBuilder.TABLES_ADJACENCY[left][right]
-            if joinCol != None:
-                querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[left] + " ON " + QuerryBuilder.TABLES_INVERSE[right] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[left] + "." + joinCol + " "
-            else:
-                for j in range(len(tables)):
-                    left = QuerryBuilder.TABLES[tables[i]]
-                    right = QuerryBuilder.TABLES[tables[j]]
-                    joinCol = QuerryBuilder.TABLES_ADJACENCY[left][right]
-                    if joinCol != None:
-                        querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[left] + " ON " + QuerryBuilder.TABLES_INVERSE[right] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[left] + "." + joinCol + " "
         
+        counted = [False for i in range(len(tables))]
+        counted[0] = True
+        
+        bfs = []
+        bfs.insert(0, QuerryBuilder.TABLES[tables[0]])
+        while len(bfs) > 0:
+            current = bfs.pop(0)
+            for i in range(len(tables)):
+                nextV = QuerryBuilder.TABLES[tables[i]]
+                joinCol = QuerryBuilder.TABLES_ADJACENCY[current][nextV]
+                if joinCol != None and not counted[i]:
+                    counted[i] = True
+                    bfs.append(nextV)
+                    querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON " + QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol + " "
+     
         if useWhere:
             querry += " WHERE "
             for w in range(len(select)):
@@ -266,4 +274,80 @@ class QuerryBuilder():
                     querry += select[w] + whereSymbol[w] + whereCondition[w] + " AND "
             querry = querry[:-5] + "\n" #last boolean logic operator is removed, because it has no right hand side condition. Currently only 'AND' is supported
 
+        QuerryBuilder.editSelected = select
+        QuerryBuilder.editTables = tables
+
         return querry
+    
+    def editExecute(self, changed: list) -> list:
+        FullQuerry = []
+        for entryOld, entryNew in changed:
+            for table in QuerryBuilder.editTables:
+                querry = "UPDATE "
+                where = "WHERE "
+                querry += table + " SET "
+                editted = False
+                for atr in range(len(entryNew)):
+                    newVal = None
+                    oldVal = None
+                    try: 
+                        newVal = float(entryNew[atr])
+                        oldVal = float(entryOld[atr])
+                    except:
+                        newVal = "'" + entryNew[atr] + "'"
+                        oldVal = "'" + entryOld[atr] + "'"
+                    qualifier = QuerryBuilder.editSelected[atr][0:QuerryBuilder.editSelected[atr].find(".")]
+                    if qualifier == table:
+                        querry += QuerryBuilder.editSelected[atr] + " = " + newVal + ", "
+                        where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
+                        editted = True
+
+                if not editted:
+                    querry = querry[:-len(table)]
+                else:
+                    querry = querry[:-2]
+                    where = where[:-5]
+
+                FullQuerry.append(querry + " " + where + "; ")
+
+        return FullQuerry
+    
+    def editExecuteParent(self, changed: list) -> str:
+        FullQuerry = []
+        for entryOld, entryNew in changed:
+            for table in QuerryBuilder.editTables:
+                querry = "UPDATE "
+                where = "WHERE "
+                querry += table + " SET "
+                editted = False
+                for atr in range(len(entryNew)):
+                    newVal = None
+                    oldVal = None
+                    try: 
+                        newVal = float(entryNew[atr])
+                        oldVal = float(entryOld[atr])
+                    except:
+                        newVal = "'" + entryNew[atr] + "'"
+                        oldVal = "'" + entryOld[atr] + "'"
+
+                    seperator = QuerryBuilder.editSelected[atr].find(".")
+                    qualifier = QuerryBuilder.editSelected[atr][:seperator]
+                    atribute = QuerryBuilder.editSelected[atr][seperator+1:]
+
+                    if atribute in QuerryBuilder.PARENT_TABLES:
+                        FullQuerry.append("UPDATE " + QuerryBuilder.PARENT_TABLES[atribute] + " SET " + atribute + " = " + newVal + " WHERE " + atribute + " = " + oldVal)
+
+                    elif qualifier == table:
+                        querry += QuerryBuilder.editSelected[atr] + " = " + newVal + ", "
+                        where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
+                        editted = True
+
+                if not editted:
+                    break
+                else:
+                    querry = querry[:-2]
+                    where = where[:-5]
+
+                FullQuerry.append(querry + " " + where + "; ")
+
+        return FullQuerry

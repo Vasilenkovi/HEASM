@@ -22,6 +22,7 @@ results = []
 
 app = Flask(__name__, template_folder='HTML', static_folder='static')
 app.secret_key = secrets.token_urlsafe(16)
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1000 * 1000
 
 def createLookUp(col_tab: list) -> dict:
     result = {}
@@ -38,12 +39,27 @@ def checkConnected() -> bool:
         return False
     return True
 
-def execute(query: str) -> list:
-    global cursor
+def execute(querry: str, commit = True) -> list:
+    global cursor, connection
+    r = []
     if cursor != None:
         cursor.reset()
-        cursor.execute(query)
-        return cursor.fetchall() #Retrieving all results from cursor
+        cursor.execute(querry)
+        try:
+            r = cursor.fetchall() #Retrieving all results from cursor
+        except mysql.connector.errors.InterfaceError:
+            r = []
+        if commit:
+            connection.commit()
+        return r
+            
+def commit() -> None:
+    if connection != None:
+        connection.commit()
+
+def rollback() -> None:
+    if connection != None:
+        connection.rollback()
 
 @app.route("/", methods=['GET', 'POST'])
 def main():
@@ -59,12 +75,13 @@ def auth():
 
     try:
         connection = mysql.connector.connect(user=login, password=password, host=HOST, port=PORT, database=DATABASE, use_pure=True)
-        cursor = connection.cursor()
+        cursor = connection.cursor(buffered=True)
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
         columnComments = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
         querryBuilder = querries.QuerryBuilder(lookUp, columnComments)
         return redirect("/options", code=302)
-    except:
+    except Exception as e:
+        print(e)
         flash("Invalid credentials")
         return redirect("/", code=302)
 
@@ -121,6 +138,31 @@ def edit():
 @app.route("/edit_retrieve", methods=['GET', 'POST'])
 def edit_retrieve():
     global connection, cursor, lookUp, columnComments, selected, results
+
+    allVals = []
+    q = ""
+    for i in range(len(results)):
+        newVals = []
+        changed = False
+        for j in range(len(results[i])):
+            didChange = request.form.get("changed_" + str(i) + "_" + str(j))
+            if didChange == "1":
+                changed = True
+            newVals.append(request.form.get(str(i) + "_" + str(j)))
+        
+        if changed:
+            allVals.append([results[i], newVals])
+    if len(allVals) > 0:
+        q = querryBuilder.editExecute(allVals)
+        try:
+            for querry in q:
+                execute(querry, commit=False)
+        except mysql.connector.errors.IntegrityError:
+            rollback()
+            q = querryBuilder.editExecuteParent(allVals)
+            for querry in q:
+                execute(querry, commit=False)
+        commit()
 
     if checkConnected():
         q = querryBuilder.editRetrieveQuerry(request.form, selected)
