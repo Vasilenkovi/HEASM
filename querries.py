@@ -2,10 +2,12 @@
 
 class QuerryBuilder():
 
-    lookUp = []
+    lookUp = {}
     columnComments = []
+    logComments = []
     editSelected = []
     editTables = []
+    remaining = []
 
     TABLES = {"bib_source": 0, "bibliography": 1, "countries": 2, "ingredients": 3, "key_word": 4, "measurements": 5, "synthesis_parameter": 6, "synthesis_product": 7}
     TABLES_INVERSE = ["bib_source", "bibliography", "countries", "ingredients", "key_word", "measurements", "synthesis_parameter", "synthesis_product"]
@@ -23,9 +25,10 @@ class QuerryBuilder():
 
     PARENT_TABLES = {"JOURNAL": "bib_source", "DOI": "bibliography", "PRODUCT_ID": "synthesis_product"}
 
-    def __init__(self, in_lookUp: dict, in_columnComments: list) -> None:
+    def __init__(self, in_lookUp: dict, in_columnComments: list, in_logComments: list) -> None:
         self.lookUp = in_lookUp
         self.columnComments = in_columnComments
+        self.logComments = in_logComments
 
     def __leastTables(self, col1, col2) -> list:
         for i in self.lookUp[col1]:
@@ -84,6 +87,7 @@ class QuerryBuilder():
             if i in selected_filters or i in where_filters:
                 tempSelected.append(i)
         selected = tempSelected
+        QuerryBuilder.remaining = tempSelected
 
         for i in selected_filters:
             for j in range(len(self.columnComments)):
@@ -195,6 +199,13 @@ class QuerryBuilder():
         tables = []
 
         useWhere = False
+
+        tempSelected = []
+        for i in selected:
+            if requestArgs.get("inf_" + i) == '0':
+                tempSelected.append(i)
+        selected = tempSelected
+        QuerryBuilder.remaining = tempSelected
 
         for i in selected:
             for j in range(len(self.columnComments)):
@@ -351,3 +362,88 @@ class QuerryBuilder():
                 FullQuerry.append(querry + " " + where + "; ")
 
         return FullQuerry
+    
+    def logQuerry(self, requestArgs, selected: list) -> str:
+        selected_filters = requestArgs.getlist('select_filters')
+        where_filters = requestArgs.getlist('where_filters')
+
+        if len(selected_filters) == 0:
+            return ""
+
+        querry = "SELECT DISTINCT " #base of querry
+        select = [] #all columns to select
+        where = [] #all columns to include in "WHERE" statement
+        whereSymbol = [] #all "WHERE" comparison operators
+        whereCondition = [] #all "WHERE" conditions
+        sort = 0
+        sortCol = ""
+
+        tempSelected = []
+        for i in selected:
+            if i in selected_filters or i in where_filters:
+                tempSelected.append(i)
+        selected = tempSelected
+        QuerryBuilder.remaining = tempSelected
+
+        for i in selected_filters:
+            for j in range(len(self.logComments)):
+                if self.logComments[j][1] == i:
+                    select.append(self.logComments[j][0]) 
+
+        for i in where_filters:
+            for j in range(len(self.logComments)):
+                if self.logComments[j][1] == i:
+                    where.append(self.logComments[j][0]) #if checked as "WHERE" add to select with table disambiguation from lookup
+
+        for i in self.logComments:
+            if i[1] in where_filters:
+                numericAllowed = True
+
+                tClause = requestArgs.get('comp_clause_' + i[1])
+                tOp = requestArgs.get('comp_op_' + i[1])
+                if tClause != None and tOp != None:
+                    try:
+                        if tOp.lower() != 'like':
+                            temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                        else:
+                            raise ValueError()
+                        whereCondition.append(temp)
+                    except:
+                        if tOp.lower() == 'like':
+                            tClause = "%" + tClause + "%"
+                        temp = "'" + tClause + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
+                        numericAllowed = False
+                        whereCondition.append(temp)
+                    if numericAllowed and tOp in ('=', '>', '<', '>=', '<='):
+                        whereSymbol.append(tOp)
+                    elif tOp.lower() == 'like':
+                        whereSymbol.append(" LIKE ")
+                    else:
+                        whereSymbol.append("=")
+
+                t = requestArgs.get('rad_' + i[1])
+                if t != None:
+                    if t == "no":
+                        sort = 0
+                    elif t == "asc":
+                        sort = 1
+                        sortCol = i[0]
+                    else:
+                        sort = 2
+                        sortCol = i[0]
+
+        querry += ",".join(select)
+        querry += " FROM logs "
+
+        if len(where) > 0: #if any filters were checked for "WHERE"
+                querry += " WHERE "
+                for w in range(len(where)):
+                    querry += where[w] + whereSymbol[w] + whereCondition[w] + " AND "
+                querry = querry[:-5] #last boolean logic operator is removed, because it has no right hand side condition. Currently only 'AND' is supported
+
+        if sort == 1:
+            querry += " ORDER BY " + sortCol + " ASC" #if ascending sorting was chosen 
+        elif sort == 2:
+            querry += " ORDER BY " + sortCol + " DESC" #if descending sorting was chosen
+
+        return querry

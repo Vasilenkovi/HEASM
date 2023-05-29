@@ -17,6 +17,7 @@ connection = None
 cursor = None
 lookUp = []
 columnComments = []
+logCols = []
 selected = []
 results = []
 
@@ -68,7 +69,7 @@ def main():
 @app.route("/auth", methods=['GET', 'POST'])
 def auth():
 
-    global querryBuilder, connection, cursor, lookUp, columnComments
+    global querryBuilder, connection, cursor, lookUp, columnComments, logCols
 
     login = str(escape(request.form.get("login", "")))
     password = str(escape(request.form.get("password", "")))
@@ -78,7 +79,8 @@ def auth():
         cursor = connection.cursor(buffered=True)
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
         columnComments = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
-        querryBuilder = querries.QuerryBuilder(lookUp, columnComments)
+        logCols = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name = 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
+        querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols)
         return redirect("/options", code=302)
     except Exception as e:
         print(e)
@@ -119,7 +121,7 @@ def select_exec():
         q = querryBuilder.buildQuerry(request.form, selected)
         if q != "":
             results = execute(q)
-            return render_template('select.html', cols=columnComments, selected=selected, shown = request.form.getlist('select_filters'), results=results)
+            return render_template('select.html', cols=columnComments, selected=querryBuilder.remaining, shown = request.form.getlist('select_filters'), results=results)
         else:
             return redirect("/select", code=302)
     else:
@@ -168,7 +170,7 @@ def edit_retrieve():
         q = querryBuilder.editRetrieveQuerry(request.form, selected)
         if q != "":
             results = execute(q)
-            return render_template('edit.html', cols=columnComments, selected=selected, ready = True ,results=results)
+            return render_template('edit.html', cols=columnComments, selected=querryBuilder.remaining, ready = True, results=results)
         else:
             return redirect("/edit", code=302)
     else:
@@ -180,6 +182,30 @@ def add():
     
     if checkConnected():       
         return render_template('add.html')
+    else:
+        return redirect("/", code=302)
+    
+@app.route("/logs", methods=['GET', 'POST'])
+def selectLogs():
+    global connection, cursor, lookUp, columnComments, selected
+    
+    if checkConnected():
+        selected = request.form.getlist('filters')        
+        return render_template('logs.html', cols=logCols, selected=selected)
+    else:
+        return redirect("/", code=302)
+
+@app.route("/logs_exec", methods=['GET', 'POST'])
+def selectLogs_exec():
+    global connection, cursor, lookUp, columnComments, selected, results
+
+    if checkConnected():
+        q = querryBuilder.logQuerry(request.form, selected)
+        if q != "":
+            results = execute(q)
+            return render_template('logs.html', cols=logCols, selected=querryBuilder.remaining, shown = request.form.getlist('select_filters'), results=results)
+        else:
+            return redirect("/select", code=302)
     else:
         return redirect("/", code=302)
 
