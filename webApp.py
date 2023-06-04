@@ -18,6 +18,8 @@ cursor = None
 lookUp = []
 columnComments = []
 logCols = []
+tables = []
+tableCols = []
 selected = []
 results = []
 
@@ -33,6 +35,30 @@ def createLookUp(col_tab: list) -> dict:
         else:
             result[col[0]].append(col[1])
     return result
+
+def seperateTableCols(tableCols: list) -> tuple:
+    byTable = {}
+    tables = []
+    columns = []
+    for row in tableCols:
+        row = list(row)
+        t = row.pop(0)
+        if t not in byTable:
+            byTable[t] = [row]
+        else:
+            byTable[t].append(row)
+    for key in byTable.keys():
+        tables.append(key)
+        columns.append(byTable[key])
+    return tables, columns
+
+def countProducts() -> int:
+    if cursor != None:
+        cursor.reset()
+        cursor.execute("SELECT MAX(PRODUCT_ID) FROM synthesis_product")
+        i = cursor.fetchall()[0][0]
+        i+=1
+    return i
 
 def checkConnected() -> bool:
     if connection == None:
@@ -69,7 +95,7 @@ def main():
 @app.route("/auth", methods=['GET', 'POST'])
 def auth():
 
-    global querryBuilder, connection, cursor, lookUp, columnComments, logCols
+    global querryBuilder, connection, cursor, lookUp, columnComments, logCols, tables, tableCols
 
     login = str(escape(request.form.get("login", "")))
     password = str(escape(request.form.get("password", "")))
@@ -78,9 +104,10 @@ def auth():
         connection = mysql.connector.connect(user=login, password=password, host=HOST, port=PORT, database=DATABASE, use_pure=True)
         cursor = connection.cursor(buffered=True)
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
-        columnComments = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
+        columnComments = execute("SELECT DISTINCT column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
         logCols = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name = 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
-        querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols)
+        tables, tableCols = seperateTableCols(execute("SELECT DISTINCT table_name, column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name"))
+        querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols)
         return redirect("/options", code=302)
     except Exception as e:
         print(e)
@@ -178,10 +205,30 @@ def edit_retrieve():
 
 @app.route("/add", methods=['GET', 'POST'])
 def add():
-    global connection, cursor, lookUp, columnComments, selected
+    global connection, cursor, lookUp, columnComments, tables, tableCols, selected
     
     if checkConnected():       
-        return render_template('add.html')
+        return render_template('add.html', tables = tables, cols = tableCols, newId = countProducts())
+    else:
+        return redirect("/", code=302)
+
+@app.route("/add_execute", methods=['POST'])
+def addExecute():
+    global connection, cursor, lookUp, columnComments, tables, tableCols, selected
+    
+    if checkConnected():       
+        q = querryBuilder.addQuerry(request.form)
+        try:
+            for query in q:
+                execute(query, commit=False)
+        except mysql.connector.errors.IntegrityError:
+            rollback()
+            flash("Ключ уже существует")
+        except mysql.connector.errors.ProgrammingError:
+            rollback()
+            flash("Неверный тип данных")
+        commit()
+        return redirect("/add", code=302)
     else:
         return redirect("/", code=302)
     

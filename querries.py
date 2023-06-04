@@ -13,22 +13,25 @@ class QuerryBuilder():
     TABLES_INVERSE = ["bib_source", "bibliography", "countries", "ingredients", "key_word", "measurements", "synthesis_parameter", "synthesis_product"]
 
     TABLES_ADJACENCY = [
-        [None, 'JOURNAL', None, None, None, None, None, None],
-        ['JOURNAL', None, 'DOI', None, 'DOI', None, None, 'DOI'],
-        [None, 'DOI', None, None, None, None, None, None],
-        [None, None, None, None, None, None, None, 'PRODUCT_ID'],
-        [None, 'DOI', None, None, None, None, None, None],
-        [None, None, None, None, None, None, None, 'PRODUCT_ID'],
-        [None, None, None, None, None, None, None, 'PRODUCT_ID'],
-        [None, 'DOI', None, 'PRODUCT_ID', None, 'PRODUCT_ID', 'PRODUCT_ID', None]
+        [None, ['JOURNAL', 'YEAR'], None, None, None, None, None, None],
+        [['JOURNAL', 'YEAR'], None, ['DOI'], None, ['DOI'], None, None, ['DOI']],
+        [None, ['DOI'], None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, ['PRODUCT_ID']],
+        [None, ['DOI'], None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, ['PRODUCT_ID']],
+        [None, None, None, None, None, None, None, ['PRODUCT_ID']],
+        [None, ['DOI'], None, ['PRODUCT_ID'], None, ['PRODUCT_ID'], ['PRODUCT_ID'], None]
     ]
 
     PARENT_TABLES = {"JOURNAL": "bib_source", "DOI": "bibliography", "PRODUCT_ID": "synthesis_product"}
+    TABLE_PRIORITY = ["bib_source", "bibliography", "key_word", "countries", "synthesis_product", "ingredients", "measurements", "synthesis_parameter"]
 
-    def __init__(self, in_lookUp: dict, in_columnComments: list, in_logComments: list) -> None:
+    def __init__(self, in_lookUp: dict, in_columnComments: list, in_logComments: list, in_tablesForTableCols: list, in_tableCols: list) -> None:
         self.lookUp = in_lookUp
         self.columnComments = in_columnComments
         self.logComments = in_logComments
+        self.tablesForTableCols = in_tablesForTableCols
+        self.tableCols = in_tableCols
 
     def __leastTables(self, col1, col2) -> list:
         for i in self.lookUp[col1]:
@@ -171,7 +174,15 @@ class QuerryBuilder():
                 if joinCol != None and not counted[i]:
                     counted[i] = True
                     bfs.append(nextV)
-                    querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON " + QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol + " "
+                    if len(joinCol) == 1:
+                        querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON " + QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol[0] + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol[0] + " "
+                    else:
+                        querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON "
+                        for col in range(len(joinCol)):
+                            querry += QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol[col] + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol[col] + " AND "
+                        querry = querry[:-4]
+                        
+
 
         if len(where) > 0: #if any filters were checked for "WHERE"
                 querry += " WHERE "
@@ -276,8 +287,14 @@ class QuerryBuilder():
                 if joinCol != None and not counted[i]:
                     counted[i] = True
                     bfs.append(nextV)
-                    querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON " + QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol + " "
-     
+                    if len(joinCol) == 1:
+                        querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON " + QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol[0] + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol[0] + " "
+                    else:
+                        querry += "INNER JOIN " + QuerryBuilder.TABLES_INVERSE[nextV] + " ON "
+                        for col in range(len(joinCol)):
+                            querry += QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol[col] + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol[col] + " AND "
+                        querry = querry[:-4]
+
         if useWhere:
             querry += " WHERE "
             for w in range(len(select)):
@@ -447,3 +464,28 @@ class QuerryBuilder():
             querry += " ORDER BY " + sortCol + " DESC" #if descending sorting was chosen
 
         return querry
+    
+    def addQuerry(self, requestArgs) -> list:
+        FullQuerry = []
+        for table in QuerryBuilder.TABLE_PRIORITY:
+            query = "INSERT INTO " + table
+            cols = []
+            record = []
+            empty = True
+            for entry in self.tableCols[self.tablesForTableCols.index(table)]:
+                colName = entry[0]
+                if requestArgs.get("changed_" + table + "_" + colName) == "0":
+                    break
+                colName = entry[0]
+                value = requestArgs.get(table + "_" + colName)
+                if entry[2] == "varchar":
+                    value = "'" + value + "'"
+                cols.append(colName)
+                record.append(value)
+                empty = False
+            if not empty:
+                query += "(" + ", ".join(cols) + ") VALUES (" + ", ".join(record) + ")"
+                FullQuerry.append(query)
+        return FullQuerry
+
+        
