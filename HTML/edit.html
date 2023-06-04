@@ -49,16 +49,24 @@
                                 <td id="{{s}}">
                                     <script>
                                         {
+                                            var inf = document.createElement('input');
+                                            inf.id = "{{'inf_' + s}}";
+                                            inf.type = "hidden"
+                                            inf.value = "0";
+                                            inf.name = "{{'inf_' + s}}";
                                             var button = document.createElement('input');
                                             button.type = "button"
                                             button.value = "X";
                                             button.id = "{{'but_' + s}}";
                                             button.onclick = function updateButton() {
                                                 var div = document.getElementById("{{'div_' + s}}");
+                                                var i = document.getElementById("{{'inf_' + s}}");
+                                                i.value = "1"
                                                 div.remove();
                                             }
                                             var container = document.getElementById("{{s}}");
                                             container.appendChild(button);
+                                            container.appendChild(inf);
                                         }
                                     </script>
                                 </td>
@@ -80,14 +88,15 @@
                                 </td>
                             </tr>
                         </table>
+                        <br>
                     </div>
-                    <br> {% endfor %}
+                    {% endfor %}
                     <input type="submit" value="Исполнить">
                 </form>
             </div>
             <div class="scrollable_div">
                 {% if ready %}
-                <form action="/edit" method="post">
+                <form action="/edit_retrieve" method="post">
                     <table class="bordered">
                         <tr class="bordered">
                             {% for i in selected %}
@@ -96,8 +105,8 @@
                         </tr>
                         {% for entry in range(results| length) %}
                         <tr class="bordered">
-                            {% for atr in results[entry] %}
-                            <td class="bordered" id="{{'parent' + entry|string + '_' + atr}}">
+                            {% for atr in range(results[entry]| length) %}
+                            <td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
                                 <script>
                                     {
                                         var target = document.createElement('input');
@@ -105,19 +114,19 @@
 
                                         data.type = "hidden"
                                         data.value = "0";
-                                        data.name = "{{'changed' + entry|string + '_' + atr}}";
-                                        data.id = "{{'changed' + entry|string + '_' + atr}}";
+                                        data.name = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
+                                        data.id = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
 
                                         target.type = "text"
-                                        target.value = "{{atr}}";
-                                        target.name = "{{entry|string + '_' + atr}}";
-                                        target.id = "{{'changed' + entry|string + '_' + atr}}";
+                                        target.value = "{{results[entry][atr]}}";
+                                        target.name = "{{entry|string + '_' + atr|string}}";
+                                        target.id = "{{entry|string + '_' + atr|string}}";
 
                                         target.oninput = function updated() {
-                                            data.value = "1"
-                                            target.value = target.value
+                                            var data1 = document.getElementById("{{'changed' + '_' + entry|string + '_' + atr|string}}");
+                                            data1.value = "1"
                                         }
-                                        var container = document.getElementById("{{'parent' + entry|string + '_' + atr}}");
+                                        var container = document.getElementById("{{'parent' + '_' + entry|string + '_' + atr|string}}");
                                         container.appendChild(target);
                                         container.appendChild(data);
                                     }
@@ -127,11 +136,11 @@
                         </tr>
                         {% endfor %}
                     </table>
+                    <input type="submit" value="изменить">
                 </form>
                 {% endif %}
             </div>
         </div>
-        </form>
     </div>
 </body>
 

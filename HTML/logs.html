@@ -22,7 +22,7 @@
     </header>
     <div class="grid-container3col">
         <div class="scrollable_div">
-            <form action="/select" method="post">
+            <form action="/logs" method="post">
                 {% for filter in cols %}
                 <div>
                     <input type="checkbox" name="filters" value="{{ filter[1] }}" />
@@ -33,7 +33,7 @@
             </form>
         </div>
         <div class="scrollable_div">
-            <form action="/select_exec" method="post">
+            <form action="/logs_exec" method="post">
                 {% for s in selected %}
                 <div id="{{ 'div_' + s}}">
                     <table class="bordered">
