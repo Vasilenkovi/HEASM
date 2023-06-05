@@ -20,7 +20,13 @@
             </form>
         </div>
     </header>
-    <div class="error">{% for message in get_flashed_messages() %}
+    <div class="error">{% for message in get_flashed_messages(category_filter=["error"]) %}
+        <div>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="success">{% for message in get_flashed_messages(category_filter=["message"]) %}
         <div>
             {{ message }}
         </div>
@@ -31,8 +37,13 @@
             <div id="form_parent">
                 {% for i in range(tables| length) %}
                 <p>{{tables[i]}}</p>
-                {% for j in range(cols[i]| length) %}
-                <label>{{cols[i][j][1]}}</label>
+                {% for j in range(cols[i]| length) %} {% if cols[i][j][0] in keys %}
+                <label class="key">
+                    {{cols[i][j][1]}}
+                </label> {% else %}
+                <label>
+                    {{cols[i][j][1]}}
+                </label> {% endif %}
                 <script>
                     {
                         var target = document.createElement('input');
@@ -64,9 +75,11 @@
         </form>
     </div>
     <script>
-        var entries = document.getElementsByClassName("PRODUCT_ID");
-        for (let i = 0; i < entries.length; i++) {
-            entries[i].value = "{{newId}}"
+        {
+            var entries = document.getElementsByClassName("PRODUCT_ID");
+            for (let i = 0; i < entries.length; i++) {
+                entries[i].value = "{{newId}}"
+            }
         }
     </script>
 </body>
