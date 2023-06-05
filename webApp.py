@@ -20,6 +20,7 @@ columnComments = []
 logCols = []
 tables = []
 tableCols = []
+keys = []
 selected = []
 results = []
 
@@ -52,6 +53,12 @@ def seperateTableCols(tableCols: list) -> tuple:
         columns.append(byTable[key])
     return tables, columns
 
+def creagteKeyList(keys: list) -> list:
+    res = []
+    for i in keys:
+        res.append(i[0])
+    return res
+
 def countProducts() -> int:
     if cursor != None:
         cursor.reset()
@@ -62,7 +69,7 @@ def countProducts() -> int:
 
 def checkConnected() -> bool:
     if connection == None:
-        flash("Invalid credentials")
+        flash("Соединение потеряно")
         return False
     return True
 
@@ -95,7 +102,7 @@ def main():
 @app.route("/auth", methods=['GET', 'POST'])
 def auth():
 
-    global querryBuilder, connection, cursor, lookUp, columnComments, logCols, tables, tableCols
+    global querryBuilder, connection, cursor, lookUp, columnComments, logCols, tables, tableCols, keys
 
     login = str(escape(request.form.get("login", "")))
     password = str(escape(request.form.get("password", "")))
@@ -107,11 +114,14 @@ def auth():
         columnComments = execute("SELECT DISTINCT column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
         logCols = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name = 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
         tables, tableCols = seperateTableCols(execute("SELECT DISTINCT table_name, column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name"))
+        keys = creagteKeyList(execute("select distinct sta.column_name from information_schema.tables as tab inner join information_schema.statistics as sta on sta.table_schema = tab.table_schema and sta.table_name = tab.table_name and sta.index_name = 'primary' where tab.table_schema = 'heasm' and sta.table_name != 'logs'"))
         querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols)
         return redirect("/options", code=302)
-    except Exception as e:
-        print(e)
-        flash("Invalid credentials")
+    except mysql.connector.errors.Error as e:
+        if e.errno == 1045:
+            flash("Неверные данные")
+        else:
+            flash("Соединение потеряно")
         return redirect("/", code=302)
 
 @app.route("/options", methods=['GET', 'POST'])
@@ -208,7 +218,7 @@ def add():
     global connection, cursor, lookUp, columnComments, tables, tableCols, selected
     
     if checkConnected():       
-        return render_template('add.html', tables = tables, cols = tableCols, newId = countProducts())
+        return render_template('add.html', tables = tables, cols = tableCols, keys=keys, newId = countProducts())
     else:
         return redirect("/", code=302)
 
@@ -224,13 +234,14 @@ def addExecute():
         except mysql.connector.errors.IntegrityError as e:
             rollback()
             if e.errno == 1452:
-                flash("Ключ не существует в родительской таблице")
+                flash("Ключ не существует в родительской таблице", "error")
             if e.errno == 1062:
-                flash("Ключ уже существует")
+                flash("Ключ уже существует", "error")
         except mysql.connector.errors.ProgrammingError:
             rollback()
-            flash("Неверный тип данных")
+            flash("Неверный тип данных", "error")
         commit()
+        flash("Успех", "message")
         return redirect("/add", code=302)
     else:
         return redirect("/", code=302)
@@ -241,7 +252,7 @@ def delete():
     
     if checkConnected():       
         selected = request.form.getlist('filters') 
-        return render_template('delete.html', cols=columnComments, selected=selected, ready = False)
+        return render_template('delete.html', cols=columnComments, selected=selected, keys=keys, ready = False)
     else:
         return redirect("/", code=302)
     
