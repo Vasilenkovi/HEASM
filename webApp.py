@@ -53,11 +53,21 @@ def seperateTableCols(tableCols: list) -> tuple:
         columns.append(byTable[key])
     return tables, columns
 
-def creagteKeyList(keys: list) -> list:
-    res = []
-    for i in keys:
-        res.append(i[0])
-    return res
+def seperateTableKeys(tableCols: list) -> tuple:
+    byTable = {}
+    tables = []
+    columns = []
+    for row in tableCols:
+        row = list(row)
+        t = row.pop(0)
+        if t not in byTable:
+            byTable[t] = row
+        else:
+            byTable[t].append(row[0])
+    for key in byTable.keys():
+        tables.append(key)
+        columns.append(byTable[key])
+    return columns
 
 def countProducts() -> int:
     if cursor != None:
@@ -113,8 +123,8 @@ def auth():
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
         columnComments = execute("SELECT DISTINCT column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
         logCols = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name = 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
-        tables, tableCols = seperateTableCols(execute("SELECT DISTINCT table_name, column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name"))
-        keys = creagteKeyList(execute("select distinct sta.column_name from information_schema.tables as tab inner join information_schema.statistics as sta on sta.table_schema = tab.table_schema and sta.table_name = tab.table_name and sta.index_name = 'primary' where tab.table_schema = 'heasm' and sta.table_name != 'logs'"))
+        tables, tableCols = seperateTableCols(execute("SELECT DISTINCT table_name, column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY table_name"))
+        keys = seperateTableKeys(execute("select distinct sta.table_name, sta.column_name from information_schema.tables as tab inner join information_schema.statistics as sta on sta.table_schema = tab.table_schema and sta.table_name = tab.table_name and sta.index_name = 'primary' where tab.table_schema = 'heasm' and sta.table_name != 'logs' order by sta.table_name"))
         querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols)
         return redirect("/options", code=302)
     except mysql.connector.errors.Error as e:
@@ -231,6 +241,7 @@ def addExecute():
         try:
             for query in q:
                 execute(query, commit=False)
+            flash("Успех", "message")
         except mysql.connector.errors.IntegrityError as e:
             rollback()
             if e.errno == 1452:
@@ -241,7 +252,6 @@ def addExecute():
             rollback()
             flash("Неверный тип данных", "error")
         commit()
-        flash("Успех", "message")
         return redirect("/add", code=302)
     else:
         return redirect("/", code=302)
