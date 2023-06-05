@@ -37,7 +37,7 @@
             <div id="form_parent">
                 {% for i in range(tables| length) %}
                 <p>{{tables[i]}}</p>
-                {% for j in range(cols[i]| length) %} {% if cols[i][j][0] in keys %}
+                {% for j in range(cols[i]| length) %} {% if cols[i][j][0] in keys[i] %}
                 <label class="key">
                     {{cols[i][j][1]}}
                 </label> {% else %}
