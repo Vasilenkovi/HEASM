@@ -232,6 +232,47 @@ def addExecute():
     else:
         return redirect("/", code=302)
     
+@app.route("/delete", methods=['GET', 'POST'])
+def delete():
+    global connection, cursor, lookUp, columnComments, selected
+    
+    if checkConnected():       
+        selected = request.form.getlist('filters') 
+        return render_template('delete.html', cols=columnComments, selected=selected, ready = False)
+    else:
+        return redirect("/", code=302)
+    
+@app.route("/delete_retrieve", methods=['GET', 'POST'])
+def delete_retrieve():
+    global connection, cursor, lookUp, columnComments, selected, results
+
+    allVals = []
+    q = ""
+    toDelete = request.form.getlist("delete")
+    for i in toDelete:
+        allVals.append(results[int(i)])
+    if len(allVals) > 0:
+        q = querryBuilder.deleteExecute(allVals)
+        try:
+            for querry in q:
+                execute(querry, commit=False)
+        except mysql.connector.errors.IntegrityError:
+            rollback()
+            q = querryBuilder.deleteExecuteParent(allVals)
+            for querry in q:
+                execute(querry, commit=False)
+        commit()
+
+    if checkConnected():
+        q = querryBuilder.editRetrieveQuerry(request.form, selected)
+        if q != "":
+            results = execute(q)
+            return render_template('delete.html', cols=columnComments, selected=querryBuilder.remaining, ready = True, results=results)
+        else:
+            return redirect("/delete", code=302)
+    else:
+        return redirect("/", code=302)
+
 @app.route("/logs", methods=['GET', 'POST'])
 def selectLogs():
     global connection, cursor, lookUp, columnComments, selected

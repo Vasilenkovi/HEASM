@@ -319,8 +319,8 @@ class QuerryBuilder():
                     newVal = None
                     oldVal = None
                     try: 
-                        newVal = float(entryNew[atr])
-                        oldVal = float(entryOld[atr])
+                        newVal = str(float(entryNew[atr]))
+                        oldVal = str(float(entryOld[atr]))
                     except:
                         newVal = "'" + entryNew[atr] + "'"
                         oldVal = "'" + entryOld[atr] + "'"
@@ -352,8 +352,8 @@ class QuerryBuilder():
                     newVal = None
                     oldVal = None
                     try: 
-                        newVal = float(entryNew[atr])
-                        oldVal = float(entryOld[atr])
+                        newVal = str(float(entryNew[atr]))
+                        oldVal = str(float(entryOld[atr]))
                     except:
                         newVal = "'" + entryNew[atr] + "'"
                         oldVal = "'" + entryOld[atr] + "'"
@@ -488,4 +488,65 @@ class QuerryBuilder():
                 FullQuerry.append(query)
         return FullQuerry
 
-        
+    def deleteExecute(self, changed: list) -> list:
+        FullQuerry = []
+        for entryOld in changed:
+            for table in QuerryBuilder.editTables:
+                querry = "DELETE FROM "
+                where = "WHERE "
+                querry += table + " "
+                editted = False
+                for atr in range(len(entryOld)):
+                    oldVal = None
+                    try: 
+                        oldVal = str(float(entryOld[atr]))
+                    except:
+                        oldVal = "'" + entryOld[atr] + "'"
+                    qualifier = QuerryBuilder.editSelected[atr][0:QuerryBuilder.editSelected[atr].find(".")]
+                    if qualifier == table:
+                        where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
+                        editted = True
+
+                if not editted:
+                    querry = querry[:-len(table)]
+                else:
+                    where = where[:-5]
+
+                FullQuerry.append(querry + " " + where + "; ")
+
+        return FullQuerry
+    
+    def deleteExecuteParent(self, changed: list) -> str:
+        FullQuerry = []
+        for entryOld in changed:
+            for table in QuerryBuilder.editTables:
+                querry = "DELETE FROM "
+                where = "WHERE "
+                querry += table + " "
+                editted = False
+                for atr in range(len(entryOld)):
+                    oldVal = None
+                    try: 
+                        oldVal = str(float(entryOld[atr]))
+                    except:
+                        oldVal = "'" + entryOld[atr] + "'"
+
+                    seperator = QuerryBuilder.editSelected[atr].find(".")
+                    qualifier = QuerryBuilder.editSelected[atr][:seperator]
+                    atribute = QuerryBuilder.editSelected[atr][seperator+1:]
+
+                    if atribute in QuerryBuilder.PARENT_TABLES:
+                        FullQuerry.append("DELETE FROM " + QuerryBuilder.PARENT_TABLES[atribute] + " WHERE " + atribute + " = " + oldVal)
+
+                    elif qualifier == table:
+                        where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
+                        editted = True
+
+                if not editted:
+                    break
+                else:
+                    where = where[:-5]
+
+                FullQuerry.append(querry + " " + where + "; ")
+
+        return FullQuerry

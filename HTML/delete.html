@@ -24,7 +24,7 @@
         <div class="grid-container3col">
             <div class="scrollable_div">
                 <p>Что вы хотите изменить?</p><br>
-                <form action="/edit" method="post">
+                <form action="/delete" method="post">
                     {% for filter in cols %}
                     <div>
                         <input type="checkbox" name="filters" value="{{ filter[1] }}" />
@@ -36,7 +36,7 @@
             </div>
             <div class="scrollable_div">
                 <p>Отбор (опционально)</p>
-                <form action="/edit_retrieve" method="post">
+                <form action="/delete_retrieve" method="post">
                     {% for s in selected %}
                     <div id="{{ 'div_' + s}}">
                         <table class="bordered">
@@ -98,53 +98,33 @@
             </div>
             <div class="scrollable_div">
                 {% if ready %}
-                <form action="/edit_retrieve" method="post">
+                <form action="/delete_retrieve" method="post">
                     <table class="bordered">
                         <tr class="bordered">
+                            <th class="bordered">Удалить?</th>
                             {% for i in selected %}
                             <th class="bordered">{{i}}</th>
                             {% endfor %}
                         </tr>
                         {% for entry in range(results| length) %}
                         <tr class="bordered">
+                            <td class="bordered">
+                                <input type="checkbox" name="delete" value="{{entry}}">
+                            </td>
                             {% for atr in range(results[entry]| length) %}
                             <td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
-                                <script>
-                                    {
-                                        var target = document.createElement('input');
-                                        var data = document.createElement('input');
-
-                                        data.type = "hidden"
-                                        data.value = "0";
-                                        data.name = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
-                                        data.id = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
-
-                                        target.type = "text"
-                                        target.value = "{{results[entry][atr]}}";
-                                        target.name = "{{entry|string + '_' + atr|string}}";
-                                        target.id = "{{entry|string + '_' + atr|string}}";
-
-                                        target.oninput = function updated() {
-                                            var data1 = document.getElementById("{{'changed' + '_' + entry|string + '_' + atr|string}}");
-                                            data1.value = "1"
-                                        }
-                                        var container = document.getElementById("{{'parent' + '_' + entry|string + '_' + atr|string}}");
-                                        container.appendChild(target);
-                                        container.appendChild(data);
-                                    }
-                                </script>
+                                {{results[entry][atr]}}
                             </td>
                             {% endfor %}
                         </tr>
                         {% endfor %}
-                        <div>
-                            {% for s in selected %}
-                            <input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
-                        </div>
                     </table>
-                    <input type="submit" value="изменить">
+                    <input type="submit" value="Удалить"> {% endif %}
+                    <div>
+                        {% for s in selected %}
+                        <input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
+                    </div>
                 </form>
-                {% endif %}
             </div>
         </div>
     </div>
