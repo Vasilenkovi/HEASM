@@ -474,15 +474,15 @@ class QuerryBuilder():
             empty = True
             for entry in self.tableCols[self.tablesForTableCols.index(table)]:
                 colName = entry[0]
-                if requestArgs.get("changed_" + table + "_" + colName) == "0":
-                    break
-                colName = entry[0]
+                if requestArgs.get("changed_" + table + "_" + colName) == "0" and not colName == "PRODUCT_ID":
+                    continue
                 value = requestArgs.get(table + "_" + colName)
                 if entry[2] == "varchar":
                     value = "'" + value + "'"
                 cols.append(colName)
                 record.append(value)
-                empty = False
+                if not colName == "PRODUCT_ID":
+                    empty = False
             if not empty:
                 query += "(" + ", ".join(cols) + ") VALUES (" + ", ".join(record) + ")"
                 FullQuerry.append(query)

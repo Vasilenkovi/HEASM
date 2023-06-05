@@ -221,9 +221,12 @@ def addExecute():
         try:
             for query in q:
                 execute(query, commit=False)
-        except mysql.connector.errors.IntegrityError:
+        except mysql.connector.errors.IntegrityError as e:
             rollback()
-            flash("Ключ уже существует")
+            if e.errno == 1452:
+                flash("Ключ не существует в родительской таблице")
+            if e.errno == 1062:
+                flash("Ключ уже существует")
         except mysql.connector.errors.ProgrammingError:
             rollback()
             flash("Неверный тип данных")
