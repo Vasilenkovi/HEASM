@@ -32,56 +32,70 @@
         </div>
         {% endfor %}
     </div>
-    <div class="bordered">
-        <form action="/add_execute" method="POST">
-            <div id="form_parent">
-                {% for i in range(tables| length) %}
-                <p>{{tables[i]}}</p>
-                {% for j in range(cols[i]| length) %} {% if cols[i][j][0] in keys[i] %}
-                <label class="key">
-                    {{cols[i][j][1]}}
-                </label> {% else %}
-                <label>
-                    {{cols[i][j][1]}}
-                </label> {% endif %}
+    <div>
+        <div class="grid-container2col">
+            <div class="scrollable_div">
+                <p>Что вы хотите изменить?</p><br>
+                <form action="/add" method="post">
+                    {% for filter in cols %}
+                    <div>
+                        <input type="checkbox" name="filters" value="{{ filter[1] }}" />
+                        <label>{{ filter[1] }}</label>
+                    </div>
+                    <br> {% endfor %}
+                    <input type="submit" value="выбрать">
+                </form>
+            </div>
+            <div class="scrollable_div">
+                <form action="/add_execute" method="post">
+                    <table class="bordered">
+                        <tr class="bordered">
+                            {% for i in selected %}
+                            <th class="bordered" id="{{'th_' + i}}">{{i}}</th>
+                            {% endfor %}
+                        </tr>
+                        <tr class="bordered">
+                            {% for i in selected %}
+                            <td class="bordered" id="{{'cont_' + i}}">
+                                <input type="text" name="{{i}}" id="{{i}}" value="">
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr class="bordered">
+                            {% for i in selected %}
+                            <td class="bordered" id="{{'div_' + i}}">
+                                <script>
+                                    {
+                                        var button = document.createElement('input');
+                                        button.type = "button"
+                                        button.value = "X";
+                                        button.onclick = function updateButton() {
+                                            var div = document.getElementById("{{'th_' + i}}");
+                                            div.remove();
+                                            var div = document.getElementById("{{'cont_' + i}}");
+                                            div.remove();
+                                            var div = document.getElementById("{{'div_' + i}}");
+                                            div.remove();
+                                        }
+                                        var container = document.getElementById("{{'div_' + i}}");
+                                        container.appendChild(button);
+                                    }
+                                </script>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </table>
+                    <input type="submit" value="Добавить">
+                </form>
                 <script>
                     {
-                        var target = document.createElement('input');
-                        var data = document.createElement('input');
-
-                        data.type = "hidden"
-                        data.value = "0";
-                        data.name = "{{'changed' + '_' + tables[i]|string + '_' + cols[i][j][0]|string}}";
-                        data.id = "{{'changed' + '_' + tables[i]|string + '_' + cols[i][j][0]|string}}";
-
-                        target.type = "text"
-                        target.name = "{{tables[i]|string + '_' + cols[i][j][0]|string}}";
-                        target.id = "{{tables[i]|string + '_' + cols[i][j][0]|string}}";
-                        target.className = "{{cols[i][j][0]|string}}";
-
-                        target.oninput = function updated() {
-                            var data1 = document.getElementById("{{'changed' + '_' + tables[i]|string + '_' + cols[i][j][0]|string}}");
-                            data1.value = "1"
-                        }
-                        var container = document.getElementById("form_parent");
-                        container.appendChild(target);
-                        container.appendChild(data);
+                        var entry = document.getElementsById("ID в базе данных");
+                        entry.value = "{{newId}}"
                     }
                 </script>
-                <br> {% endfor %}
-                <br> {% endfor %}
             </div>
-            <input type="submit" value="добавить">
-        </form>
+        </div>
     </div>
-    <script>
-        {
-            var entries = document.getElementsByClassName("PRODUCT_ID");
-            for (let i = 0; i < entries.length; i++) {
-                entries[i].value = "{{newId}}"
-            }
-        }
-    </script>
 </body>
 
 </html>

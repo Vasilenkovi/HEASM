@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HEASM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <header>
+        <div>
+            <form action="/logout" method="post">
+                <input type="submit" value="Выйти">
+            </form>
+        </div>
+        <div>
+            <form action="/options" method="post">
+                <input type="submit" value="К выбору функции">
+            </form>
+        </div>
+    </header>
+    <div class="error">{% for message in get_flashed_messages(category_filter=["error"]) %}
+        <div>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="success">{% for message in get_flashed_messages(category_filter=["message"]) %}
+        <div>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="bordered">
+        <form action="/add_execute" method="POST">
+            <div id="form_parent">
+                {% for i in range(tables| length) %}
+                <p>{{tables[i]}}</p>
+                {% for j in range(cols[i]| length) %} {% if cols[i][j][0] in keys[i] %}
+                <label class="key">
+                    {{cols[i][j][1]}}
+                </label> {% else %}
+                <label>
+                    {{cols[i][j][1]}}
+                </label> {% endif %}
+                <script>
+                    {
+                        var target = document.createElement('input');
+                        var data = document.createElement('input');
+
+                        data.type = "hidden"
+                        data.value = "0";
+                        data.name = "{{'changed' + '_' + tables[i]|string + '_' + cols[i][j][0]|string}}";
+                        data.id = "{{'changed' + '_' + tables[i]|string + '_' + cols[i][j][0]|string}}";
+
+                        target.type = "text"
+                        target.name = "{{tables[i]|string + '_' + cols[i][j][0]|string}}";
+                        target.id = "{{tables[i]|string + '_' + cols[i][j][0]|string}}";
+                        target.className = "{{cols[i][j][0]|string}}";
+
+                        target.oninput = function updated() {
+                            var data1 = document.getElementById("{{'changed' + '_' + tables[i]|string + '_' + cols[i][j][0]|string}}");
+                            data1.value = "1"
+                        }
+                        var container = document.getElementById("form_parent");
+                        container.appendChild(target);
+                        container.appendChild(data);
+                    }
+                </script>
+                <br> {% endfor %}
+                <br> {% endfor %}
+            </div>
+            <input type="submit" value="добавить">
+        </form>
+    </div>
+    <script>
+        {
+            var entries = document.getElementsByClassName("PRODUCT_ID");
+            for (let i = 0; i < entries.length; i++) {
+                entries[i].value = "{{newId}}"
+            }
+        }
+    </script>
+</body>
+
+</html>
