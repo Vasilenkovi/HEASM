@@ -467,6 +467,36 @@ class QuerryBuilder():
     
     def addQuerry(self, requestArgs) -> list:
         FullQuerry = []
+        tempSelect = []
+        for table in QuerryBuilder.TABLE_PRIORITY:
+            query = "INSERT INTO " + table
+            cols = []
+            record = []
+            empty = True
+            for entry in self.tableCols[self.tablesForTableCols.index(table)]:
+                colName = entry[0]
+                comment = entry[1]
+                value = requestArgs.get(comment)
+                if value == None:
+                    continue
+                elif value == "":
+                    tempSelect.append(entry[1])
+                    continue
+                if entry[2] == "varchar":
+                    value = "'" + value + "'"
+                cols.append(colName)
+                record.append(value)
+                tempSelect.append(entry[1])
+                if not colName == "PRODUCT_ID":
+                    empty = False
+            if not empty:
+                query += "(" + ", ".join(cols) + ") VALUES (" + ", ".join(record) + ")"
+                FullQuerry.append(query)
+        tempSelect = list(set(tempSelect))
+        return FullQuerry, tempSelect
+
+    def addQuerryAlt(self, requestArgs) -> list:
+        FullQuerry = []
         for table in QuerryBuilder.TABLE_PRIORITY:
             query = "INSERT INTO " + table
             cols = []

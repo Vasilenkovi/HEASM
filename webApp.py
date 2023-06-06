@@ -15,6 +15,7 @@ DATABASE = 'heasm'
 querryBuilder = None
 connection = None
 cursor = None
+preserveSelect = False
 lookUp = []
 columnComments = []
 logCols = []
@@ -223,17 +224,17 @@ def edit_retrieve():
     else:
         return redirect("/", code=302)
 
-@app.route("/add", methods=['GET', 'POST'])
-def add():
+@app.route("/add_alt", methods=['GET', 'POST'])
+def addAlt():
     global connection, cursor, lookUp, columnComments, tables, tableCols, selected
     
     if checkConnected():       
-        return render_template('add.html', tables = tables, cols = tableCols, keys=keys, newId = countProducts())
+        return render_template('add_alt.html', tables = tables, cols = tableCols, keys=keys, newId = countProducts())
     else:
         return redirect("/", code=302)
 
-@app.route("/add_execute", methods=['POST'])
-def addExecute():
+@app.route("/add_execute_alt", methods=['POST'])
+def addExecuteAlt():
     global connection, cursor, lookUp, columnComments, tables, tableCols, selected
     
     if checkConnected():       
@@ -252,6 +253,42 @@ def addExecute():
             rollback()
             flash("Неверный тип данных", "error")
         commit()
+        return redirect("/add_alt", code=302)
+    else:
+        return redirect("/", code=302)
+    
+@app.route("/add", methods=['GET', 'POST'])
+def add():
+    global selected, preserveSelect
+
+    if checkConnected():     
+        if not preserveSelect:
+            selected = request.form.getlist('filters')
+        else:
+            preserveSelect = False
+        return render_template('add.html', cols=columnComments, selected=selected, newId = countProducts())
+    else:
+        return redirect("/", code=302)
+
+@app.route("/add_execute", methods=['POST'])
+def addExecute():
+    global selected, preserveSelect
+    
+    if checkConnected():       
+        q, selected = querryBuilder.addQuerry(request.form)
+        for query in q:
+            try:
+                execute(query, commit=False)
+            except mysql.connector.errors.IntegrityError:
+                pass
+            except mysql.connector.errors.ProgrammingError:
+                flash("Неверный тип данных", "error")
+            except mysql.connector.errors.DatabaseError:
+                pass
+        if (len(q) > 0):
+            flash("Успех", "message")
+            commit()
+        preserveSelect = True
         return redirect("/add", code=302)
     else:
         return redirect("/", code=302)
@@ -320,6 +357,10 @@ def selectLogs_exec():
             return redirect("/select", code=302)
     else:
         return redirect("/", code=302)
+    
+@app.route("/based", methods=['GET'])
+def based():
+    return "<h1>BASED</h1>"
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)
