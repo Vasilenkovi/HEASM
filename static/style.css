@@ -30,6 +30,12 @@
     grid-gap: 20px;
 }
 
+.grid-container2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
 .scrollable_div {
     overflow: auto;
     border: 3px;
