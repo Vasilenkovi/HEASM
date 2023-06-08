@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HEASM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static_old/style.css">
+</head>
+
+<body>
+    <div class="centered_background">
+        <h1>HEASM</h1>
+        <form action="/auth" method="post">
+            <table class="center_table">
+                <tr>
+                    <td><label>login:</label></td>
+                    <td><input type="text" name="login"></td>
+                </tr>
+                <tr>
+                    <td><label>password:</label></td>
+                    <td><input type="password" name="password"></td>
+                </tr>
+            </table>
+            <input type="submit" value="submit">
+        </form>
+    </div>
+    <div class="error">{% for message in get_flashed_messages() %}
+        <div>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+
+</html>

@@ -468,6 +468,7 @@ class QuerryBuilder():
     def addQuerry(self, requestArgs) -> list:
         FullQuerry = []
         tempSelect = []
+        insertedTables = []
         for table in QuerryBuilder.TABLE_PRIORITY:
             query = "INSERT INTO " + table
             cols = []
@@ -492,8 +493,9 @@ class QuerryBuilder():
             if not empty:
                 query += "(" + ", ".join(cols) + ") VALUES (" + ", ".join(record) + ")"
                 FullQuerry.append(query)
+                insertedTables.append(table)
         tempSelect = list(set(tempSelect))
-        return FullQuerry, tempSelect
+        return FullQuerry, tempSelect, insertedTables
 
     def addQuerryAlt(self, requestArgs) -> list:
         FullQuerry = []
@@ -580,3 +582,6 @@ class QuerryBuilder():
                 FullQuerry.append(querry + " " + where + "; ")
 
         return FullQuerry
+    
+    def updateToDelete(self, query: str) -> str:
+        return "DELETE FROM " + query.split()[1] + " " + query[query.find("WHERE"):]

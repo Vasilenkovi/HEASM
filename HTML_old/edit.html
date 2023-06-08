@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HEASM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static_old/style.css">
+</head>
+
+<body>
+    <header>
+        <div>
+            <form action="/logout" method="post">
+                <input type="submit" value="Выйти">
+            </form>
+        </div>
+        <div>
+            <form action="/options" method="post">
+                <input type="submit" value="К выбору функции">
+            </form>
+        </div>
+    </header>
+    <div class="bordered">
+        <div id="select_all">
+            <script>
+                var button = document.createElement("button");
+                var text = document.createTextNode("Выбрать всё")
+                button.appendChild(text)
+                button.onclick = function updateButton() {
+                    var toSelect = document.getElementsByClassName("filter");
+                    for (let i = 0; i < toSelect.length; i++) {
+                        toSelect[i].checked = true;
+                    }
+                }
+                var container = document.getElementById("select_all");
+                container.appendChild(button);
+            </script>
+            <br>
+            <script>
+                var button = document.createElement("button");
+                var text = document.createTextNode("Снять выбор")
+                button.appendChild(text)
+                button.onclick = function updateButton() {
+                    var toSelect = document.getElementsByClassName("filter");
+                    for (let i = 0; i < toSelect.length; i++) {
+                        toSelect[i].checked = false;
+                    }
+                }
+                var container = document.getElementById("select_all");
+                container.appendChild(button);
+            </script>
+        </div>
+        <div id="select_table" class="grid-container3x3">
+            {% for table in range(tables| length) %}
+            <script>
+                var button = document.createElement('button');
+                var text = document.createTextNode("{{tabCom[table]}}")
+                button.appendChild(text)
+                button.onclick = function updateButton() {
+                    var arr = JSON.parse('{{tabCols[table] | tojson}}')
+                    var len = parseInt("{{tabCols[table]| length}}");
+                    for (let i = 0; i < len; i++) {
+                        var toSelect = document.getElementById(arr[i])
+                        toSelect.checked = true;
+                    }
+                }
+                var container = document.getElementById("select_table");
+                container.appendChild(button);
+            </script>
+            {% endfor %}
+        </div>
+    </div>
+    <div>
+        <div class="grid-container3col">
+            <div class="scrollable_div">
+                <p>Что вы хотите изменить?</p><br>
+                <form action="/edit" method="post">
+                    {% for filter in cols %}
+                    <div>
+                        <input type="checkbox" name="filters" id="{{ filter[1] }}" value="{{ filter[1] }}" class="filter">
+                        <label>{{ filter[1] }}</label>
+                    </div>
+                    <br> {% endfor %}
+                    <input type="submit" value="выбрать">
+                </form>
+            </div>
+            <div class="scrollable_div">
+                <p>Отбор (опционально)</p>
+                <form action="/edit_retrieve" method="post">
+                    {% for s in selected %}
+                    <div id="{{'div_' + s}}">
+                        <table class="bordered">
+                            <tr>
+                                <td>
+                                    <div class="bordered">
+                                        {{s}}
+                                    </div>
+                                </td>
+                                <td id="{{'frame_' + s}}">
+                                    <script>
+                                        {
+                                            var inf = document.createElement('input');
+                                            inf.id = "{{'inf_' + s}}";
+                                            inf.type = "hidden"
+                                            inf.value = "0";
+                                            inf.name = "{{'inf_' + s}}";
+                                            var button = document.createElement('input');
+                                            button.type = "button"
+                                            button.value = "X";
+                                            button.id = "{{'but_' + s}}";
+                                            button.onclick = function updateButton() {
+                                                var div = document.getElementById("{{'div_' + s}}");
+                                                var i = document.getElementById("{{'inf_' + s}}");
+                                                var pass = document.getElementById("{{'pass_' + s}}");
+                                                i.value = "1"
+                                                pass.value = "1"
+                                                div.remove();
+                                            }
+                                            var container = document.getElementById("{{'frame_' + s}}");
+                                            container.appendChild(button);
+                                            container.appendChild(inf);
+                                        }
+                                    </script>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Оператор</label>
+                                </td>
+                                <td>
+                                    <label>Выражение</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" name="{{'comp_op_' + s}}">
+                                </td>
+                                <td>
+                                    <input type="text" name="{{'comp_clause_' + s}}">
+                                </td>
+                            </tr>
+                        </table>
+                        <br>
+                    </div>
+                    {% endfor %}
+                    <input type="submit" value="Исполнить">
+                </form>
+            </div>
+            <div class="scrollable_div">
+                {% if ready %}
+                <form action="/edit_retrieve" method="post">
+                    <table class="bordered">
+                        <tr class="bordered">
+                            {% for i in selected %}
+                            <th class="bordered">{{i}}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for entry in range(results| length) %}
+                        <tr class="bordered">
+                            {% for atr in range(results[entry]| length) %}
+                            <td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
+                                <script>
+                                    {
+                                        var target = document.createElement('input');
+                                        var data = document.createElement('input');
+
+                                        data.type = "hidden"
+                                        data.value = "0";
+                                        data.name = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
+                                        data.id = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
+
+                                        target.type = "text"
+                                        target.value = "{{results[entry][atr]}}";
+                                        target.name = "{{entry|string + '_' + atr|string}}";
+                                        target.id = "{{entry|string + '_' + atr|string}}";
+
+                                        target.oninput = function updated() {
+                                            var data1 = document.getElementById("{{'changed' + '_' + entry|string + '_' + atr|string}}");
+                                            data1.value = "1"
+                                        }
+                                        var container = document.getElementById("{{'parent' + '_' + entry|string + '_' + atr|string}}");
+                                        container.appendChild(target);
+                                        container.appendChild(data);
+                                    }
+                                </script>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        <div>
+                            {% for s in selected %}
+                            <input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
+                        </div>
+                    </table>
+                    <input type="submit" value="изменить">
+                </form>
+                {% endif %} {% for s in selected %}
+                <input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
