@@ -30,6 +30,18 @@
     grid-gap: 20px;
 }
 
+.grid-container3x3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-gap: 20px;
+}
+
+.grid-container2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}  
+
 .scrollable_div {
     overflow: auto;
     border: 3px;

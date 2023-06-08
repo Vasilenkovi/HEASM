@@ -6,11 +6,6 @@ body{
     font-size: 12pt;
 }
 
-.container{   
-    margin: 0px auto;
-    width: 100%;
-}
-
 #HEASM_header{
 	overflow: hidden;
     text-align: center;
@@ -121,6 +116,11 @@ body{
 #HEASM_li li{}
 /*Not mine VVV*/
 
+.container{   
+    margin: 0px auto;
+    width: 100%;
+}
+
 .centered_background {
     background-repeat: repeat;
     text-align: center;
@@ -136,16 +136,57 @@ body{
     text-align: center;
 }
 
+.success {
+    color: rgb(51, 193, 23);
+    text-align: center;
+}
+
+.key {
+    color: rgb(155, 171, 10);
+    font-weight: bold;
+}
+
 .grid-container3col {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 20px;
 }
 
+.grid-container3x3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-gap: 20px;
+}
+.grid-container2x1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+	grid-template-rows: 1fr;
+    grid-gap: 5%;
+	row-gap: 5%;
+	padding-top: 1%; 
+	margin-left: 5%; 
+	margin-right: 5%; 
+}
+
+.grid-container2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}  
+
 .scrollable_div {
+	margin: 2px;
 	background-image: url('../image/bubles.png');
     overflow: auto;
     border: 3px;
+    border-color: black;
+    border-style: solid;
+	color: #fff;
+}
+
+.borderedpic {
+	background-image: url('../image/background1.png');
+    border: 1px;
     border-color: black;
     border-style: solid;
 	color: #fff;
@@ -158,14 +199,16 @@ body{
 	background: #1c8531;
 	color: #fff;
 }
+
 .bordered_sub{
 	background: #FFF;
 }
+
 .button {
 	font-family: Arial, Helvetica, sans-serif;
 	text-align: center;
-	padding: 10px;
-	margin-bottom: 10px;
+	padding: 5px;
+	margin-bottom: 2px;
 	width: 100%;
 	border: none;
 	border-radius: 3px;
