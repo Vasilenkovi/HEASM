@@ -22,13 +22,66 @@
 		</nav>
     </header>
 	<main id="HEASM_main">
+		<div class="borderedpic">
+			<div id="select_table" class="grid-container3x3">
+				{% for table in range(tables| length) %}
+				<script>
+					var button = document.createElement('button');
+					var text = document.createTextNode("{{tabCom[table]}}")
+					button.appendChild(text)
+					button.className = "button"
+					button.onclick = function updateButton() {
+						var arr = JSON.parse('{{tabCols[table] | tojson}}')
+						var len = parseInt("{{tabCols[table]| length}}");
+						for (let i = 0; i < len; i++) {
+							var toSelect = document.getElementById(arr[i])
+							toSelect.checked = true;
+						}
+					}
+					var container = document.getElementById("select_table");
+					container.appendChild(button);
+				</script>
+				{% endfor %}
+			</div>
+			<div id="select_all" class = "grid-container2x1">
+				<script>
+					var button = document.createElement("button");
+					var text = document.createTextNode("Выбрать всё")
+					button.appendChild(text)
+					button.className = "button"
+					button.onclick = function updateButton() {
+						var toSelect = document.getElementsByClassName("filter");
+						for (let i = 0; i < toSelect.length; i++) {
+							toSelect[i].checked = true;
+						}
+					}
+					var container = document.getElementById("select_all");
+					container.appendChild(button);
+				</script>
+				<script>
+					var button = document.createElement("button");
+					var text = document.createTextNode("Снять выбор")
+					button.appendChild(text)
+					button.className = "button"
+					button.onclick = function updateButton() {
+						var toSelect = document.getElementsByClassName("filter");
+						for (let i = 0; i < toSelect.length; i++) {
+							toSelect[i].checked = false;
+						}
+					}
+					var container = document.getElementById("select_all");
+					container.appendChild(button);
+				</script>
+				<br>
+			</div>
+		</div>
 		<div class="grid-container3col">
 			<div class="scrollable_div">
 				<form action="/select" method="post">
 					<button class="button" value="submit">Применить</button>
 					{% for filter in cols %}
 					<div>
-						<input type="checkbox" name="filters" value="{{ filter[1] }}" />
+						<input type="checkbox" name="filters" id="{{ filter[1] }}" value="{{ filter[1] }}" class="filter">
 						<label>{{ filter[1] }}</label>
 					</div>
 					<br> {% endfor %}
@@ -37,83 +90,90 @@
 			<div class="scrollable_div">
 				<form action="/select_exec" method="post">
 					<button class="button" value="submit">Исполнить</button>
+					
 					{% for s in selected %}
-					<div id="{{ 'div_' + s}}">
-						<table class="bordered">
-							<tr>
-								<td>
-									<input type="checkbox" name="select_filters" value="{{s}}" checked/>
-									<label>Показать</label>
-								</td>
-								<td>
-									<div class="bordered">
-										{{s}}
-									</div>
-								</td>
-								<td id="{{s}}">
-									<script>
-										{
-											var button = document.createElement('input');
-											button.type = "button"
-											button.value = "X";
-											button.id = "{{'but_' + s}}";
-											button.onclick = function updateButton() {
-												var div = document.getElementById("{{'div_' + s}}");
-												div.remove();
-											}
-											var container = document.getElementById("{{s}}");
-											container.appendChild(button);
-										}
-									</script>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input type="radio" name="{{'rad_' + s}}" value="no" checked>
-									<label>Не сортировать</label>
-								</td>
-								<td>
-									<input type="radio" name="{{'rad_' + s}}" value="asc">
-									<label>По возрастанию</label>
-								</td>
-								<td>
-									<input type="radio" name="{{'rad_' + s}}" value="des">
-									<label>По убыванию</label>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<input type="checkbox" name="where_filters" value="{{s}}" />
-									<label>Отобрать</label>
-								</td>
-								<td>
-									<input type="text" name="{{'comp_op_' + s}}">
-								</td>
-								<td>
-									<input type="text" name="{{'comp_clause_' + s}}">
-								</td>
-							</tr>
-						</table>
-						<br>
+					<div class= "container">
+						<div class= "wrapper">
+							<div id="{{ 'div_' + s}}" class = "tooth">
+								<table class="bordered">
+									<tr>
+										<td>
+											<input type="checkbox" name="select_filters" value="{{s}}" checked/>
+											<label>Показать</label>
+										</td>
+										<td>
+											<div class="bordered">
+												{{s}}
+											</div>
+										</td>
+										<td id="{{'frame_' + s}}">
+											<script>
+												{
+													var button = document.createElement('input');
+													button.type = "button"
+													button.value = "X";
+													button.id = "{{'but_' + s}}";
+													button.onclick = function updateButton() {
+														var div = document.getElementById("{{'div_' + s}}");
+														div.remove();
+													}
+													var container = document.getElementById("{{'frame_' + s}}");
+													container.appendChild(button);
+												}
+											</script>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="radio" name="{{'rad_' + s}}" value="no" checked>
+											<label>Не сортировать</label>
+										</td>
+										<td>
+											<input type="radio" name="{{'rad_' + s}}" value="asc">
+											<label>По возрастанию</label>
+										</td>
+										<td>
+											<input type="radio" name="{{'rad_' + s}}" value="des">
+											<label>По убыванию</label>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<input type="checkbox" name="where_filters" value="{{s}}" />
+											<label>Отобрать</label>
+										</td>
+										<td>
+											<input type="text" name="{{'comp_op_' + s}}">
+										</td>
+										<td>
+											<input type="text" name="{{'comp_clause_' + s}}">
+										</td>
+									</tr>
+								</table>
+								<br>
+							</div>
+						</div>
 					</div>
 					{% endfor %}
 				</form>
 			</div>
-			<div class="scrollable_div">
-				<table class="bordered">
-					<tr class="bordered">
-						{% for i in shown %}
-						<th class="bordered">{{i}}</th>
+			<div class="scrollable_div" style="transform: rotate(180deg)">
+				<div class="spin_back">
+					<table class="bordered" style="transform: rotate(180deg)">
+						<tr class="bordered">
+							{% for i in shown %}
+							<th class="bordered">{{i}}</th>
+							{% endfor %}
+						</tr>
+						{% for entry in results %}
+						<tr class="bordered">
+							{% for atr in entry %}
+							<td class="bordered">{{atr}}</td>
+							{% endfor %}
+						</tr>
 						{% endfor %}
-					</tr>
-					{% for entry in results %}
-					<tr class="bordered">
-						{% for atr in entry %}
-						<td class="bordered">{{atr}}</td>
-						{% endfor %}
-					</tr>
-					{% endfor %}
-				</table>
+					</table>
+				</div>
 			</div>
 		</div>
 	</main>

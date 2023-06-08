@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/css/HEASM_HEADER_style.css">
 </head>
-
-<body class>
+<body>
     <header header id="HEASM_header">
 		<div id="TPU_logo">
 			<img src ="../static/image/tpu-logo-hor.png" /> <!-- Logo img path -->
@@ -17,12 +16,64 @@
 				<ul>
 					<li><a href="/options?options-submit=options">К выбору функции</a></li> <!-- Not sure -->
 					<li><a href="/logout?logout-submit=logout">Выйти</a></li>
-					
 				</ul>
 			</div>
 		</nav>
     </header>
-	<main id = "HEASM_main">
+	<main id="HEASM_main">
+		<div class="borderedpic">
+			<div id="select_table" class="grid-container3x3">
+				{% for table in range(tables| length) %}
+				<script>
+					var button = document.createElement('button');
+					var text = document.createTextNode("{{tabCom[table]}}")
+					button.appendChild(text)
+					button.className = "button"
+					button.onclick = function updateButton() {
+						var arr = JSON.parse('{{tabCols[table] | tojson}}')
+						var len = parseInt("{{tabCols[table]| length}}");
+						for (let i = 0; i < len; i++) {
+							var toSelect = document.getElementById(arr[i])
+							toSelect.checked = true;
+						}
+					}
+					var container = document.getElementById("select_table");
+					container.appendChild(button);
+				</script>
+				{% endfor %}
+			</div>
+			<div id="select_all" class = "grid-container2x1">
+				<script>
+					var button = document.createElement("button");
+					var text = document.createTextNode("Выбрать всё")
+					button.appendChild(text)
+					button.className = "button"
+					button.onclick = function updateButton() {
+						var toSelect = document.getElementsByClassName("filter");
+						for (let i = 0; i < toSelect.length; i++) {
+							toSelect[i].checked = true;
+						}
+					}
+					var container = document.getElementById("select_all");
+					container.appendChild(button);
+				</script>
+				<script>
+					var button = document.createElement("button");
+					var text = document.createTextNode("Снять выбор")
+					button.appendChild(text)
+					button.className = "button"
+					button.onclick = function updateButton() {
+						var toSelect = document.getElementsByClassName("filter");
+						for (let i = 0; i < toSelect.length; i++) {
+							toSelect[i].checked = false;
+						}
+					}
+					var container = document.getElementById("select_all");
+					container.appendChild(button);
+				</script>
+				<br>
+			</div>
+		</div>
 		<div class="grid-container3col">
 			<div class="scrollable_div">
 				<button class="button">Что вы хотите изменить?</button>
@@ -30,7 +81,7 @@
 					<button class="button" value="submit">Выбрать</button>
 					{% for filter in cols %}
 					<div>
-						<input type="checkbox" name="filters" value="{{ filter[1] }}" />
+						<input type="checkbox" name="filters" id="{{ filter[1] }}" value="{{ filter[1] }}" class="filter">
 						<label>{{ filter[1] }}</label>
 					</div>
 					<br> {% endfor %}
@@ -41,7 +92,7 @@
 				<form action="/edit_retrieve" method="post">
 					<button class="button" value="submit">Исполнить</button>
 					{% for s in selected %}
-					<div id="{{ 'div_' + s}}">
+					<div id="{{'div_' + s}}">
 						<table class="bordered">
 							<tr>
 								<td>
@@ -49,7 +100,7 @@
 										{{s}}
 									</div>
 								</td>
-								<td id="{{s}}">
+								<td id="{{'frame_' + s}}">
 									<script>
 										{
 											var inf = document.createElement('input');
@@ -69,7 +120,7 @@
 												pass.value = "1"
 												div.remove();
 											}
-											var container = document.getElementById("{{s}}");
+											var container = document.getElementById("{{'frame_' + s}}");
 											container.appendChild(button);
 											container.appendChild(inf);
 										}
@@ -98,12 +149,10 @@
 					{% endfor %}
 				</form>
 			</div>
-			<div class="scrollable_div">
+			<div class="scrollable_div" style="transform: rotate(180deg)">
 				{% if ready %}
-				<button class="button">Окно для изменений</button>
 				<form action="/edit_retrieve" method="post">
-					<button class="button" value="submit">Подтвердить изменения</button>
-					<table class="bordered">
+					<table class="bordered" style="transform: rotate(180deg)">
 						<tr class="bordered">
 							{% for i in selected %}
 							<th class="bordered">{{i}}</th>
@@ -146,12 +195,14 @@
 							<input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
 						</div>
 					</table>
+					<button class="button" value="submit" style="transform: rotate(180deg)">Подтвердить изменения</button>
 				</form>
-				{% endif %}
+				{% endif %} {% for s in selected %}
+				<input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
+				<button class="button" style="transform: rotate(180deg)">Окно для изменений</button>
 			</div>
 		</div>
 	</main>
-    
 </body>
 
 </html>
