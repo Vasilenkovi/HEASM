@@ -27,7 +27,7 @@ keys = []
 selected = []
 results = []
 
-app = Flask(__name__, template_folder='HTML_old', static_folder='static_old')
+app = Flask(__name__, template_folder='HTML', static_folder='static')
 app.secret_key = secrets.token_urlsafe(16)
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1000 * 1000
 
