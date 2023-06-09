@@ -13,6 +13,7 @@ PORT = 3306
 DATABASE = 'heasm'
 
 querryBuilder = None
+connectionPool = None
 connection = None
 cursor = None
 preserveSelect = False
@@ -26,6 +27,8 @@ tableColsComments = []
 keys = []
 selected = []
 results = []
+
+config = {"user": "", "password": "", "host":HOST, "port":PORT, "database":DATABASE, "use_pure":True}
 
 app = Flask(__name__, template_folder='HTML', static_folder='static')
 app.secret_key = secrets.token_urlsafe(16)
@@ -86,31 +89,50 @@ def countProducts() -> int:
         i+=1
     return i
 
+def typeByComment(tc: list) -> dict:
+    res = {}
+    for key, value in tc:
+        res[key] = value
+    return res
+
 def checkConnected() -> bool:
-    global connection
+    global connection, connectionPool, cursor
     if connection == None:
-        execute("SELECT version()")
-        flash("Соединиение потеряно")
-        return False
+        if connectionPool == None:
+            flash("Пройдите авторизацию снова")
+            return False
+        connection = connectionPool.get_connection()
+        cursor = connection.cursor(buffered=True)
     return True
 
 def execute(querry: str, commit = True) -> list:
-    global cursor, connection
-    r = []
-    if cursor != None:
-        cursor.reset()
-        cursor.execute(querry)
+    global cursor, connection, connectionPool
+    x = 0 
+    while x < 3:
         try:
-            r = cursor.fetchall() #Retrieving all results from cursor
-        except mysql.connector.errors.InterfaceError:
             r = []
-        if commit:
-            connection.commit()
-        return r
+            if cursor != None:
+                cursor.reset()
+                cursor.execute(querry)
+                try:
+                    r = cursor.fetchall() #Retrieving all results from cursor
+                except mysql.connector.errors.InterfaceError as e:
+                    r = []
+                if commit:
+                    cursor.execute("COMMIT")
+                return r
+        except mysql.connector.errors.InterfaceError as e:
+            if e.errno == 2013:
+                connection = connectionPool.get_connection()
+                cursor = connection.cursor(buffered=True)
+            else:
+                raise e
+        x += 1
+    raise mysql.connector.errors.InterfaceError(errno=2013)
             
 def commit() -> None:
-    if connection != None:
-        connection.commit()
+    if cursor != None:
+        cursor.execute("COMMIT")
 
 def rollback() -> None:
     if connection != None:
@@ -123,13 +145,16 @@ def main():
 @app.route("/auth", methods=['GET', 'POST'])
 def auth():
 
-    global querryBuilder, connection, cursor, lookUp, columnComments, logCols, tables, tableCols, keys, tableComments, tableColsComments
+    global querryBuilder, connectionPool, connection, config, cursor, lookUp, columnComments, logCols, tables, tableCols, keys, tableComments, tableColsComments
 
     login = str(escape(request.form.get("login", "")))
     password = str(escape(request.form.get("password", "")))
 
     try:
-        connection = mysql.connector.connect(user=login, password=password, host=HOST, port=PORT, database=DATABASE, use_pure=True)
+        config["user"] = login
+        config["password"] = password
+        connectionPool = mysql.connector.pooling.MySQLConnectionPool(pool_name = "mypool", pool_size = 3, **config)
+        connection = connectionPool.get_connection()
         cursor = connection.cursor(buffered=True)
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
         columnComments = execute("SELECT DISTINCT column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
@@ -137,7 +162,9 @@ def auth():
         tables, tableCols, tableComments = seperateTableCols(execute("SELECT DISTINCT information_schema.columns.table_name, table_comment, column_name, column_comment, data_type FROM information_schema.columns JOIN information_schema.tables ON information_schema.tables.table_name = information_schema.columns.table_name WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs' ORDER BY information_schema.columns.table_name"))
         tableColsComments = list(map(lambda x: list(map(lambda y: y[1], x)), tableCols))
         keys = seperateTableKeys(execute("select distinct sta.table_name, sta.column_name from information_schema.tables as tab inner join information_schema.statistics as sta on sta.table_schema = tab.table_schema and sta.table_name = tab.table_name and sta.index_name = 'primary' where tab.table_schema = 'heasm' and sta.table_name != 'logs' order by sta.table_name"))
-        querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols)
+        dataTypeByComment = typeByComment(execute("SELECT DISTINCT column_comment, data_type FROM information_schema.columns WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs'"))
+        dataTypeByName = typeByComment(execute("SELECT DISTINCT column_name, data_type FROM information_schema.columns WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs'"))
+        querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols, dataTypeByComment, dataTypeByName)
         return redirect("/options", code=302)
     except mysql.connector.errors.Error as e:
         if e.errno == 1045:
@@ -398,6 +425,22 @@ def based():
 def connectionLost(e):
     if e.errno == 2055:
         flash("Соединиение было потеряно")
+        return redirect("/", code=302)
+    else:
+        raise e
+    
+@app.errorhandler(mysql.connector.errors.InterfaceError)
+def connectionLost(e):
+    if e.errno == 2013:
+        flash("Соединиение было потеряно во время запроса")
+        return redirect("/", code=302)
+    else:
+        raise e
+    
+@app.errorhandler(mysql.connector.errors.ProgrammingError)
+def connectionLost(e):
+    if e.errno == 1045:
+        flash("Неверные данные авторизации")
         return redirect("/", code=302)
     else:
         raise e

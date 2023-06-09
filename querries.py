@@ -8,6 +8,8 @@ class QuerryBuilder():
     editSelected = []
     editTables = []
     remaining = []
+    dataTypeByComment = {}
+    dataTypeByName = {}
 
     TABLES = {"bib_source": 0, "bibliography": 1, "countries": 2, "ingredients": 3, "key_word": 4, "measurements": 5, "synthesis_parameter": 6, "synthesis_product": 7}
     TABLES_INVERSE = ["bib_source", "bibliography", "countries", "ingredients", "key_word", "measurements", "synthesis_parameter", "synthesis_product"]
@@ -26,12 +28,23 @@ class QuerryBuilder():
     PARENT_TABLES = {"JOURNAL": "bib_source", "DOI": "bibliography", "PRODUCT_ID": "synthesis_product"}
     TABLE_PRIORITY = ["bib_source", "bibliography", "key_word", "countries", "synthesis_product", "ingredients", "measurements", "synthesis_parameter"]
 
-    def __init__(self, in_lookUp: dict, in_columnComments: list, in_logComments: list, in_tablesForTableCols: list, in_tableCols: list) -> None:
+    def __init__(self, in_lookUp: dict, in_columnComments: list, in_logComments: list, in_tablesForTableCols: list, in_tableCols: list, in_dataTypeByComment: dict, in_dataTypeByName: dict) -> None:
         self.lookUp = in_lookUp
         self.columnComments = in_columnComments
         self.logComments = in_logComments
         self.tablesForTableCols = in_tablesForTableCols
         self.tableCols = in_tableCols
+        self.dataTypeByComment = in_dataTypeByComment
+        self.dataTypeByName = in_dataTypeByName
+
+    def escapeString(string: str) -> str:
+        res = r""
+        for c in string:
+            if c in ('"', "'", ";", "%", "_"):
+                res += "\{}".format(c)
+            else:
+                res += c
+        return res
 
     def __leastTables(self, col1, col2) -> list:
         for i in self.lookUp[col1]:
@@ -126,17 +139,23 @@ class QuerryBuilder():
 
                 tClause = requestArgs.get('comp_clause_' + i[1])
                 tOp = requestArgs.get('comp_op_' + i[1])
+                dataType = self.dataTypeByComment[i[1]]
                 if tClause != None and tOp != None:
                     try:
                         if tOp.lower() != 'like':
-                            temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                            if dataType == "double":
+                                temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                            elif dataType == "int":
+                                temp = str(int(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                            else:
+                                raise ValueError()
                         else:
                             raise ValueError()
                         whereCondition.append(temp)
                     except:
                         if tOp.lower() == 'like':
-                            tClause = "%" + tClause + "%"
-                        temp = "'" + tClause + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
+                            tClause = "%" + QuerryBuilder.escapeString(tClause) + "%"
+                        temp = "'" + QuerryBuilder.escapeString(tClause) + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
                         numericAllowed = False
                         whereCondition.append(temp)
                     if numericAllowed and tOp in ('=', '>', '<', '>=', '<='):
@@ -181,8 +200,6 @@ class QuerryBuilder():
                         for col in range(len(joinCol)):
                             querry += QuerryBuilder.TABLES_INVERSE[current] + "." + joinCol[col] + " = " + QuerryBuilder.TABLES_INVERSE[nextV] + "." + joinCol[col] + " AND "
                         querry = querry[:-4]
-                        
-
 
         if len(where) > 0: #if any filters were checked for "WHERE"
                 querry += " WHERE "
@@ -246,6 +263,7 @@ class QuerryBuilder():
 
             tClause = requestArgs.get('comp_clause_' + i[1])
             tOp = requestArgs.get('comp_op_' + i[1])
+            dataType = self.dataTypeByComment[i[1]]
             if tClause != None and tOp != None:
                 if tClause != "" and tOp != "":
                     where[order] = True
@@ -253,14 +271,19 @@ class QuerryBuilder():
                 order+=1
                 try:
                     if tOp.lower() != 'like':
-                        temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                        if dataType == "double":
+                            temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                        elif dataType == "int":
+                            temp = str(int(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                        else:
+                            raise ValueError()
                     else:
                         raise ValueError()
                     whereCondition.append(temp)
                 except:
                     if tOp.lower() == 'like':
-                        tClause = "%" + tClause + "%"
-                    temp = "'" + tClause + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
+                        tClause = "%" + QuerryBuilder.escapeString(tClause) + "%"
+                    temp = "'" + QuerryBuilder.escapeString(tClause) + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
                     numericAllowed = False
                     whereCondition.append(temp)
                 if numericAllowed and tOp in ('=', '>', '<', '>=', '<='):
@@ -316,15 +339,21 @@ class QuerryBuilder():
                 querry += table + " SET "
                 editted = False
                 for atr in range(len(entryNew)):
-                    newVal = None
+                    seperator = QuerryBuilder.editSelected[atr].find(".")
+                    qualifier = QuerryBuilder.editSelected[atr][:seperator]
+                    atribute = QuerryBuilder.editSelected[atr][seperator+1:]
+
                     oldVal = None
-                    try: 
-                        newVal = str(float(entryNew[atr]))
+                    newVal = None
+                    if self.dataTypeByName[atribute] == "double":
                         oldVal = str(float(entryOld[atr]))
-                    except:
-                        newVal = "'" + entryNew[atr] + "'"
-                        oldVal = "'" + entryOld[atr] + "'"
-                    qualifier = QuerryBuilder.editSelected[atr][0:QuerryBuilder.editSelected[atr].find(".")]
+                        newVal = str(float(entryNew[atr]))
+                    elif self.dataTypeByName[atribute] == "int":
+                        oldVal = str(int(entryOld[atr]))
+                        newVal = str(float(entryNew[atr]))
+                    else:
+                        oldVal = "'" + QuerryBuilder.escapeString(entryOld[atr]) + "'"
+                        newVal = "'" + QuerryBuilder.escapeString(entryNew[atr]) + "'"
                     if qualifier == table:
                         querry += QuerryBuilder.editSelected[atr] + " = " + newVal + ", "
                         where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
@@ -349,18 +378,21 @@ class QuerryBuilder():
                 querry += table + " SET "
                 editted = False
                 for atr in range(len(entryNew)):
-                    newVal = None
-                    oldVal = None
-                    try: 
-                        newVal = str(float(entryNew[atr]))
-                        oldVal = str(float(entryOld[atr]))
-                    except:
-                        newVal = "'" + entryNew[atr] + "'"
-                        oldVal = "'" + entryOld[atr] + "'"
-
                     seperator = QuerryBuilder.editSelected[atr].find(".")
                     qualifier = QuerryBuilder.editSelected[atr][:seperator]
                     atribute = QuerryBuilder.editSelected[atr][seperator+1:]
+
+                    oldVal = None
+                    newVal = None
+                    if self.dataTypeByName[atribute] == "double":
+                        oldVal = str(float(entryOld[atr]))
+                        newVal = str(float(entryNew[atr]))
+                    elif self.dataTypeByName[atribute] == "int":
+                        oldVal = str(int(entryOld[atr]))
+                        newVal = str(float(entryNew[atr]))
+                    else:
+                        oldVal = "'" + QuerryBuilder.escapeString(entryOld[atr]) + "'"
+                        newVal = "'" + QuerryBuilder.escapeString(entryNew[atr]) + "'"
 
                     if atribute in QuerryBuilder.PARENT_TABLES:
                         FullQuerry.append("UPDATE " + QuerryBuilder.PARENT_TABLES[atribute] + " SET " + atribute + " = " + newVal + " WHERE " + atribute + " = " + oldVal)
@@ -418,17 +450,23 @@ class QuerryBuilder():
 
                 tClause = requestArgs.get('comp_clause_' + i[1])
                 tOp = requestArgs.get('comp_op_' + i[1])
+                dataType = self.dataTypeByComment[i[1]]
                 if tClause != None and tOp != None:
                     try:
                         if tOp.lower() != 'like':
-                            temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                            if dataType == "double":
+                                temp = str(float(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                            elif dataType == "int":
+                                temp = str(int(tClause)) #if a number was supplied as condition, comparison operators have meaning and are allowed
+                            else:
+                                raise ValueError()
                         else:
                             raise ValueError()
                         whereCondition.append(temp)
                     except:
                         if tOp.lower() == 'like':
-                            tClause = "%" + tClause + "%"
-                        temp = "'" + tClause + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
+                            tClause = "%" + QuerryBuilder.escapeString(tClause) + "%"
+                        temp = "'" + QuerryBuilder.escapeString(tClause) + "'" #if a string was supplied as condition, comparison operators, aside from '=', have no meaning and are defaulted to '='. Also quotation marks are provided
                         numericAllowed = False
                         whereCondition.append(temp)
                     if numericAllowed and tOp in ('=', '>', '<', '>=', '<='):
@@ -484,7 +522,7 @@ class QuerryBuilder():
                     tempSelect.append(entry[1])
                     continue
                 if entry[2] == "varchar":
-                    value = "'" + value + "'"
+                    value = "'" + QuerryBuilder.escapeString(value) + "'"
                 cols.append(colName)
                 record.append(value)
                 tempSelect.append(entry[1])
@@ -529,12 +567,18 @@ class QuerryBuilder():
                 querry += table + " "
                 editted = False
                 for atr in range(len(entryOld)):
+                    seperator = QuerryBuilder.editSelected[atr].find(".")
+                    qualifier = QuerryBuilder.editSelected[atr][:seperator]
+                    atribute = QuerryBuilder.editSelected[atr][seperator+1:]
+
                     oldVal = None
-                    try: 
+                    if self.dataTypeByName[atribute] == "double":
                         oldVal = str(float(entryOld[atr]))
-                    except:
-                        oldVal = "'" + entryOld[atr] + "'"
-                    qualifier = QuerryBuilder.editSelected[atr][0:QuerryBuilder.editSelected[atr].find(".")]
+                    elif self.dataTypeByName[atribute] == "int":
+                        oldVal = str(int(entryOld[atr]))
+                    else:
+                        oldVal = "'" + QuerryBuilder.escapeString(entryOld[atr]) + "'"
+                        
                     if qualifier == table:
                         where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
                         editted = True
@@ -557,15 +601,17 @@ class QuerryBuilder():
                 querry += table + " "
                 editted = False
                 for atr in range(len(entryOld)):
-                    oldVal = None
-                    try: 
-                        oldVal = str(float(entryOld[atr]))
-                    except:
-                        oldVal = "'" + entryOld[atr] + "'"
-
                     seperator = QuerryBuilder.editSelected[atr].find(".")
                     qualifier = QuerryBuilder.editSelected[atr][:seperator]
                     atribute = QuerryBuilder.editSelected[atr][seperator+1:]
+                    
+                    oldVal = None
+                    if self.dataTypeByName[atribute] == "double":
+                        oldVal = str(float(entryOld[atr]))
+                    elif self.dataTypeByName[atribute] == "int":
+                        oldVal = str(int(entryOld[atr]))
+                    else:
+                        oldVal = "'" + QuerryBuilder.escapeString(entryOld[atr]) + "'"
 
                     if atribute in QuerryBuilder.PARENT_TABLES:
                         FullQuerry.append("DELETE FROM " + QuerryBuilder.PARENT_TABLES[atribute] + " WHERE " + atribute + " = " + oldVal)
