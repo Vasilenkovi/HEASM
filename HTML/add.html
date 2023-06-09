@@ -9,152 +9,155 @@
 
 <body>
     <header header id="HEASM_header">
-		<div id="TPU_logo">
-			<img src ="../static/image/tpu-logo-hor.png" /> <!-- Logo img path -->
-		</div>
-		<nav>
-			<div id = "HEASM_header_menu">
-				<ul>
-					<li><a href="/options?options-submit=options">К выбору функции</a></li> <!-- Not sure -->
-					<li><a href="/logout?logout-submit=logout">Выйти</a></li>
-				</ul>
-			</div>
-		</nav>
+        <div id="TPU_logo">
+            <img src="../static/image/tpu-logo-hor.png" />
+            <!-- Logo img path -->
+        </div>
+        <nav>
+            <div id="HEASM_header_menu">
+                <ul>
+                    <li><a href="/options?options-submit=options">К выбору функции</a></li>
+                    <!-- Not sure -->
+                    <li><a href="/logout?logout-submit=logout">Выйти</a></li>
+                </ul>
+            </div>
+        </nav>
     </header>
-	<main id="HEASM_main">
-		<div class="error">{% for message in get_flashed_messages(category_filter=["error"]) %}
-			<div>
-				{{ message }}
-			</div>
-			{% endfor %}
-		</div>
-		<div class="success">{% for message in get_flashed_messages(category_filter=["message"]) %}
-			<div>
-				{{ message }}
-			</div>
-			{% endfor %}
-		</div>
-		<div class="borderedpic">
-			<div id="select_table" class="grid-container3x3">
-				{% for table in range(tables| length) %}
-				<script>
-					var button = document.createElement('button');
-					var text = document.createTextNode("{{tabCom[table]}}")
-					button.appendChild(text)
-					button.className = "button"
-					button.onclick = function updateButton() {
-						var arr = JSON.parse('{{tabCols[table] | tojson}}')
-						var len = parseInt("{{tabCols[table]| length}}");
-						for (let i = 0; i < len; i++) {
-							var toSelect = document.getElementById(arr[i])
-							toSelect.checked = true;
-						}
-					}
-					var container = document.getElementById("select_table");
-					container.appendChild(button);
-				</script>
-				{% endfor %}
-			</div>
-			<div id="select_all" class = "grid-container2x1">
-				<script>
-					var button = document.createElement("button");
-					var text = document.createTextNode("Выбрать всё")
-					button.appendChild(text)
-					button.className = "button"
-					button.onclick = function updateButton() {
-						var toSelect = document.getElementsByClassName("filter");
-						for (let i = 0; i < toSelect.length; i++) {
-							toSelect[i].checked = true;
-						}
-					}
-					var container = document.getElementById("select_all");
-					container.appendChild(button);
-				</script>
-				<script>
-					var button = document.createElement("button");
-					var text = document.createTextNode("Снять выбор")
-					button.appendChild(text)
-					button.className = "button"
-					button.onclick = function updateButton() {
-						var toSelect = document.getElementsByClassName("filter");
-						for (let i = 0; i < toSelect.length; i++) {
-							toSelect[i].checked = false;
-						}
-					}
-					var container = document.getElementById("select_all");
-					container.appendChild(button);
-				</script>
-				<br>
-			</div>
-		</div>
-		<div>
-			<div class="grid-container2col">
-				<div class="scrollable_div">
-					<button class="button">Что вы хотите добавить?</button>
-					<form action="/add" method="post">
-						<button class="button" value="submit">Выбрать</button>
-						{% for filter in cols %}
-						<div>
-							<input type="checkbox" name="filters" value="{{ filter[1] }}" id="{{ filter[1] }}" class="filter">
-							<label>{{ filter[1] }}</label>
-						</div>
-						<br> {% endfor %}
-					</form>
-				</div>
-				<div class="scrollable_div">
-					<button class="button">Новые записи</button>
-					<form action="/add_execute" method="post">
-						<button class="button" value="submit">Добавить</button>
-						<table class="bordered">
-							<tr class="bordered">
-								{% for i in selected %}
-								<th class="bordered" id="{{'th_' + i}}">{{i}}</th>
-								{% endfor %}
-							</tr>
-							<tr class="bordered">
-								{% for i in selected %}
-								<td class="bordered" id="{{'cont_' + i}}">
-									<input type="text" name="{{i}}" id="{{'col_' + i}}" value="">
-								</td>
-								{% endfor %}
-							</tr>
-							<tr class="bordered">
-								{% for i in selected %}
-								<td class="bordered" id="{{'div_' + i}}">
-									<script>
-										{
-											var button = document.createElement('input');
-											button.type = "button"
-											button.value = "X";
-											button.onclick = function updateButton() {
-												var div = document.getElementById("{{'th_' + i}}");
-												div.remove();
-												var div = document.getElementById("{{'cont_' + i}}");
-												div.remove();
-												var div = document.getElementById("{{'div_' + i}}");
-												div.remove();
-											}
-											var container = document.getElementById("{{'div_' + i}}");
-											container.appendChild(button);
-										}
-									</script>
-								</td>
-								{% endfor %}
-							</tr>
-						</table>
-						
-					</form>
-					<script>
-						{
-							var entry = document.getElementById("col_ID в базе данных");
-							entry.value = "{{newId}}"
-						}
-					</script>
-					
-				</div>
-			</div>
-		</div>
-	</main>
+    <main id="HEASM_main">
+        <div class="messageSpace">
+            <div class="error">{% for message in get_flashed_messages(category_filter=["error"]) %}
+                <div>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="success">{% for message in get_flashed_messages(category_filter=["message"]) %}
+                <div>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="borderedpic">
+            <div id="select_table" class="grid-container3x3">
+                {% for table in range(tables| length) %}
+                <script>
+                    var button = document.createElement('button');
+                    var text = document.createTextNode("{{tabCom[table]}}")
+                    button.appendChild(text)
+                    button.className = "button"
+                    button.onclick = function updateButton() {
+                        var arr = JSON.parse('{{tabCols[table] | tojson}}')
+                        var len = parseInt("{{tabCols[table]| length}}");
+                        for (let i = 0; i < len; i++) {
+                            var toSelect = document.getElementById(arr[i])
+                            toSelect.checked = true;
+                        }
+                    }
+                    var container = document.getElementById("select_table");
+                    container.appendChild(button);
+                </script>
+                {% endfor %}
+            </div>
+            <div id="select_all" class="grid-container2x1">
+                <script>
+                    var button = document.createElement("button");
+                    var text = document.createTextNode("Выбрать всё")
+                    button.appendChild(text)
+                    button.className = "button"
+                    button.onclick = function updateButton() {
+                        var toSelect = document.getElementsByClassName("filter");
+                        for (let i = 0; i < toSelect.length; i++) {
+                            toSelect[i].checked = true;
+                        }
+                    }
+                    var container = document.getElementById("select_all");
+                    container.appendChild(button);
+                </script>
+                <script>
+                    var button = document.createElement("button");
+                    var text = document.createTextNode("Снять выбор")
+                    button.appendChild(text)
+                    button.className = "button"
+                    button.onclick = function updateButton() {
+                        var toSelect = document.getElementsByClassName("filter");
+                        for (let i = 0; i < toSelect.length; i++) {
+                            toSelect[i].checked = false;
+                        }
+                    }
+                    var container = document.getElementById("select_all");
+                    container.appendChild(button);
+                </script>
+                <br>
+            </div>
+        </div>
+        <div>
+            <div class="grid-container2col">
+                <div class="scrollable_div">
+                    <div class="button-like">Что вы хотите добавить?</div>
+                    <form action="/add" method="post">
+                        <button class="button" value="submit">Выбрать</button> {% for filter in cols %}
+                        <div>
+                            <input type="checkbox" name="filters" value="{{ filter[1] }}" id="{{ filter[1] }}" class="filter">
+                            <label>{{ filter[1] }}</label>
+                        </div>
+                        <br> {% endfor %}
+                    </form>
+                </div>
+                <div class="scrollable_div">
+                    <div class="button-like">Новые записи</div>
+                    <form action="/add_execute" method="post">
+                        <button class="button" value="submit">Добавить</button>
+                        <table class="bordered">
+                            <tr class="bordered">
+                                {% for i in selected %}
+                                <th class="bordered" id="{{'th_' + i}}">{{i}}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr class="bordered">
+                                {% for i in selected %}
+                                <td class="bordered" id="{{'cont_' + i}}">
+                                    <input type="text" name="{{i}}" id="{{'col_' + i}}" value="">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr class="bordered">
+                                {% for i in selected %}
+                                <td class="bordered" id="{{'div_' + i}}">
+                                    <script>
+                                        {
+                                            var button = document.createElement('input');
+                                            button.type = "button"
+                                            button.value = "X";
+                                            button.onclick = function updateButton() {
+                                                var div = document.getElementById("{{'th_' + i}}");
+                                                div.remove();
+                                                var div = document.getElementById("{{'cont_' + i}}");
+                                                div.remove();
+                                                var div = document.getElementById("{{'div_' + i}}");
+                                                div.remove();
+                                            }
+                                            var container = document.getElementById("{{'div_' + i}}");
+                                            container.appendChild(button);
+                                        }
+                                    </script>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+
+                    </form>
+                    <script>
+                        {
+                            var entry = document.getElementById("col_ID в базе данных");
+                            entry.value = "{{newId}}"
+                        }
+                    </script>
+
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 
 </html>

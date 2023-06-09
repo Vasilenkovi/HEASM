@@ -1,4 +1,4 @@
-body{
+body {
     margin: 0px;
     padding: 0px;
     background: #FFFFFF;
@@ -6,124 +6,140 @@ body{
     font-size: 12pt;
 }
 
-#HEASM_header{
-	overflow: hidden;
+#HEASM_header {
+    overflow: hidden;
     text-align: center;
     height: 60px;
-	background-color: white;
+    background-color: white;
 }
-#TPU_logo{
+
+#TPU_logo {
     float: left;
     padding: none;
     margin: none;
     height: 60px;
     width: 28%;
 }
-#TPU_logo img{
-    
-	height: 80%;
-	width= height - 20px;
+
+#TPU_logo img {
+    height: 80%;
     float: left;
     padding: 6px 10px;
 }
-#HEASM_header_menu{
+
+#HEASM_header_menu {
     float: right;
     width: 70%;
     height: 100%;
     margin: none;
-} 
-#HEASM_header_menu ul{
+}
+
+#HEASM_header_menu ul {
     text-align: center;
     float: right;
     margin: none;
-    background: #28be46; 
-	padding: 0;
+    background: #28be46;
+    padding: 0;
     list-style: none;
-	margin-top: 0;
-} 
-#HEASM_header_menu li{
+    margin-top: 0;
+}
+
+#HEASM_header_menu li {
     display: inline-block;
     padding: none;
     margin: none;
-}   
-#HEASM_header_menu li a, #HEASM_header_menu li span{
+}
+
+#HEASM_header_menu li a,
+#HEASM_header_menu li span {
     display: inline-block;
     padding: 0em 1.5em;
     text-decoration: none;
     font-weight: 600;
     text-transform: uppercase;
     line-height: 60px;
-}   
-#HEASM_header_menu li a{
+}
+
+#HEASM_header_menu li a {
     font-family: Arial, Helvetica, sans-serif;
     color: #FFF;
-}  
-#HEASM_header_menu li:hover a, #HEASM_header_menu li span{
+}
+
+#HEASM_header_menu li:hover a,
+#HEASM_header_menu li span {
     background: #FFF;
     color: #28be46;
     border-left: 1px solid #28be46;
     text-decoration: none;
 }
-#HEASM_main{
-	height: 100%;
-	width: 100%;
-	background-image: url('../image/background.png');
+
+#HEASM_main {
+    height: 100%;
+    width: 100%;
+    background-image: url('../image/background.png');
     background-repeat: repeat;
 }
 
-#HEASM_main_menu ul{
-	text-align: center;
-	bottom: 0px;
+#HEASM_main_menu ul {
+    text-align: center;
+    bottom: 0px;
     margin: none;
-    background: #28be46; 
-	padding: 0;
+    background: #28be46;
+    padding: 0;
     list-style: none;
 }
-#HEASM_main_menu li{
-	display: inline-block;
+
+#HEASM_main_menu li {
+    display: inline-block;
     padding: none;
     margin: none;
 }
-#HEASM_main_menu li a, #HEASM_main_menu li span{
+
+#HEASM_main_menu li a,
+#HEASM_main_menu li span {
     display: inline-block;
     padding: 0em 1.5em;
     text-decoration: none;
     font-weight: 600;
     text-transform: uppercase;
     line-height: 30px;
-} 
-#HEASM_main_menu li a{
+}
+
+#HEASM_main_menu li a {
     font-family: Arial, Helvetica, sans-serif;
     color: #FFF;
-} 
-#HEASM_main_menu li:hover a, #HEASM_main_menu li span{
+}
+
+#HEASM_main_menu li:hover a,
+#HEASM_main_menu li span {
     background: #209637;
     color: #FFF;
     border-left: 1px solid #28be46;
     text-decoration: none;
 }
-#HEASM_ul ul{
-	text-align: center;
-	bottom: 0px;
+
+#HEASM_ul ul {
+    text-align: center;
+    bottom: 0px;
     margin: none;
-    background: #28be46; 
-	padding: 0;
+    background: #28be46;
+    padding: 0;
     list-style: none;
-	color: green;
+    color: green;
 }
 
 .HEASM_body {
-	background-image: url('/static/image/1.png');
-	background-size: cover;
+    background-image: url('/static/image/1.png');
+    background-size: cover;
 }
 
-.container{   
+.container {
     margin: 0px auto;
     width: 100%;
 }
 
 .centered_background {
-	background-image: url('/static/image/background1.png');
+    background-image: url('/static/image/background1.png');
     background-repeat: repeat;
     text-align: center;
 }
@@ -133,8 +149,15 @@ body{
     margin-right: auto;
 }
 
+.messageSpace {
+    border: 1px;
+    border-color: black;
+    border-style: solid;
+    background-color: #FFFFFF;
+}
+
 .error {
-    color: rgb(193, 23, 23);
+    color: rgb(214, 17, 17);
     text-align: center;
 }
 
@@ -164,70 +187,115 @@ body{
 .grid-container2x1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-	grid-template-rows: 1fr;
+    grid-template-rows: 1fr;
     grid-gap: 5%;
-	row-gap: 5%;
-	padding-top: 1%; 
-	margin-left: 5%; 
-	margin-right: 5%; 
+    row-gap: 5%;
+    padding-top: 1%;
+    margin-left: 5%;
+    margin-right: 5%;
 }
 
 .grid-container5x1 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-	grid-template-rows: 1fr;
+    grid-template-rows: 1fr;
     grid-gap: 5%;
-	row-gap: 5%;
-	padding-top: 1%; 
-	margin-left: 5%; 
-	margin-right: 5%; 
+    row-gap: 5%;
+    padding-top: 1%;
+    margin-left: 5%;
+    margin-right: 5%;
 }
 
 .grid-container2col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-}  
+}
 
 .scrollable_div {
-	margin: 2px;
-	background-image: url('../image/bubles.png');
+    margin: 2px;
+    background-image: url('../image/bubles.png');
     overflow: auto;
     border: 3px;
     border-color: black;
     border-style: solid;
-	color: #fff;
+    color: #fff;
+}
+
+.scrollableContainer {
+    margin: 2px;
+    background-image: url('../image/bubles.png');
+    border: 3px;
+    border-color: black;
+    border-style: solid;
+    color: #fff;
 }
 
 .borderedpic {
-	background-image: url('../image/background1.png');
+    background-image: url('../image/background1.png');
     border: 1px;
     border-color: black;
     border-style: solid;
-	color: #fff;
+    color: #fff;
 }
 
 .bordered {
     border: 1px;
     border-color: black;
     border-style: solid;
-	background: #1c8531;
-	color: #fff;
+    background: #1c8531;
+    color: #fff;
 }
 
-.bordered_sub{
-	background: #FFF;
+.bordered_sub {
+    background: #FFF;
 }
 
 .button {
-	font-family: Arial, Helvetica, sans-serif;
-	text-align: center;
-	padding: 5px;
-	margin-bottom: 2px;
-	width: 100%;
-	border: none;
-	border-radius: 3px;
-	background-color: #1c8531;
-	color: #fff;
-	font-size: 16px;
-	cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 2px;
+    width: 100%;
+    border: none;
+    border-radius: 3px;
+    background-color: #1c8531;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.button:hover {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 2px;
+    width: 100%;
+    border: none;
+    border-radius: 3px;
+    background-color: #136423;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.button-like {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 3px;
+    background-color: #1c8531;
+    color: #fff;
+    font-size: 16px;
+}
+
+.flippedParent {
+    position: relative;
+}
+
+.flippedChild {
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
