@@ -102,8 +102,9 @@
 					</form>
 				</div>
 				<div class="scrollable_div">
-					
+					<button class="button">Новые записи</button>
 					<form action="/add_execute" method="post">
+						<button class="button" value="submit">Добавить</button>
 						<table class="bordered">
 							<tr class="bordered">
 								{% for i in selected %}
@@ -141,7 +142,7 @@
 								{% endfor %}
 							</tr>
 						</table>
-						<button class="button" value="submit">Добавить</button>
+						
 					</form>
 					<script>
 						{
@@ -149,7 +150,7 @@
 							entry.value = "{{newId}}"
 						}
 					</script>
-					<button class="button">Новые записи</button>
+					
 				</div>
 			</div>
 		</div>
