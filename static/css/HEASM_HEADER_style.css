@@ -175,6 +175,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 20px;
+    height: fit-content;
 }
 
 .grid-container3x3 {
@@ -214,11 +215,12 @@ body {
 .scrollable_div {
     margin: 2px;
     background-image: url('../image/bubles.png');
-    overflow: auto;
+    overflow-x: auto;
     border: 3px;
     border-color: black;
     border-style: solid;
     color: #fff;
+    height: 100%;
 }
 
 .scrollableContainer {
@@ -288,14 +290,4 @@ body {
     background-color: #1c8531;
     color: #fff;
     font-size: 16px;
-}
-
-.flippedParent {
-    position: relative;
-}
-
-.flippedChild {
-    position: absolute;
-    bottom: 0;
-    right: 0;
 }
