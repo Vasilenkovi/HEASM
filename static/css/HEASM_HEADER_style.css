@@ -10,6 +10,7 @@ body{
 	overflow: hidden;
     text-align: center;
     height: 60px;
+	background-color: white;
 }
 #TPU_logo{
     float: left;
@@ -70,9 +71,6 @@ body{
     background-repeat: repeat;
 }
 
-#HEASM_main_menu{
-	
-}
 #HEASM_main_menu ul{
 	text-align: center;
 	bottom: 0px;
@@ -113,8 +111,11 @@ body{
     list-style: none;
 	color: green;
 }
-#HEASM_li li{}
-/*Not mine VVV*/
+
+.HEASM_body {
+	background-image: url('/static/image/1.png');
+	background-size: cover;
+}
 
 .container{   
     margin: 0px auto;
@@ -122,6 +123,7 @@ body{
 }
 
 .centered_background {
+	background-image: url('/static/image/background1.png');
     background-repeat: repeat;
     text-align: center;
 }
@@ -158,9 +160,21 @@ body{
     grid-template-rows: 1fr 1fr 1fr;
     grid-gap: 20px;
 }
+
 .grid-container2x1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
+	grid-template-rows: 1fr;
+    grid-gap: 5%;
+	row-gap: 5%;
+	padding-top: 1%; 
+	margin-left: 5%; 
+	margin-right: 5%; 
+}
+
+.grid-container5x1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 	grid-template-rows: 1fr;
     grid-gap: 5%;
 	row-gap: 5%;
