@@ -24,6 +24,20 @@
         </nav>
     </header>
     <main id="HEASM_main">
+        <div class="messageSpace">
+            <div class="error">{% for message in get_flashed_messages(category_filter=["error"]) %}
+                <div>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="success">{% for message in get_flashed_messages(category_filter=["message"]) %}
+                <div>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
         <div class="borderedpic">
             <div id="select_table" class="grid-container3x3">
                 {% for table in range(tables| length) %}
@@ -150,58 +164,57 @@
                     {% endfor %}
                 </form>
             </div>
-			<div class="scrollable_div">
-				<div class="button-like">Окно для изменений</div>
-				{% if ready %}
-				<form action="/edit_retrieve" method="post">
-					<button class="button" value="submit">Подтвердить изменения</button>
-					<table class="bordered">
-						<tr class="bordered">
-							{% for i in selected %}
-							<th class="bordered">{{i}}</th>
-							{% endfor %}
-						</tr>
-						{% for entry in range(results| length) %}
-						<tr class="bordered">
-							{% for atr in range(results[entry]| length) %}
-							<td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
-								<script>
-									{
-										var target = document.createElement('input');
-										var data = document.createElement('input');
+            <div class="scrollable_div">
+                <div class="button-like">Окно для изменений</div>
+                {% if ready %}
+                <form action="/edit_retrieve" method="post">
+                    <button class="button" value="submit">Подтвердить изменения</button>
+                    <table class="bordered">
+                        <tr class="bordered">
+                            {% for i in selected %}
+                            <th class="bordered">{{i}}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for entry in range(results| length) %}
+                        <tr class="bordered">
+                            {% for atr in range(results[entry]| length) %}
+                            <td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
+                                <script>
+                                    {
+                                        var target = document.createElement('input');
+                                        var data = document.createElement('input');
 
-										data.type = "hidden"
-										data.value = "0";
-										data.name = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
-										data.id = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
+                                        data.type = "hidden"
+                                        data.value = "0";
+                                        data.name = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
+                                        data.id = "{{'changed' + '_' + entry|string + '_' + atr|string}}";
 
-										target.type = "text"
-										target.value = "{{results[entry][atr]}}";
-										target.name = "{{entry|string + '_' + atr|string}}";
-										target.id = "{{entry|string + '_' + atr|string}}";
+                                        target.type = "text"
+                                        target.value = "{{results[entry][atr]}}";
+                                        target.name = "{{entry|string + '_' + atr|string}}";
+                                        target.id = "{{entry|string + '_' + atr|string}}";
 
-										target.oninput = function updated() {
-											var data1 = document.getElementById("{{'changed' + '_' + entry|string + '_' + atr|string}}");
-											data1.value = "1"
-										}
-										var container = document.getElementById("{{'parent' + '_' + entry|string + '_' + atr|string}}");
-										container.appendChild(target);
-										container.appendChild(data);
-									}
-								</script>
-							</td>
-							{% endfor %}
-						</tr>
-						{% endfor %}
-						<div>
-							{% for s in selected %}
-							<input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
-						</div>
-					</table>
-				</form>
+                                        target.oninput = function updated() {
+                                            var data1 = document.getElementById("{{'changed' + '_' + entry|string + '_' + atr|string}}");
+                                            data1.value = "1"
+                                        }
+                                        var container = document.getElementById("{{'parent' + '_' + entry|string + '_' + atr|string}}");
+                                        container.appendChild(target);
+                                        container.appendChild(data);
+                                    }
+                                </script>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        <div>
+                            {% for s in selected %}
+                            <input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
+                        </div>
+                    </table>
+                </form>
             </div>
-            {% else %}
-			{% endif %}
+            {% else %} {% endif %}
         </div>
     </main>
 </body>
