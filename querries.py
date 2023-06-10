@@ -354,6 +354,9 @@ class QuerryBuilder():
                     else:
                         oldVal = "'" + QuerryBuilder.escapeString(entryOld[atr]) + "'"
                         newVal = "'" + QuerryBuilder.escapeString(entryNew[atr]) + "'"
+                    if entryNew[atr] == '':
+                        newVal = 'NULL'
+
                     if qualifier == table:
                         querry += QuerryBuilder.editSelected[atr] + " = " + newVal + ", "
                         where += QuerryBuilder.editSelected[atr] + " = " + oldVal + " AND "
@@ -393,6 +396,8 @@ class QuerryBuilder():
                     else:
                         oldVal = "'" + QuerryBuilder.escapeString(entryOld[atr]) + "'"
                         newVal = "'" + QuerryBuilder.escapeString(entryNew[atr]) + "'"
+                    if entryNew[atr] == '':
+                        newVal = 'NULL'
 
                     if atribute in QuerryBuilder.PARENT_TABLES:
                         FullQuerry.append("UPDATE " + QuerryBuilder.PARENT_TABLES[atribute] + " SET " + atribute + " = " + newVal + " WHERE " + atribute + " = " + oldVal)
