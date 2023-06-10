@@ -44,6 +44,18 @@ def createLookUp(col_tab: list) -> dict:
             result[col[0]].append(col[1]) #add table to a list of tables which contain this column
     return result
 
+def reinterpretNull(result: list) -> list:
+    out = []
+    for i in result:
+        row = []
+        for j in i:
+            if j == None:
+                row.append("")
+            else:
+                row.append(j)
+        out.append(row)
+    return out
+
 #Create lists of: tables, table columns in order, and comments to tables
 def seperateTableCols(tableCols: list) -> tuple:
     byTable = {}
@@ -127,7 +139,7 @@ def execute(querry: str, commit = True) -> list:
                     r = []
                 if commit:
                     cursor.execute("COMMIT") #End transaction with commit
-                return r
+                return reinterpretNull(r)
         except mysql.connector.errors.InterfaceError as e: #if execute failed
             if e.errno == 2013: #if lost connection during query 
                 connection = connectionPool.get_connection() #Get a new connection
@@ -262,6 +274,10 @@ def edit_retrieve():
         for querry in q: #For every single query
             try:
                 execute(querry, commit=False)
+            except ValueError as e:
+                rollback() #end transaction
+                flash("Неверный тип данных", "error")
+                break
             except mysql.connector.errors.IntegrityError as e:
                 if e.errno == 1062: #If new row value coincides with existing row
                     newQuery = querryBuilder.updateToDelete(querry) #Delete now unwanted row
