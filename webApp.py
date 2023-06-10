@@ -30,7 +30,7 @@ results = []
 
 config = {"user": "", "password": "", "host":HOST, "port":PORT, "database":DATABASE, "use_pure":True}
 
-app = Flask(__name__, template_folder='HTML', static_folder='static')
+app = Flask(__name__, template_folder='NEW_HTML', static_folder='static')
 app.secret_key = secrets.token_urlsafe(16)
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1000 * 1000
 
