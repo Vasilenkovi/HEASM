@@ -11,6 +11,7 @@ import querries
 HOST = '127.0.0.1' #HOST for db connection. Currently localhost
 PORT = 3306 #PORT for db connection. 3306 by default
 DATABASE = 'heasm' #DB name on server
+POOLED_CONNECTIONS = 5 #Amount of connection to pool for retrials
 
 querryBuilder = None #Object to build queries
 connectionPool = None #Pool of connections as a failsafe
@@ -126,11 +127,14 @@ def checkConnected() -> bool:
 #Executes any query
 def execute(querry: str, commit = True) -> list:
     global cursor, connection, connectionPool
-    x = 0 #Three attempts to execute against sudden timeouts or disconnects
-    while x < 3:
+    x = 0 #Attempts to execute against sudden timeouts or disconnects
+    while x < POOLED_CONNECTIONS:
         try:
             r = []
             if cursor != None: #if cursor is ready
+                cursor.reset() #Clear old result and prepare for execution
+                cursor.execute("SELECT VERSION();") #Probing query to check connection status
+                cursor.fetchall() #Retrieving all results from cursor
                 cursor.reset() #Clear old result and prepare for execution
                 cursor.execute(querry) #Execute query
                 try:
@@ -141,11 +145,15 @@ def execute(querry: str, commit = True) -> list:
                     cursor.execute("COMMIT") #End transaction with commit
                 return reinterpretNull(r)
         except mysql.connector.errors.InterfaceError as e: #if execute failed
-            if e.errno == 2013: #if lost connection during query 
+            if e.errno == 2013 or e.errno == 2055: #if lost connection during query or if conncetion closed unexpectedly
                 connection = connectionPool.get_connection() #Get a new connection
                 cursor = connection.cursor(buffered=True) #update cursor according to new connection
             else:
                 raise e
+        except mysql.connector.errors.DatabaseError as e:
+            if e.errno == 4031: #if disconnected by the server because of inactivity
+                connection = connectionPool.get_connection() #Get a new connection
+                cursor = connection.cursor(buffered=True) #update cursor according to new connection
         x += 1 #Increment number of attempts
     raise mysql.connector.errors.InterfaceError(errno=2013) #If 3 attemts failed due to loss of connection
             
@@ -175,7 +183,7 @@ def auth():
     try:
         config["user"] = login #Add login to connection config
         config["password"] = password #Add password to connection config
-        connectionPool = mysql.connector.pooling.MySQLConnectionPool(pool_name = "mypool", pool_size = 3, **config) #Open connection pool with config
+        connectionPool = mysql.connector.pooling.MySQLConnectionPool(pool_name = "mypool", pool_size = POOLED_CONNECTIONS, **config) #Open connection pool with config
         connection = connectionPool.get_connection() #Get connection from pool
         cursor = connection.cursor(buffered=True) #Prepare cursor
         lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
@@ -270,25 +278,29 @@ def edit_retrieve():
         if changed: #If one or more atributes in a row were changed
             allVals.append([results[i], newVals]) #Add old row content and user inputed row content
     if len(allVals) > 0: #If any changes were made
-        q = querryBuilder.editExecute(allVals) #Build queries to update content
-        for querry in q: #For every single query
-            try:
-                execute(querry, commit=False)
-            except ValueError as e:
-                rollback() #end transaction
-                flash("Неверный тип данных", "error")
-                break
-            except mysql.connector.errors.IntegrityError as e:
-                if e.errno == 1062: #If new row value coincides with existing row
-                    newQuery = querryBuilder.updateToDelete(querry) #Delete now unwanted row
-                    execute(newQuery, commit=False)
-                elif e.errno == 1452: #If foreign key constraint fails
-                    q = querryBuilder.editExecuteParent(allVals) #Execute changes on parent tables first
-                    for querry in q:
-                        execute(querry, commit=False)
-                else:
-                    raise e
-            commit() #end transaction
+        try:
+            q = querryBuilder.editExecute(allVals) #Build queries to update content
+            for querry in q: #For every single query
+                try:
+                    execute(querry, commit=False)
+                except ValueError as e:
+                    rollback() #end transaction
+                    flash("Неверный тип данных", "error")
+                    break
+                except mysql.connector.errors.IntegrityError as e:
+                    if e.errno == 1062: #If new row value coincides with existing row
+                        newQuery = querryBuilder.updateToDelete(querry) #Delete now unwanted row
+                        execute(newQuery, commit=False)
+                    elif e.errno == 1452: #If foreign key constraint fails
+                        q = querryBuilder.editExecuteParent(allVals) #Execute changes on parent tables first
+                        for querry in q:
+                            execute(querry, commit=False)
+                    else:
+                        raise e
+                commit() #end transaction
+        except:
+            rollback() #end transaction
+            flash("Возникла серьёзная ошибка при обновлении", "error")
 
     if checkConnected(): #Check for authentication
         q = querryBuilder.editRetrieveQuerry(request.form, selected) #Build a query with respect to selected filters and pass all form data
