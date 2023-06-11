@@ -1,3 +1,4 @@
+from markupsafe import escape
 class QuerryBuilder():
 
     lookUp = {} #lookUp dict for column-table disambiguation
@@ -83,8 +84,8 @@ class QuerryBuilder():
 
     #SELECT query
     def buildQuerry(self, requestArgs, selected: list) -> str:
-        selected_filters = requestArgs.getlist('select_filters') #Get all checked for SELECT
-        where_filters = requestArgs.getlist('where_filters') #Get all checked for WHERE
+        selected_filters = list(map(lambda x: str(escape(x)), requestArgs.getlist('select_filters'))) #Get all checked for SELECT
+        where_filters = list(map(lambda x: str(escape(x)), requestArgs.getlist('where_filters'))) #Get all checked for WHERE
 
         if len(selected_filters) == 0: #If none are going to be displayed
             return ""
@@ -138,8 +139,8 @@ class QuerryBuilder():
             if i[1] in where_filters: #if marked for where
                 numericAllowed = True #Assume numeric input
 
-                tClause = requestArgs.get('comp_clause_' + i[1]) #Get expression to compare to
-                tOp = requestArgs.get('comp_op_' + i[1]) #Get comparison operator
+                tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get expression to compare to
+                tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparison operator
                 dataType = self.dataTypeByComment[i[1]] #Get data type for column
                 if tClause != None and tOp != None: #if data supplied
                     try:
@@ -166,7 +167,7 @@ class QuerryBuilder():
                     else:
                         whereSymbol.append("=")
 
-                t = requestArgs.get('rad_' + i[1]) #Get sorting state
+                t = str(escape(requestArgs.get('rad_' + i[1]))) #Get sorting state
                 if t != None:
                     if t == "no":
                         sort = 0
@@ -232,7 +233,7 @@ class QuerryBuilder():
 
         tempSelected = [] #Filters that remain selected after user may have dropped some
         for i in selected:
-            if requestArgs.get("inf_" + i) == '0': #If filter is still in form
+            if str(escape(requestArgs.get("inf_" + i))) == '0': #If filter is still in form
                 tempSelected.append(i)
         selected = tempSelected #Reassign selected 
         QuerryBuilder.remaining = tempSelected #Reassign selected 
@@ -263,8 +264,8 @@ class QuerryBuilder():
         for i in self.columnComments: #For every possible column
             numericAllowed = True #Assume numeric input
 
-            tClause = requestArgs.get('comp_clause_' + i[1]) #Get where expression
-            tOp = requestArgs.get('comp_op_' + i[1]) #Get comparisson operator
+            tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get where expression
+            tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparisson operator
             dataType = self.dataTypeByComment[i[1]] #Get column data type
             if tClause != None and tOp != None: #if filter is in form
                 if tClause != "" and tOp != "": 
@@ -459,8 +460,8 @@ class QuerryBuilder():
     
     #Query to retrieve logs
     def logQuerry(self, requestArgs, selected: list) -> str:
-        selected_filters = requestArgs.getlist('select_filters') #Get all checked for SELECT
-        where_filters = requestArgs.getlist('where_filters') #Get all checked for WHERE
+        selected_filters = list(map(lambda x: str(escape(x)), requestArgs.getlist('select_filters'))) #Get all checked for SELECT
+        where_filters = list(map(lambda x: str(escape(x)), requestArgs.getlist('where_filters'))) #Get all checked for WHERE
 
         if len(selected_filters) == 0: #If none are going to be displayed
             return ""
@@ -494,8 +495,8 @@ class QuerryBuilder():
             if i[1] in where_filters: #If column selected for where
                 numericAllowed = True #Assume numeric data
 
-                tClause = requestArgs.get('comp_clause_' + i[1]) #Get expression to compare to
-                tOp = requestArgs.get('comp_op_' + i[1]) #Get comparison operator
+                tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get expression to compare to
+                tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparison operator
                 dataType = self.dataTypeByComment[i[1]] #Get data type for column
                 if tClause != None and tOp != None: #if data supplied
                     try:
@@ -522,7 +523,7 @@ class QuerryBuilder():
                     else:
                         whereSymbol.append("=")
 
-                t = requestArgs.get('rad_' + i[1]) #Get sorting state
+                t = str(escape(requestArgs.get('rad_' + i[1]))) #Get sorting state
                 if t != None:
                     if t == "no":
                         sort = 0
@@ -562,7 +563,7 @@ class QuerryBuilder():
             for entry in self.tableCols[self.tablesForTableCols.index(table)]: #For every column in table
                 colName = entry[0]
                 comment = entry[1]
-                value = requestArgs.get(comment)
+                value = str(escape(requestArgs.get(comment)))
                 if value == None: #If column doesn't exist in form
                     continue
                 elif value == "": #If no value entered
@@ -591,9 +592,9 @@ class QuerryBuilder():
             empty = True #Assume nothing inserted
             for entry in self.tableCols[self.tablesForTableCols.index(table)]: #For every column in table
                 colName = entry[0]
-                if requestArgs.get("changed_" + table + "_" + colName) == "0" and not colName == "PRODUCT_ID": #If not inputed
+                if str(escape(requestArgs.get("changed_" + table + "_" + colName))) == "0" and not colName == "PRODUCT_ID": #If not inputed
                     continue
-                value = requestArgs.get(table + "_" + colName)
+                value = str(escape(requestArgs.get(table + "_" + colName)))
                 if entry[2] == "varchar":
                     value = "'" + value + "'" #Wrap string in ''
                 cols.append(colName)

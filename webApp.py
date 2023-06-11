@@ -228,7 +228,7 @@ def select():
     global connection, cursor, lookUp, columnComments, selected, tables, tableComments, tableColsComments
     
     if checkConnected(): #Check for authentication
-        selected = request.form.getlist('filters') #User checked filters to display    
+        selected = list(map(lambda x: str(escape(x)), request.form.getlist('filters'))) #User checked filters to display    
         return render_template('select.html', cols=columnComments, selected=selected, tables = tables, tabCom = tableComments, tabCols = tableColsComments)
     else:
         return redirect("/", code=302)
@@ -242,7 +242,7 @@ def select_exec():
         q = querryBuilder.buildQuerry(request.form, selected) #Build a query with respect to selected filters and pass all form data
         if q != "": #If querry was built
             results = execute(q)
-            return render_template('select.html', cols=columnComments, selected=querryBuilder.remaining, shown = request.form.getlist('select_filters'), results=results, tables = tables, tabCom = tableComments, tabCols = tableColsComments)
+            return render_template('select.html', cols=columnComments, selected=querryBuilder.remaining, shown = list(map(lambda x: str(escape(x)), request.form.getlist('select_filters'))), results=results, tables = tables, tabCom = tableComments, tabCols = tableColsComments)
         else:
             return redirect("/select", code=302)
     else:
@@ -254,7 +254,7 @@ def edit():
     global connection, cursor, lookUp, columnComments, selected, tables, tableComments, tableColsComments
     
     if checkConnected(): #Check for authentication    
-        selected = request.form.getlist('filters') #User checked filters to display 
+        selected = list(map(lambda x: str(escape(x)), request.form.getlist('filters'))) #User checked filters to display 
         return render_template('edit.html', cols=columnComments, selected=selected, ready = False, tables = tables, tabCom = tableComments, tabCols = tableColsComments)
     else:
         return redirect("/", code=302)
@@ -270,10 +270,10 @@ def edit_retrieve():
         newVals = []
         changed = False
         for j in range(len(results[i])): #For every atribute
-            didChange = request.form.get("changed_" + str(i) + "_" + str(j)) #Check form for user input
+            didChange = str(escape(request.form.get("changed_" + str(i) + "_" + str(j)))) #Check form for user input
             if didChange == "1": #If user changed value
                 changed = True
-            newVals.append(request.form.get(str(i) + "_" + str(j))) #User intendent data for row
+            newVals.append(str(escape(request.form.get(str(i) + "_" + str(j))))) #User intendent data for row
         
         if changed: #If one or more atributes in a row were changed
             allVals.append([results[i], newVals]) #Add old row content and user inputed row content
@@ -355,7 +355,7 @@ def add():
 
     if checkConnected(): #Check for authentication    
         if not preserveSelect: #If user didn't preserve filters
-            selected = request.form.getlist('filters') #User checked filters to display
+            selected = list(map(lambda x: str(escape(x)), request.form.getlist('filters'))) #User checked filters to display
         else:
             preserveSelect = False
         return render_template('add.html', cols=columnComments, selected=selected, newId = countProducts(), tables = tables, tabCom = tableComments, tabCols = tableColsComments)
@@ -408,7 +408,7 @@ def delete():
     global connection, cursor, lookUp, columnComments, selected, tables, tableComments, tableColsComments
     
     if checkConnected(): #Check for authentication    
-        selected = request.form.getlist('filters') #User checked filters to display
+        selected = list(map(lambda x: str(escape(x)), request.form.getlist('filters'))) #User checked filters to display
         return render_template('delete.html', cols=columnComments, selected=selected, keys=keys, ready = False, tables = tables, tabCom = tableComments, tabCols = tableColsComments)
     else:
         return redirect("/", code=302)
@@ -420,7 +420,7 @@ def delete_retrieve():
 
     allVals = []
     q = ""
-    toDelete = request.form.getlist("delete") #Get rows checked for deletion
+    toDelete = list(map(lambda x: str(escape(x)), request.form.getlist("delete"))) #Get rows checked for deletion
     for i in toDelete: #For every row
         allVals.append(results[int(i)]) #Add corresponding entry to list
     if len(allVals) > 0: #If deletion list is not empty
@@ -452,7 +452,7 @@ def selectLogs():
     global connection, cursor, lookUp, columnComments, selected
     
     if checkConnected(): #Check for authentication 
-        selected = request.form.getlist('filters') #User checked filters to display      
+        selected = list(map(lambda x: str(escape(x)), request.form.getlist('filters'))) #User checked filters to display      
         return render_template('logs.html', cols=logCols, selected=selected)
     else:
         return redirect("/", code=302)
@@ -466,7 +466,7 @@ def selectLogs_exec():
         q = querryBuilder.logQuerry(request.form, selected) #Build a query with respect to selected filters and pass all form data
         if q != "":
             results = execute(q)
-            return render_template('logs.html', cols=logCols, selected=querryBuilder.remaining, shown = request.form.getlist('select_filters'), results=results)
+            return render_template('logs.html', cols=logCols, selected=querryBuilder.remaining, shown = list(map(lambda x: str(escape(x)), request.form.getlist('select_filters'))), results=results)
         else:
             return redirect("/select", code=302)
     else:
