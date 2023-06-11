@@ -142,7 +142,7 @@ class QuerryBuilder():
                 tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get expression to compare to
                 tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparison operator
                 dataType = self.dataTypeByComment[i[1]] #Get data type for column
-                if tClause != None and tOp != None: #if data supplied
+                if tClause != 'None' and tOp != 'None': #if data supplied
                     try:
                         if tOp.lower() != 'like': #if numeric operator supplied
                             if dataType == "double":
@@ -168,7 +168,7 @@ class QuerryBuilder():
                         whereSymbol.append("=")
 
                 t = str(escape(requestArgs.get('rad_' + i[1]))) #Get sorting state
-                if t != None:
+                if t != 'None':
                     if t == "no":
                         sort = 0
                     elif t == "asc":
@@ -267,7 +267,7 @@ class QuerryBuilder():
             tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get where expression
             tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparisson operator
             dataType = self.dataTypeByComment[i[1]] #Get column data type
-            if tClause != None and tOp != None: #if filter is in form
+            if tClause != 'None' and tOp != 'None': #if filter is in form
                 if tClause != "" and tOp != "": 
                     where[order] = True
                     useWhere = True
@@ -498,7 +498,7 @@ class QuerryBuilder():
                 tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get expression to compare to
                 tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparison operator
                 dataType = self.dataTypeByComment[i[1]] #Get data type for column
-                if tClause != None and tOp != None: #if data supplied
+                if tClause != 'None' and tOp != 'None': #if data supplied
                     try:
                         if tOp.lower() != 'like': #if numeric operator supplied
                             if dataType == "double":
@@ -524,7 +524,7 @@ class QuerryBuilder():
                         whereSymbol.append("=")
 
                 t = str(escape(requestArgs.get('rad_' + i[1]))) #Get sorting state
-                if t != None:
+                if t != 'None':
                     if t == "no":
                         sort = 0
                     elif t == "asc":
@@ -564,7 +564,7 @@ class QuerryBuilder():
                 colName = entry[0]
                 comment = entry[1]
                 value = str(escape(requestArgs.get(comment)))
-                if value == None: #If column doesn't exist in form
+                if value == 'None': #If column doesn't exist in form
                     continue
                 elif value == "": #If no value entered
                     tempSelect.append(entry[1])

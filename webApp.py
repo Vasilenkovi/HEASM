@@ -154,6 +154,8 @@ def execute(querry: str, commit = True) -> list:
             if e.errno == 4031: #if disconnected by the server because of inactivity
                 connection = connectionPool.get_connection() #Get a new connection
                 cursor = connection.cursor(buffered=True) #update cursor according to new connection
+            else:
+                raise e
         x += 1 #Increment number of attempts
     raise mysql.connector.errors.InterfaceError(errno=2013) #If 3 attemts failed due to loss of connection
             
