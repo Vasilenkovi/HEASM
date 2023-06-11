@@ -152,38 +152,43 @@
                     </form>
                 </div>
                 <div class="scrollable_div">
-					<div class="button-like">Удаление записей</div>
-					{% if ready %}
-					<form action="/delete_retrieve" method="post">
-						<button class="button" value="submit">Подтвердить Удаление</button>
-						<table class="bordered">
-							<tr class="bordered">
-								<th class="bordered">Удалить?</th>
-								{% for i in selected %}
-								<th class="bordered">{{i}}</th>
-								{% endfor %}
-							</tr>
-							{% for entry in range(results| length) %}
-							<tr class="bordered">
-								<td class="bordered">
-									<input type="checkbox" name="delete" value="{{entry}}">
-								</td>
-								{% for atr in range(results[entry]| length) %}
-								<td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
-									{{results[entry][atr]}}
-								</td>
-								{% endfor %}
-							</tr>
-							{% endfor %}
-						</table>
-						<div>
-							{% for s in selected %}
-							<input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
-						</div>
-					</form>
+                    <div class="button-like">Удаление записей</div>
+                    {% if ready %}
+                    <form action="/delete_retrieve" method="post">
+                        <button class="button" value="submit">Подтвердить Удаление</button>
+                        <table class="bordered">
+                            <tr class="bordered">
+                                <th class="bordered">Удалить?</th>
+                                {% for i in selected %}
+                                <th class="bordered">{{i}}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr class="bordered">
+                                <th class="bordered"></th>
+                                {% for i in selected %}
+                                <th class="bordered"><input type="checkbox" name="delete_filters" value="{{i}}" checked></th>
+                                {% endfor %}
+                            </tr>
+                            {% for entry in range(results| length) %}
+                            <tr class="bordered">
+                                <td class="bordered">
+                                    <input type="checkbox" name="delete" value="{{entry}}">
+                                </td>
+                                {% for atr in range(results[entry]| length) %}
+                                <td class="bordered" id="{{'parent' + '_' + entry|string + '_' + atr|string}}">
+                                    {{results[entry][atr]}}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        <div>
+                            {% for s in selected %}
+                            <input type="hidden" name="{{'inf_' + s}}" id="{{'pass_' + s}}" value="0"> {% endfor %}
+                        </div>
+                    </form>
                 </div>
-                {% else %}
-                {% endif %}
+                {% else %} {% endif %}
             </div>
         </div>
     </main>

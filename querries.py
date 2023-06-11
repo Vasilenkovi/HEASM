@@ -606,8 +606,15 @@ class QuerryBuilder():
                 FullQuerry.append(query)
         return FullQuerry
 
-    def deleteExecute(self, changed: list) -> list:
+    def deleteExecute(self, changed: list, toDeleteColumns: list) -> list:
         FullQuerry = [] #List of small, table-wide, single row updates
+        AccountColumns = [] #Actual columns marked for deletion
+
+        for i in toDeleteColumns:
+            for j in range(len(self.columnComments)):
+                if self.columnComments[j][1] == i: #if selected filter equals comment on a column
+                    AccountColumns.append(self.columnComments[j][0]) #Add column name to preselect
+
         for entryOld in changed: #Changed is supplied as a list
             for table in QuerryBuilder.editTables: #For every saved table
                 querry = "DELETE FROM "
@@ -618,6 +625,9 @@ class QuerryBuilder():
                     seperator = QuerryBuilder.editSelected[atr].find(".") #From cached columns get table_name.column_name
                     qualifier = QuerryBuilder.editSelected[atr][:seperator] #Table name
                     atribute = QuerryBuilder.editSelected[atr][seperator+1:] #Column name
+
+                    if atribute not in AccountColumns:
+                        continue
 
                     oldVal = None
                     oldAsNull = False #Wether or not to interpret as NULL

@@ -421,10 +421,11 @@ def delete_retrieve():
     allVals = []
     q = ""
     toDelete = list(map(lambda x: str(escape(x)), request.form.getlist("delete"))) #Get rows checked for deletion
+    toDeleteColumns = list(map(lambda x: str(escape(x)), request.form.getlist("delete_filters"))) #Get rows checked for deletion
     for i in toDelete: #For every row
         allVals.append(results[int(i)]) #Add corresponding entry to list
     if len(allVals) > 0: #If deletion list is not empty
-        q = querryBuilder.deleteExecute(allVals) #Build queries to delete
+        q = querryBuilder.deleteExecute(allVals, toDeleteColumns) #Build queries to delete
         try:
             for querry in q: #For every query
                 execute(querry, commit=False)
