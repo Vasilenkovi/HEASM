@@ -145,7 +145,13 @@ def execute(querry: str, commit = True) -> list:
                     cursor.execute("COMMIT") #End transaction with commit
                 return reinterpretNull(r)
         except mysql.connector.errors.InterfaceError as e: #if execute failed
-            if e.errno == 2013 or e.errno == 2055: #if lost connection during query or if conncetion closed unexpectedly
+            if e.errno == 2013: #if lost connection during query
+                connection = connectionPool.get_connection() #Get a new connection
+                cursor = connection.cursor(buffered=True) #update cursor according to new connection
+            else:
+                raise e
+        except mysql.connector.errors.OperationalError as e: #if execute failed
+            if e.errno == 2055: #if conncetion closed unexpectedly
                 connection = connectionPool.get_connection() #Get a new connection
                 cursor = connection.cursor(buffered=True) #update cursor according to new connection
             else:
