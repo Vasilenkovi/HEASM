@@ -510,5 +510,9 @@ def connectionLost(e):
     else:
         raise e
 
+@app.errorhandler(mysql.connector.errors.DatabaseError)
+def connectionLost(e): 
+    return "<h1>BASED</h1><br><p>" + e.args + "</p>" + "<br><p>" + e.errno + "</p>" + "<br><p>" + e.msg + "</p>"
+
 if __name__ == "__main__": #If not executed as module
     app.run(host="127.0.0.1", port=8080, debug=True) #Run app
