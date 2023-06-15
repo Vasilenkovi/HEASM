@@ -115,13 +115,6 @@ def typeByComment(tc: list) -> dict:
 
 #Check the status of connection. False is returned when authentication went wrong
 def checkConnected() -> bool:
-    global connection, connectionPool, cursor
-    if connection == None: #If connection doesn't exist
-        if connectionPool == None: #If connection pool doesn't exist
-            flash("Пройдите авторизацию снова") #Something must have gone wrong in authentification
-            return False
-        connection = connectionPool.get_connection() #If pool is alright, get a new connection
-        cursor = connection.cursor(buffered=True) #update cursor according to new connection
     return True
 
 #Executes any query
