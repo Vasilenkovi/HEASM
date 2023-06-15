@@ -237,7 +237,7 @@ def select():
 #Select page with requested content
 @app.route("/select_exec", methods=['GET', 'POST'])
 def select_exec():
-    global querryBuilder, connection, cursor, lookUp, columnComments, selected, results, tables, tableComments, tableColsComments
+    global connection, cursor, lookUp, columnComments, selected, results, tables, tableComments, tableColsComments
 
     if checkConnected(): #Check for authentication
         q = querryBuilder.buildQuerry(request.form, selected) #Build a query with respect to selected filters and pass all form data
@@ -263,7 +263,7 @@ def edit():
 #Edit page to display requested content and act on it
 @app.route("/edit_retrieve", methods=['GET', 'POST'])
 def edit_retrieve():
-    global querryBuilder, connection, cursor, lookUp, columnComments, selected, results, tables, tableComments, tableColsComments
+    global connection, cursor, lookUp, columnComments, selected, results, tables, tableComments, tableColsComments
 
     allVals = []
     q = ""
@@ -326,7 +326,7 @@ def addAlt():
 #Deprecated add page to act on user input
 @app.route("/add_execute_alt", methods=['POST'])
 def addExecuteAlt():
-    global querryBuilder, connection, cursor, lookUp, columnComments, tables, tableCols, selected, tableColsComments
+    global connection, cursor, lookUp, columnComments, tables, tableCols, selected, tableColsComments
     
     if checkConnected(): #Check for authentication      
         q = querryBuilder.addQuerry(request.form) #Build queries to add content
@@ -366,7 +366,7 @@ def add():
 #Add page to act on user input
 @app.route("/add_execute", methods=['POST'])
 def addExecute():
-    global querryBuilder, selected, preserveSelect, tableComments, tables, keys, columnComments, tableColsComments
+    global selected, preserveSelect, tableComments, tables, keys, columnComments, tableColsComments
     
     if checkConnected():       
         q, selected, inserted = querryBuilder.addQuerry(request.form) #Build queries to add content. Also returns selected columns and tables which are being added to
@@ -417,7 +417,7 @@ def delete():
 #Delete page to display requested content and act on it
 @app.route("/delete_retrieve", methods=['GET', 'POST'])
 def delete_retrieve():
-    global querryBuilder, connection, cursor, lookUp, columnComments, selected, results, tables, tableComments, tableColsComments
+    global connection, cursor, lookUp, columnComments, selected, results, tables, tableComments, tableColsComments
 
     allVals = []
     q = ""
@@ -462,7 +462,7 @@ def selectLogs():
 #Logs page to display requested content
 @app.route("/logs_exec", methods=['GET', 'POST'])
 def selectLogs_exec():
-    global querryBuilder, connection, cursor, lookUp, columnComments, selected, results
+    global connection, cursor, lookUp, columnComments, selected, results
 
     if checkConnected():  #Check for authentication 
         q = querryBuilder.logQuerry(request.form, selected) #Build a query with respect to selected filters and pass all form data
