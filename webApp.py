@@ -99,6 +99,7 @@ def seperateTableKeys(tableCols: list) -> list:
 
 #Estimates the amount of records of synthesis products and returns a valid key for 'PRODUCT_ID'. May be beneficial to implement a sequence in db
 def countProducts() -> int:
+    i = 0
     if cursor != None: #if cursor is ready
         cursor.reset() #Clear old result and prepare for execution
         cursor.execute("SELECT MAX(PRODUCT_ID) FROM synthesis_product") #Execute query

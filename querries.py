@@ -140,7 +140,7 @@ class QuerryBuilder():
                 numericAllowed = True #Assume numeric input
 
                 tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get expression to compare to
-                tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparison operator
+                tOp = requestArgs.get('comp_op_' + i[1]) #Get comparison operator
                 dataType = self.dataTypeByComment[i[1]] #Get data type for column
                 if tClause != 'None' and tOp != 'None': #if data supplied
                     try:
@@ -265,7 +265,7 @@ class QuerryBuilder():
             numericAllowed = True #Assume numeric input
 
             tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get where expression
-            tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparisson operator
+            tOp = requestArgs.get('comp_op_' + i[1]) #Get comparisson operator
             dataType = self.dataTypeByComment[i[1]] #Get column data type
             if tClause != 'None' and tOp != 'None': #if filter is in form
                 if tClause != "" and tOp != "": 
@@ -496,7 +496,7 @@ class QuerryBuilder():
                 numericAllowed = True #Assume numeric data
 
                 tClause = str(escape(requestArgs.get('comp_clause_' + i[1]))) #Get expression to compare to
-                tOp = str(escape(requestArgs.get('comp_op_' + i[1]))) #Get comparison operator
+                tOp = requestArgs.get('comp_op_' + i[1]) #Get comparison operator
                 dataType = self.dataTypeByComment[i[1]] #Get data type for column
                 if tClause != 'None' and tOp != 'None': #if data supplied
                     try:
