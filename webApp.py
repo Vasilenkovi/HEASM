@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import session
 from flask import request
 from flask import render_template
 from flask import redirect
@@ -116,6 +117,11 @@ def typeByComment(tc: list) -> dict:
 
 #Check the status of connection. False is returned when authentication went wrong
 def checkConnected() -> bool:
+    global connectionPool, connection, cursor
+    login = session["user"]
+    password = session["password"]
+    if connectionPool == None or connection == None or cursor == None:
+        loginAndCreateData(login, password)
     return True
 
 #Executes any query
@@ -169,6 +175,27 @@ def rollback() -> None:
     if connection != None:
         connection.rollback()
 
+def loginAndCreateData(login: str, password: str) -> None:
+    global querryBuilder, connectionPool, connection, config, cursor, lookUp, columnComments, logCols, tables, tableCols, keys, tableComments, tableColsComments
+
+    config["user"] = login #Add login to connection config
+    config["password"] = password #Add password to connection config
+    connectionPool = mysql.connector.pooling.MySQLConnectionPool(pool_name = "mypool", pool_size = POOLED_CONNECTIONS, **config) #Open connection pool with config
+    connection = connectionPool.get_connection() #Get connection from pool
+    cursor = connection.cursor(buffered=True) #Prepare cursor
+    lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
+    columnComments = execute("SELECT DISTINCT column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
+    logCols = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name = 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
+    tables, tableCols, tableComments = seperateTableCols(execute("SELECT DISTINCT information_schema.columns.table_name, table_comment, column_name, column_comment, data_type FROM information_schema.columns JOIN information_schema.tables ON information_schema.tables.table_name = information_schema.columns.table_name WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs' ORDER BY information_schema.columns.table_name"))
+    tableColsComments = list(map(lambda x: list(map(lambda y: y[1], x)), tableCols)) #Take only comments of columns grouped by tables
+    keys = seperateTableKeys(execute("select distinct sta.table_name, sta.column_name from information_schema.tables as tab inner join information_schema.statistics as sta on sta.table_schema = tab.table_schema and sta.table_name = tab.table_name and sta.index_name = 'primary' where tab.table_schema = 'heasm' and sta.table_name != 'logs' order by sta.table_name"))
+    dataTypeByComment = typeByComment(execute("SELECT DISTINCT column_comment, data_type FROM information_schema.columns WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs'"))
+    dataTypeByName = typeByComment(execute("SELECT DISTINCT column_name, data_type FROM information_schema.columns WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs'"))
+    querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols, dataTypeByComment, dataTypeByName) #Initialize object for query building with dynamic db data
+
+    session["user"] = login
+    session["password"] = password
+
 #Root page with authentification form
 @app.route("/", methods=['GET', 'POST'])
 def main():
@@ -183,20 +210,7 @@ def auth():
     password = str(escape(request.form.get("password", ""))) #Safely parsing password info
  
     try:
-        config["user"] = login #Add login to connection config
-        config["password"] = password #Add password to connection config
-        connectionPool = mysql.connector.pooling.MySQLConnectionPool(pool_name = "mypool", pool_size = POOLED_CONNECTIONS, **config) #Open connection pool with config
-        connection = connectionPool.get_connection() #Get connection from pool
-        cursor = connection.cursor(buffered=True) #Prepare cursor
-        lookUp = createLookUp(execute("SELECT DISTINCT column_name, table_name FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name")) #LookUp table is generated once on connection and used to quickly disambiguate between columns of different tables with the same names
-        columnComments = execute("SELECT DISTINCT column_name, column_comment, data_type FROM information_schema.columns WHERE table_schema = DATABASE() and table_name != 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
-        logCols = execute("SELECT DISTINCT column_name, column_comment FROM information_schema.columns WHERE table_schema = DATABASE() and table_name = 'logs' ORDER BY column_name") #Retrieving comments to columns to present the user
-        tables, tableCols, tableComments = seperateTableCols(execute("SELECT DISTINCT information_schema.columns.table_name, table_comment, column_name, column_comment, data_type FROM information_schema.columns JOIN information_schema.tables ON information_schema.tables.table_name = information_schema.columns.table_name WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs' ORDER BY information_schema.columns.table_name"))
-        tableColsComments = list(map(lambda x: list(map(lambda y: y[1], x)), tableCols)) #Take only comments of columns grouped by tables
-        keys = seperateTableKeys(execute("select distinct sta.table_name, sta.column_name from information_schema.tables as tab inner join information_schema.statistics as sta on sta.table_schema = tab.table_schema and sta.table_name = tab.table_name and sta.index_name = 'primary' where tab.table_schema = 'heasm' and sta.table_name != 'logs' order by sta.table_name"))
-        dataTypeByComment = typeByComment(execute("SELECT DISTINCT column_comment, data_type FROM information_schema.columns WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs'"))
-        dataTypeByName = typeByComment(execute("SELECT DISTINCT column_name, data_type FROM information_schema.columns WHERE information_schema.columns.table_schema = DATABASE() and information_schema.columns.table_name != 'logs'"))
-        querryBuilder = querries.QuerryBuilder(lookUp, columnComments, logCols, tables, tableCols, dataTypeByComment, dataTypeByName) #Initialize object for query building with dynamic db data
+        loginAndCreateData(login, password)
         return redirect("/options", code=302)
     except mysql.connector.errors.Error as e:
         if e.errno == 1045: #Connector access denied
