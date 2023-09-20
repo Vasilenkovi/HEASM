@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HEASM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main_style.css') }}">
+    <style>
+        .messageSpace {
+            border: 2px;
+            border-color: black;
+            border-style: solid;
+            background-color: #FFFFFF;
+            padding: 1px;
+        }
+        
+        .error {
+            color: rgb(214, 17, 17);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body style="background-image: url({{ url_for( 'static', filename='images/1.png' ) }});">
+    <div class="form-container">
+        <h1>HEASM</h1>
+        <form action="/auth" method="post">
+            <table class="center_table">
+                <tr>
+                    <input type="text" name="login" placeholder="логин">
+                </tr>
+                <tr>
+                    <input type="password" name="password" placeholder="пароль">
+                </tr>
+            </table>
+            <button class="button" value="submit">Продолжить</button>
+        </form>
+        <div id="msgHolder">
+            <div class="error">{% for message in get_flashed_messages() %}
+                <script>
+                    var div = document.getElementById("msgHolder")
+                    div.className = "messageSpace"
+                </script>
+                <div> {{ message }} </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <img class="logo" src="{{ url_for('static', filename='images/3.png') }}">
+</body>
+
+</html>
