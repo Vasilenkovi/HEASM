@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<title>index_page_HEASM</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="/12312/static/css/HEASM_HEADER_style.css">
+</head>
+
+<body class>
+	<header id="HEASM_header">
+		<div id="TPU_logo">
+			<img src ="/12312/static/image/tpu-logo-hor.png" /> <!-- Logo img path -->
+		</div>
+		<nav>
+			<div id = "HEASM_header_menu">
+				<ul>
+					<li class="active"><a herf="#">Основа</a></li>
+					<li><a href="/12312/html/options.html">Выбор функции</a></li> <!-- Not sure -->
+					<li>
+						<a href="/12312/html/logout.html">Выход</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	
+	<main id="HEASM_main">
+		<div class="grid-container3col">
+			<div class="scrollable_div">
+				<form action="/select" method="get">
+					{% for filter in cols %}
+					<div>
+						<input type="checkbox" name="filters" value="{{ filter[1].decode('utf-8', 'ignore') }}" />
+						<label>{{ filter[1].decode('utf-8', 'ignore') }}</label>
+					</div>
+					<br> {% endfor %}
+					<input type="submit" value="применить">
+					<div id = "HEASM_main_menu">
+						<ul>
+							<li>
+								<a href = "#">Применить</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			<div class="scrollable_div">
+				<form action="/select_exec" method="get">
+					{% for s in selected %}
+					<div id="{{ 'div_' + s}}">
+						<table class="bordered">
+							<tr>
+								<td>
+									<input type="checkbox" name="select_filters" value="{{s}}" checked/>
+									<label>Показать</label>
+								</td>
+								<td>
+									<div class="bordered_sub">
+										{{s}}
+									</div>
+								</td>
+								<td id="{{s}}">
+									<script>
+										{
+											var button = document.createElement('input');
+											button.type = "button"
+											button.value = "X";
+											button.id = "{{'but_' + s}}";
+											button.onclick = function updateButton() {
+												var div = document.getElementById("{{'div_' + s}}");
+												div.remove();
+											}
+											var container = document.getElementById("{{s}}");
+											container.appendChild(button);
+										}
+									</script>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input type="radio" name="{{'rad_' + s}}" value="no" checked>
+									<label>Не сортировать</label>
+								</td>
+								<td>
+									<input type="radio" name="{{'rad_' + s}}" value="asc">
+									<label>По возрастанию</label>
+								</td>
+								<td>
+									<input type="radio" name="{{'rad_' + s}}" value="des">
+									<label>По убыванию</label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input type="checkbox" name="where_filters" value="{{s}}" />
+									<label>Отобрать</label>
+								</td>
+								<td>
+									<input type="text" name="{{'comp_op_' + s}}">
+								</td>
+								<td>
+									<input type="text" name="{{'comp_clause_' + s}}">
+								</td>
+							</tr>
+						</table>
+					</div>
+					<br> {% endfor %}
+					<input type="submit" value="Исполнить">
+					<div id = "HEASM_main_menu">
+						<ul>
+							<li>
+								<a href = "#">Исполнить</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+        <div class="scrollable_div">
+            <table class="bordered">
+                <tr class="bordered">
+                    {% for i in shown %}
+                    <th class="bordered">{{i}}</th>
+                    {% endfor %}
+                </tr>
+                {% for entry in results %}
+                <tr class="bordered">
+                    {% for atr in entry %}
+                    <td class="bordered">{{atr}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+		</div>
+	</main>
+	
+	<footer id="HEASM_footer">
+	</footer>
+</body>
+
+</html>
