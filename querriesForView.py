@@ -51,5 +51,3 @@ class ViewSelector:
     def getAllColumns(self): # get list of all collumns
         return self.allColumns
 
-VS = ViewSelector()
-print(VS.allComments)
