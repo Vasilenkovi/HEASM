@@ -122,7 +122,7 @@ def convertToJson(matrix, lst): # converts cells with multiple values to json WA
 """
           The second parameter of this function is an array with indexes of column with multiple values.
           The order of the values is not important. Take into account that convertConcat deletes odd columns
-          For example after previous function call columns 18,17,16,4 had been removed. But I recommend you use this 
+          For example after previous function call columns 18, 17, 16, 4 had been removed. But I recommend you use this 
           function before convertConcat.
 """
 # except Error as e:
