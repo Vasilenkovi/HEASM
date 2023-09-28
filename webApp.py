@@ -63,6 +63,15 @@ def auth():
             flash("Соединение потеряно")
         return redirect("/", code=302)
 
+#Authentification processing
+@app.route("/deauth", methods=['POST'])
+def deauth():
+
+    MyWebApp._config["user"] = ""
+    MyWebApp._config["password"] = ""
+    
+    return redirect("/", code=302)
+
 #Data table page
 @app.route("/data", methods=['GET', 'POST'])
 def data():
