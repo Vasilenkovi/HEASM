@@ -1,342 +1,399 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
+
 * {
-    box-sizing: border-box;
-    margin: 0px;
-    padding: 0px;
+   box-sizing: border-box;
+   margin: 0px;
+   padding: 0px;
 }
-
 button:active {
-    transform: scale(0.98);
+   transform: scale(0.98);
 }
-
 body {
-    background: #dbdbdb;
+   background: #dbdbdb;
 }
-
 .header {
-    display: grid;
-    grid-template-columns: 20px max-content 80px 1fr 50px;
-    grid-template-areas: "... logo ... nav";
-    align-items: center;
-    height: 85px;
-    background: #fff;
+   display: grid;
+   grid-template-columns: 20px max-content 80px 1fr 50px;
+   grid-template-areas: "... logo ... nav";
+   align-items: center;
+   height: 85px;
+   background: #fff;
 }
-
-.header>img {
-    grid-area: logo;
-    width: 215px;
-    height: 56px;
+.header > img {
+   grid-area: logo;
+   width: 215px;
+   height: 56px;
 }
-
-.header>nav {
-    grid-area: nav;
-    display: grid;
-    grid-template-columns: max-content 50px max-content 1fr max-content;
-    grid-template-areas: "a ... b ... c";
+.header > nav {
+   grid-area: nav;
+   display: grid;
+   grid-template-columns: max-content 50px max-content 1fr max-content;
+   grid-template-areas: "a ... b ... c";
 }
-
-.header>nav :nth-child(1) {
-    grid-area: a;
+.header > nav :nth-child(1) {
+   grid-area: a;
 }
-
-.header>nav :nth-child(2) {
-    grid-area: b;
+.header > nav :nth-child(2) {
+   grid-area: b;
 }
-
-.header>nav :nth-child(3) {
-    grid-area: c;
+.header > nav :nth-child(3) {
+   grid-area: c;
 }
-
-.header>nav>a {
-    color: #000;
-    font-family: Montserrat;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
+.header > nav > a {
+   color: #000;
+   font-family: Montserrat;
+   font-size: 24px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
 }
-
 .content__area {
-    padding-left: 25px;
-    padding-right: 25px;
+   padding-left: 25px;
+   padding-right: 25px;
 }
-
 .content {
-    margin-top: 55px;
-    margin-bottom: 55px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 40px;
-    background: linear-gradient(147deg, #5bbc38 5.47%, #869980 89.21%);
-    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.25);
-    max-width: 1875px;
-    height: 885px;
-    display: grid;
-    grid-template-columns: minmax(5px, 40px) 605px minmax(5px, 64px) minmax(700px, 1120px) minmax(5px, 40px);
-    grid-template-rows: 30px max-content 24px max-content 20px max-content;
-    grid-template-areas: "... ..................... ... ................... ..." "... question__description ... answer__description ..." "... ..................... ... ................... ..." "... question__form        ... answer              ..." "... ..................... ... ................... ..." "... button                ... ................... ...";
-}
+   margin-top: 55px;
+   margin-bottom: 55px;
+   margin-left: auto;
+   margin-right: auto;
+   border-radius: 40px;
+   background: linear-gradient(147deg, #5bbc38 5.47%, #869980 89.21%);
+   box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.25);
+   max-width: 1875px;
+   height: 885px;
 
+   display: grid;
+   grid-template-columns: minmax(5px, 40px) 605px minmax(5px, 64px) minmax(700px, 1120px) minmax(5px, 40px);
+   grid-template-rows: 30px max-content 24px max-content 20px max-content;
+   grid-template-areas:
+      "... ..................... ... ................... ..."
+      "... question__description ... answer__description ..."
+      "... ..................... ... ................... ..."
+      "... question__form        ... answer              ..."
+      "... ..................... ... ................... ..."
+      "... button                ... ................... ...";
+}
 .content__question__description {
-    grid-area: question__description;
-    justify-self: center;
-    color: #fff;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    font-family: Montserrat;
-    font-size: 32px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
+   grid-area: question__description;
+   justify-self: center;
+   color: #fff;
+   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+   font-family: Montserrat;
+   font-size: 32px;
+   font-style: normal;
+   font-weight: 700;
+   line-height: normal;
 }
-
 .content__answer__description {
-    grid-area: answer__description;
-    justify-self: center;
-    color: #fff;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    font-family: Montserrat;
-    font-size: 32px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
+   grid-area: answer__description;
+   justify-self: center;
+   color: #fff;
+   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+   font-family: Montserrat;
+   font-size: 32px;
+   font-style: normal;
+   font-weight: 700;
+   line-height: normal;
 }
-
 .content__question__form {
-    grid-area: question__form;
-    width: 605px;
-    height: 685px;
-    border-radius: 20px;
-    background: #eaeaea;
-    display: grid;
-    grid-template-columns: 1fr max-content 1fr;
-    grid-template-rows: 20px max-content 30px max-content;
-    grid-template-areas: "... ........ ..." "... type     ..." "... ........ ..." "... settings ...";
+   grid-area: question__form;
+   width: 605px;
+   height: 685px;
+   border-radius: 20px;
+   background: #eaeaea;
+   display: grid;
+   grid-template-columns: 1fr max-content 1fr;
+   grid-template-rows: 20px max-content 30px max-content;
+   grid-template-areas:
+      "... ........ ..."
+      "... type     ..."
+      "... ........ ..."
+      "... settings ...";
 }
-
 .content__answer {
-    grid-area: answer;
-    max-width: 1120px;
-    height: 685px;
-    border-radius: 20px;
-    background: #eaeaea;
+   grid-area: answer;
+   max-width: 1120px;
+   height: 685px;
+   border-radius: 20px;
+   background: #eaeaea;
     overflow: auto;
 }
-
 .button {
-    grid-area: button;
-    justify-self: center;
-    width: 237px;
-    height: 51px;
-    border-radius: 20px;
-    background: #fff;
-    color: #000;
-    font-family: Montserrat;
-    font-size: 32px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    border: none;
-    outline: none;
+   grid-area: button;
+   justify-self: center;
+   width: 237px;
+   height: 51px;
+   border-radius: 20px;
+   background: #fff;
+   color: #000;
+   font-family: Montserrat;
+   font-size: 32px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
+   border: none;
+   outline: none;
 }
-
 .content__question__form__type_select {
-    grid-area: type;
-    appearance: none;
-    padding-left: 30px;
-    width: 548px;
-    height: 40px;
-    border-radius: 20px;
-    border: 2px solid #000;
-    background: #fff;
-    color: #000;
-    font-family: Montserrat;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    background-image: url(images/open.svg);
-    background-repeat: no-repeat;
-    background-position: calc(100% - 12px) 12px;
+   grid-area: type;
+   appearance: none;
+   padding-left: 30px;
+   width: 548px;
+   height: 40px;
+   border-radius: 20px;
+   border: 2px solid #000;
+   background: #fff;
+   color: #000;
+   font-family: Montserrat;
+   font-size: 20px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
+   background-image: url(images/open.svg);
+   background-repeat: no-repeat;
+   background-position: calc(100% - 12px) 12px;
 }
-
 .content__question__form__settings_area {
-    position: relative;
-    grid-area: settings;
-    width: 549px;
-    height: 135px;
-    border-radius: 20px;
-    background: #fff;
+   position: relative;
+   grid-area: settings;
+   width: 549px;
+   height: 135px;
+   border-radius: 20px;
+   background: #fff;
 }
-
-.content__question__form__settings_area>p {
-    color: #000;
-    font-family: Montserrat;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
+.content__question__form__settings_area > p {
+   color: #000;
+   font-family: Montserrat;
+   font-size: 16px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
 }
-
 .content__question__form__settings_area__show_radio {
-    position: absolute;
-    top: 21px;
-    left: 24px;
+   position: absolute;
+   top: 21px;
+   left: 24px;
 }
-
 .content__question__form__settings_area__show {
-    position: absolute;
-    top: 16px;
-    left: 44px;
+   position: absolute;
+   top: 16px;
+   left: 44px;
 }
-
 .content__question__form__settings_area__sort_radio {
-    position: absolute;
-    top: 63px;
-    left: 24px;
+   position: absolute;
+   top: 63px;
+   left: 24px;
 }
-
 .content__question__form__settings_area__sort {
-    position: absolute;
-    top: 57px;
-    left: 44px;
+   position: absolute;
+   top: 57px;
+   left: 44px;
 }
-
 .content__question__form__settings_area__choose_radio {
-    position: absolute;
-    top: 107px;
-    left: 24px;
+   position: absolute;
+   top: 107px;
+   left: 24px;
 }
-
 .content__question__form__settings_area__choose {
-    position: absolute;
-    top: 102px;
-    left: 44px;
+   position: absolute;
+   top: 102px;
+   left: 44px;
 }
-
 .content__question__form__settings_area__max_radio {
-    position: absolute;
-    top: 62px;
-    left: 197px;
+   position: absolute;
+   top: 62px;
+   left: 197px;
 }
-
 .content__question__form__settings_area__max {
-    position: absolute;
-    top: 57px;
-    left: 211px;
+   position: absolute;
+   top: 57px;
+   left: 211px;
 }
-
 .content__question__form__settings_area__min_radio {
-    position: absolute;
-    top: 62px;
-    left: 375px;
+   position: absolute;
+   top: 62px;
+   left: 375px;
 }
-
 .content__question__form__settings_area__min {
-    position: absolute;
-    top: 57px;
-    left: 395px;
+   position: absolute;
+   top: 57px;
+   left: 395px;
 }
-
 .content__question__form__settings_area__operator_input {
-    position: absolute;
-    top: 95px;
-    left: 196px;
-    width: 158px;
-    height: 23px;
-    border-radius: 20px;
-    border: 2px solid #000;
-    background: #fff;
-    color: #000;
-    font-family: Montserrat;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    text-align: center;
+   position: absolute;
+   top: 95px;
+   left: 196px;
+   width: 158px;
+   height: 23px;
+   border-radius: 20px;
+   border: 2px solid #000;
+   background: #fff;
+   color: #000;
+   font-family: Montserrat;
+   font-size: 16px;
+   font-style: normal;
+   font-weight: 500;
+   text-align: center;
 }
-
 .content__question__form__settings_area__expression_input {
-    position: absolute;
-    top: 95px;
-    left: 374px;
-    width: 158px;
-    height: 23px;
-    border-radius: 20px;
-    border: 2px solid #000;
-    background: #fff;
-    color: #000;
-    font-family: Montserrat;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    text-align: center;
+   position: absolute;
+   top: 95px;
+   left: 374px;
+   width: 158px;
+   height: 23px;
+   border-radius: 20px;
+   border: 2px solid #000;
+   background: #fff;
+   color: #000;
+   font-family: Montserrat;
+   font-size: 16px;
+   font-style: normal;
+   font-weight: 500;
+   text-align: center;
 }
-
 .content__question__form__settings_area__min_value {
-    width: 334px;
-    height: 23px;
-    border-radius: 20px;
-    border: 2px solid #000;
-    background: #fff;
+   width: 334px;
+   height: 23px;
+   border-radius: 20px;
+   border: 2px solid #000;
+   background: #fff;
 }
-
 .content__question__form__settings_area__min_value {
-    position: absolute;
-    left: 196px;
-    top: 16px;
-    padding-left: 15px;
-    width: 334px;
-    height: 23px;
-    border-radius: 20px;
-    border: 2px solid #000;
-    background: #fff;
-    color: #000;
-    font-family: Montserrat;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    appearance: none;
-    background-image: url(images/open_small.svg);
-    background-repeat: no-repeat;
-    background-position: calc(100% - 5px) 6px;
+   position: absolute;
+   left: 196px;
+   top: 16px;
+   padding-left: 15px;
+   width: 334px;
+   height: 23px;
+   border-radius: 20px;
+   border: 2px solid #000;
+   background: #fff;
+   color: #000;
+   font-family: Montserrat;
+   font-size: 16px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
+   appearance: none;
+   background-image: url(images/open_small.svg);
+   background-repeat: no-repeat;
+   background-position: calc(100% - 5px) 6px;
 }
+.triangle{
+   font-size: 20px;
+   line-height: 1;
 
-.triangle {
-    font-size: 20px;
-    line-height: 1;
-    color: grey;
+   color: grey;
 }
 
 @media (max-width: 1400px) {
-    .content {
-        height: 1700px;
-        display: grid;
-        grid-template-columns: 1fr max-content 1fr;
-        grid-template-rows: 30px max-content 10px max-content 10px max-content 50px max-content 10px max-content;
-        grid-template-areas: "... ...................... ..." "... question__description  ..." "... ...................... ..." "... question__form         ..." "... ...................... ..." "... button                 ..." "... ...................... ..." "... answer__description    ..." "... ...................... ..." "... answer                 ...";
-    }
-    .button {
-        width: 600px;
-    }
-    .header {
-        padding-top: 5px;
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: max-content 5px max-content;
-        grid-template-areas: "logo" "...." "nav";
-        justify-items: center;
-        height: 100px;
-        background: #fff;
-    }
-    .header>nav {
-        display: flex;
-        justify-content: space-between;
-        gap: 35px;
-    }
+   .content {
+      height: 1700px;
+      display: grid;
+      grid-template-columns: 1fr max-content 1fr;
+      grid-template-rows: 30px max-content 10px max-content 10px max-content 50px max-content 10px max-content;
+      grid-template-areas:
+         "... ...................... ..."
+         "... question__description  ..."
+         "... ...................... ..."
+         "... question__form         ..."
+         "... ...................... ..."
+         "... button                 ..."
+         "... ...................... ..."
+         "... answer__description    ..."
+         "... ...................... ..."
+         "... answer                 ...";
+   }
+   .button {
+      width: 600px;
+   }
+   .header {
+      padding-top: 5px;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: max-content 5px max-content;
+      grid-template-areas:
+         "logo"
+         "...."
+         "nav";
+      justify-items: center;
+      height: 100px;
+      background: #fff;
+   }
+   .header > nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 35px;
+   }
 }
 
-.bordered {
-    border: 1px;
-    border-color: black;
-    border-style: solid;
+tr.bordered1{
+   background-color: #869980;
+   text-align: left;
+
+}
+
+tr.bordered{
+   background-color: white;
+   border: 1px;
+   border-color: black;
+   border-style: solid;
+   vertical-align: top;
+
+}
+table.bordered{
+   margin: 28px 68px 69px 20px;
+   border-collapse: collapse;
+
+}
+td.bordered{
+   color: #000;
+   font-family: Montserrat;
+   font-size: 16px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
+   /*
+   border-bottom: solid;
+   border-bottom-width: 1px;
+   border-bottom-color: black;
+   border-right: solid;
+   border-right-width: 1.5px;
+
+   border-right-color: black;
+   */
+   border-style: solid;
+   border-color: black;
+   /*border-collapse: collapse;*/
+}
+table.bordered1{
+   border-collapse: collapse;
+}
+tr.bordered1{
+   color: #000;
+   font-family: Montserrat;
+   font-size: 16px;
+   font-style: normal;
+   font-weight: 500;
+   line-height: normal;
+   vertical-align: top;
+
+
+
+
+}
+th.bordered{
+   border-style: solid;
+   border-color: black;
+
+}
+td {
+   padding: 19px;
+
+}
+th.bordered{
+   padding-left: 10px;
+   padding-top: 10px;
+   padding-right: 20px;
+   padding-bottom: 10px;
 }
