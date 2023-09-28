@@ -54,79 +54,99 @@ class ViewSelector:
     def getAllColumns(self): # get list of all collumns
         return self.allColumns
 
-def convertConcat(matrix, lstToConcat): # unites columns and converts resulting cells into json WARNING: returns array of arrays
-    matrix = [list(i) for i in matrix]
-    for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            matrix[i][j] = str(matrix[i][j])
-    for i in lstToConcat:
-        for j in range(len(matrix)):
-            tempStr = ""
-            lstToSub = []
-            for k in i:
-                tmp = matrix[j][k]
-                tmp = tmp.split(';')
-                lstToSub.append(tmp)
-            for k in range(len(lstToSub[0])):
-                for h in lstToSub:
-                    #print(h,"||" ,lstToSub, k)
-                    tempStr += h[k]+" "
-                tempStr += ";"
-            result = dict()
-            tempStr = tempStr.split(";")
-            for t in range(len(tempStr)):
-                result[t]=tempStr[t]
-            matrix[j][i[0]] = json.dumps(result)
-    for i in range(len(lstToConcat)):
-        for j in range(len(lstToConcat[i])-1,0,-1):
+    def convertConcat(matrix, lstToConcat): # unites columns and converts resulting cells into json WARNING: returns array of arrays
+        matrix = [list(i) for i in matrix]
+        for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                matrix[i][j] = str(matrix[i][j])
+        for i in lstToConcat:
+            for j in range(len(matrix)):
+                tempStr = ""
+                lstToSub = []
+                for k in i:
+                    tmp = matrix[j][k]
+                    tmp = tmp.split(';')
+                    lstToSub.append(tmp)
+                for k in range(len(lstToSub[0])):
+                    for h in lstToSub:
+                        #print(h,"||" ,lstToSub, k)
+                        try:
+                            tempStr += h[k]+" "
+                        except:
+                            pass #Catch exceptions here
+                    tempStr += ";"
+                result = dict()
+                tempStr = tempStr.split(";")
+                for t in range(len(tempStr)):
+                    result[t]=tempStr[t]
+                matrix[j][i[0]] = json.dumps(result)
+        for i in range(len(lstToConcat)):
+            for j in range(len(lstToConcat[i])-1,0,-1):
+                for k in range(len(matrix)):
+                    x = matrix[k].pop(lstToConcat[i][j])
+        return matrix
+    
+    def convertToJson(matrix, lst): # converts cells with multiple values to json WARNING: returns array of arrays
+        matrix = [list(i) for i in matrix]
+        for i in range(len(matrix)):
+            for j in range(len(matrix[i])):
+                matrix[i][j] = str(matrix[i][j])
+        for i in lst:
             for k in range(len(matrix)):
-                x = matrix[k].pop(lstToConcat[i][j])
-    return matrix
-def convertToJson(matrix, lst): # converts cells with multiple values to json WARNING: returns array of arrays
-    matrix = [list(i) for i in matrix]
-    for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            matrix[i][j] = str(matrix[i][j])
-    for i in lst:
-        for k in range(len(matrix)):
-            strTmp =  matrix[k][i]
-            strTmp = strTmp.split(';')
-            tmpDict = dict()
-            for j in range(len(strTmp)):
-                tmpDict[j] = strTmp[j]
-            matrix[k][i] = json.dumps(tmpDict)
-    return matrix
-#Example
-# try:
-#     with connect(
-#         host="localhost",
-#         user="root",
-#         password="Sciilotv2003!",
-#     ) as connection:
-#         show_db_query = "use heasm;"
-#         cursor = connection.cursor()
-#         cursor.execute(show_db_query)
-#         cursor.execute("select * from main_view;")
-#         matrix = cursor.fetchall()
-#         matrix = convertConcat(matrix, [[15,16,17,18],[3,4]])
-"""       
-          The second parameter of this function 
-          is an array of arrays, where within each there are columns to be combined. 
-          Moreover, the elements of the left array must be greater than the values of the right arrays. 
-          Also, each array must be sorted in ascending order.
-"""
-#         #print(matrix)
-#         print(matrix[0][19])
-#         print()
-#         print(convertToJson(matrix, [19])[0][19])
-"""
-          The second parameter of this function is an array with indexes of column with multiple values.
-          The order of the values is not important. Take into account that convertConcat deletes odd columns
-          For example after previous function call columns 18, 17, 16, 4 had been removed. But I recommend you use this 
-          function before convertConcat.
-"""
-# except Error as e:
-#     print(e)
+                strTmp =  matrix[k][i]
+                strTmp = strTmp.split(';')
+                tmpDict = dict()
+                for j in range(len(strTmp)):
+                    tmpDict[j] = strTmp[j]
+                matrix[k][i] = json.dumps(tmpDict)
+        return matrix
+
+    #Example
+    # try:
+    #     with connect(
+    #         host="localhost",
+    #         user="root",
+    #         password="Sciilotv2003!",
+    #     ) as connection:
+    #         show_db_query = "use heasm;"
+    #         cursor = connection.cursor()
+    #         cursor.execute(show_db_query)
+    #         cursor.execute("select * from main_view;")
+    #         matrix = cursor.fetchall()
+    #         matrix = convertConcat(matrix, [[15,16,17,18],[3,4]])
+    """       
+              The second parameter of this function 
+              is an array of arrays, where within each there are columns to be combined. 
+              Moreover, the elements of the left array must be greater than the values of the right arrays. 
+              Also, each array must be sorted in ascending order.
+    """
+    #         #print(matrix)
+    #         print(matrix[0][19])
+    #         print()
+    #         print(convertToJson(matrix, [19])[0][19])
+    """
+              The second parameter of this function is an array with indexes of column with multiple values.
+              The order of the values is not important. Take into account that convertConcat deletes odd columns
+              For example after previous function call columns 18, 17, 16, 4 had been removed. But I recommend you use this 
+              function before convertConcat.
+    """
+    # except Error as e:
+    #     print(e)
 
 
+    #Combines all semantically dependent columns and aggregates multiple-valued entries to JSON strings, while handling column comments shifting
+    #Parameters: listOfTuples - MySQL returned list of tuples of raw view
+    #Returns: tuple (newTable, listOfComments, listMask):
+    #         newTable - table with concatenated columns and JSON serialized lists
+    #         listOfComments - list with comments to each column in newTable
+    #         listMask - list with binary mask, where True corresponds to columns with JSON strings, Flase otherwise
+    def convolvedColumnsView(self, listOfTuples: [tuple]) -> ([list], list, list):
+        newTable = ViewSelector.convertConcat(listOfTuples, [[15, 16, 17, 18], [19, 20, 21, 22], [10, 11], [6, 7] , [3, 4]])
+        newTable = ViewSelector.convertToJson(newTable, [19]) #TODO
+        
+        #TODO listOfComments
+
+        #TODO listMask
+
+        return ([], [], [])
 
