@@ -83,10 +83,10 @@ def data():
     result = MyWebApp._execute(query)
     
     
-    result = MyWebApp._viewQuery.convolvedColumnsView(result)
+    result, comments = MyWebApp._viewQuery.convolvedColumnsView(result)
 
 
-    data = {"shown": {}, "results": result}
+    data = {"shown": comments, "results": result}
 
     return render_template('data.html', data=data)
 

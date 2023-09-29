@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}" />
     <title>TPU</title>
+    <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
 </head>
 
 <body>
@@ -60,10 +61,30 @@
                         <th class="bordered">{{i}}</th>
                         {% endfor %}
                     </tr>
-                    {% for entry in data.results %}
+                    {% for entry in range(data.results| length) %}
                     <tr class="bordered">
-                        {% for atr in entry %}
-                        <td class="bordered">{{atr}}</td>
+                        {% for atr in range(data.results[entry]| length) %}
+                        <td class="bordered">
+                            {% if data.results[entry][atr].__class__.__name__ == 'list' %}
+                            <div class="multipleValueSwitcher">
+                                <div class="multipleValueDiv">{{data.results[entry][atr]}}</div>
+                                <div class="multipleValueDivFull">
+                                    <table class="bordered">
+                                        {% for subEntry in range(data.results[entry][atr]| length) %}
+                                        <tr class="bordered">
+                                            {% for subAtr in range(data.results[entry][atr][subEntry]| length) %}
+                                            <td class="bordered">
+                                                <input class="userInputSub" type="text" value="{{data.results[entry][atr][subEntry][subAtr]}}" data-prior="{{data.results[entry][atr][subEntry][subAtr]}}" data-row="{{entry}}" data-cell="{{atr}}" data-subRow="{{subEntry}}" data-subCell="{{subAtr}}">
+                                            </td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                            {% else %}
+                            <input class="userInput" type="text" value="{{data.results[entry][atr]}}" data-prior="{{data.results[entry][atr]}}" data-row="{{entry}}" data-cell="{{atr}}"> {% endif %}
+                        </td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
