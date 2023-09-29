@@ -122,11 +122,13 @@ class ViewSelector:
                     x = matrix[k].pop(lstToConcat[i][j])
         return matrix
 
-    def concatIngWord(self, matrix, lst):  # converts cells with multiple values to json WARNING: returns array of arrays
+    def concatIngWord(self, matrix,
+                      lst):  # converts cells with multiple values to json WARNING: returns array of arrays
         matrix = [list(i) for i in matrix]
         for i in lst:
             for k in range(len(matrix)):
-                matrix[k][i] = matrix[k][i].split(';')
+                tmpLst = matrix[k][i].split(';')
+                matrix[k][i] = [[k] for k in tmpLst]
         return matrix
 
     # Example
