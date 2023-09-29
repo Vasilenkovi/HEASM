@@ -41,6 +41,9 @@ class ViewSelector:
             "impact": "Импакт фактор"
         }
 
+        self.convolvedColumnComments = ["Формула продукта", "Идентификатор продукта внутри базы", "DOI", "Значение параметра А кубической фазы", "Метод смешивания", "Значение времени смешивания сырья, часы", "Метод синтеза/или метод проведения теоретических исследований", "Защитный газ", "Значение времени синтеза, минуты", "Признак работы", "ФИО вписавшего", "Комментарии", "Параметры синтеза", "Параметры измерений", "Список ингредиентов", "Ключевые слова", "Страны публикации", "Внутренний шифр", "Ссылка", "Год выхода", "Журнал", "Импакт фактор"]
+
+
     def selectInfo(self, listOfColumns):  # querry to get all columns in list
         if (len(listOfColumns) == 0):
             listOfColumns = self.allColumns
@@ -131,9 +134,18 @@ class ViewSelector:
                 matrix[k][i] = [[k] for k in tmpLst]
         return matrix
 
-    # Example
+    # Combines all semantically dependent columns and aggregates multiple-valued entries to JSON strings, while handling column comments shifting
+    # Parameters: listOfTuples - MySQL returned list of tuples of raw view
+    # Returns: tuple (newTable, listOfComments, listMask):
+    #         newTable - table with concatenated columns and JSON serialized lists
+    #         listOfComments - list with comments to each column in newTable
+    def convolvedColumnsView(self, listOfTuples: list[tuple]) -> (list[list], list):
+        matrix = self.convertConcat(listOfTuples, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])
+        matrix = self.concatIngWord(listOfTuples, [15, 14])
+        
+        return matrix, self.convolvedColumnComments
 
-
+#example
 try:
     with connect(
             host="localhost",
@@ -164,17 +176,4 @@ except Error as e:
     print(e)
 
 
-    # Combines all semantically dependent columns and aggregates multiple-valued entries to JSON strings, while handling column comments shifting
-    # Parameters: listOfTuples - MySQL returned list of tuples of raw view
-    # Returns: tuple (newTable, listOfComments, listMask):
-    #         newTable - table with concatenated columns and JSON serialized lists
-    #         listOfComments - list with comments to each column in newTable
-    #         listMask - list with binary mask, where True corresponds to columns with JSON strings, Flase otherwise
-    def convolvedColumnsView(self, listOfTuples: [tuple]) -> ([list], list, list):
-        newTable = ViewSelector.convertConcat(listOfTuples,
-                                              [[15, 16, 17, 18], [19, 20, 21, 22], [10, 11], [6, 7], [3, 4]])
-        newTable = ViewSelector.convertToJson(newTable, [19])  # TODO
-        # TODO listOfComments
-        # TODO listMask
-        return ([], [], [])
 
