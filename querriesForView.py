@@ -65,10 +65,10 @@ class ViewSelector:
         first = 'None'
         second = 'None'
 
-        if (lst[length-1].replace('.','').replace(' ','').isdigit()):
+        if (lst[length-1].replace('.','').replace(' ','').replace('-','').isdigit()):
             second = float(lst[length-1])
             #print(second)
-        if (lst[length-2].replace('.','').replace(' ','').isdigit()):
+        if (lst[length-2].replace('.','').replace(' ','').replace('-','').isdigit()):
             first = float(lst[length-2])
             #print(first)
         if (first == 'None' and second == 'None'):
