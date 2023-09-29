@@ -136,7 +136,7 @@ try:
     with connect(
             host="localhost",
             user="root",
-            password="Sciilotv2003!",
+            password="password",
     ) as connection:
         show_db_query = "use heasm;"
         cursor = connection.cursor()
