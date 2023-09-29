@@ -48,6 +48,6 @@ window.onload = () => {
 
     for (tag of inputsMult) {
         tag.childNodes[0].addEventListener("focus", logPrior)
-        tag.childNodes[1].addEventListener("focus", logPrior)
+        tag.childNodes[1].addEventListener("blur", logPrior)
     }
 }
