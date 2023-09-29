@@ -62,56 +62,56 @@ class ViewSelector:
     #            multipleSeparator - string separator for multiple-valued columns
     def rangify(matrix: list[tuple], listOfPairs: list[tuple], multipleSeparator: str) -> list[list]:
         out = []
-        listOfPairs.sort(key = lambda x: min(x), reverse=True)
+        listOfPairs.sort(key = lambda x: min(x), reverse=True) #Sorts tuples in descending order to ensure popped items do not break the indicies
 
         for row in matrix:
             rowList = list(row)
 
             for a, b in listOfPairs:
-                aValList = rowList[a]
-                bValList = rowList[b]
+                aValList = rowList[a] #Assume cell has multiple values concatenated
+                bValList = rowList[b] #Assume cell has multiple values concatenated
 
                 if None in (aValList, bValList):
-                    if aValList == None:
+                    if aValList == None: #If a is None, a is replace with b, Either b contains the only value, which will be preserved by reassignment, or None is swapped with None 
                         rowList[a] = bValList
                         rowList.pop(b)
                     continue
 
-                aValList = str(aValList).split(multipleSeparator)
-                bValList = str(bValList).split(multipleSeparator)
+                aValList = str(aValList).split(multipleSeparator) #Assume cell has multiple values concatenated
+                bValList = str(bValList).split(multipleSeparator) #Assume cell has multiple values concatenated
 
                 aLen = len(aValList)
                 bLen = len(bValList)
 
-                if aLen != bLen:
+                if aLen != bLen: #If one of the cells has less values than suggested by the other, concatenate shorter list with None until equal in size
                     maxLen = max(aLen, bLen)
                     aValList = aValList + [None] * (maxLen - aLen)
                     bValList = bValList + [None] * (maxLen - bLen)
                 
-                if len(aValList) < 2:
+                if len(aValList) < 2: #If a and b have only one value
                     aVal = rowList[a]
                     bVal = rowList[b]
 
-                    if aVal != bVal:
-                        rowList[a] = "[{a}, {b}]".format(a=aVal, b=bVal)
-                    rowList.pop(b)
+                    #a and b are known to be non-None, so the test is skipped
+                    if aVal != bVal: 
+                        rowList[a] = "[{a}, {b}]".format(a=aVal, b=bVal) #Write the range form
+                    rowList.pop(b) #If a == b, a already posseses the correct value. Remove extra column
 
-                else:
-                    concatList = []
-
+                else: #If a and b are multiple-valued
+                    concatList = [] 
 
                     for aVal, bVal in zip(aValList, bValList):
 
-                        if None in (aVal, bVal):
-                            if aVal == None:
-                                concatList.append(bVal)
+                        if None in (aVal, bVal): #Nones could have been introduced during expansion
+                            if aVal == None: #If a is None, then save b. Either b is valid and preserved or None is traded with None
+                                concatList.append(bVal) 
                         elif aVal != bVal:
-                            concatList.append("[{a}, {b}]".format(a=aVal, b=bVal))
+                            concatList.append("[{a}, {b}]".format(a=aVal, b=bVal)) #Save the range form
                         else:
-                            concatList.append(aVal)
+                            concatList.append(aVal) #If a == b, save a value
 
-                    rowList[a] = "; ".join(concatList)
-                    rowList.pop(b)
+                    rowList[a] = "; ".join(concatList) #Concatenate all the range values of multiple-valued cell
+                    rowList.pop(b) #Remove extra column
 
             out.append(rowList)
 
