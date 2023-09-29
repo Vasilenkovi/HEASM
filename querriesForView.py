@@ -38,6 +38,8 @@ class ViewSelector:
 "journal": "Журнал",
 "impact": "Импакт фактор"
 }
+        self.transformedColumnComments = ["Формула продукта", "Идентификатор продукта внутри базы", "DOI", "Pначение параметра А кубической фазы", "Метод смешивания", "Pначение времени смешивания сырья, часы", "Метод синтеза/или метод проведения теоретических исследований", "Защитный газ", "Значение времени синтеза, минуты", "Признак работы", "ФИО вписавшего", "Комментарии", "Параметры синтеза", "Параметры измерений", "Список ингредиентов", "Ключевые слова", "Страны публикации", "Внутренний шифр", "Ссылка", "Год выхода", "Журнал", "Импакт фактор"]
+
     def selectInfo(self, listOfColumns): # querry to get all columns in list
         if(len(listOfColumns)==0):
             listOfColumns = self.allColumns
@@ -53,6 +55,67 @@ class ViewSelector:
         return "SELECT table_comment     FROM INFORMATION_SCHEMA.TABLES     WHERE table_schema=\'heasm\'         AND table_name=\'MAIN_VIEW\';"
     def getAllColumns(self): # get list of all collumns
         return self.allColumns
+
+    #Turns couples of min, max columns to single range column. If values are a range, "[a, b]" string format is provided. If a == b, a single value is recorded
+    #Parameters: matrix - MySQL returned table
+    #            listOfPairs - list of tuples (a, b) where 'a' is a column index of min value and 'b' is a column index of max value 
+    #            multipleSeparator - string separator for multiple-valued columns
+    def rangify(matrix: list[tuple], listOfPairs: list[tuple], multipleSeparator: str) -> list[list]:
+        out = []
+        listOfPairs.sort(key = lambda x: min(x), reverse=True)
+
+        for row in matrix:
+            rowList = list(row)
+
+            for a, b in listOfPairs:
+                aValList = rowList[a]
+                bValList = rowList[b]
+
+                if None in (aValList, bValList):
+                    if aValList == None:
+                        rowList[a] = bValList
+                        rowList.pop(b)
+                    continue
+
+                aValList = str(aValList).split(multipleSeparator)
+                bValList = str(bValList).split(multipleSeparator)
+
+                aLen = len(aValList)
+                bLen = len(bValList)
+
+                if aLen != bLen:
+                    maxLen = max(aLen, bLen)
+                    aValList = aValList + [None] * (maxLen - aLen)
+                    bValList = bValList + [None] * (maxLen - bLen)
+                
+                if len(aValList) < 2:
+                    aVal = rowList[a]
+                    bVal = rowList[b]
+
+                    if aVal != bVal:
+                        rowList[a] = "[{a}, {b}]".format(a=aVal, b=bVal)
+                    rowList.pop(b)
+
+                else:
+                    concatList = []
+
+
+                    for aVal, bVal in zip(aValList, bValList):
+
+                        if None in (aVal, bVal):
+                            if aVal == None:
+                                concatList.append(bVal)
+                        elif aVal != bVal:
+                            concatList.append("[{a}, {b}]".format(a=aVal, b=bVal))
+                        else:
+                            concatList.append(aVal)
+
+                    rowList[a] = "; ".join(concatList)
+                    rowList.pop(b)
+
+            out.append(rowList)
+
+        return out
 
     def convertConcat(matrix, lstToConcat): # unites columns and converts resulting cells into json WARNING: returns array of arrays
         matrix = [list(i) for i in matrix]
@@ -70,10 +133,10 @@ class ViewSelector:
                 for k in range(len(lstToSub[0])):
                     for h in lstToSub:
                         #print(h,"||" ,lstToSub, k)
-                        try:
+                        #try:
                             tempStr += h[k]+" "
-                        except:
-                            pass #Catch exceptions here
+                        #except:
+                        #    pass #Catch exceptions here
                     tempStr += ";"
                 result = dict()
                 tempStr = tempStr.split(";")
@@ -136,18 +199,15 @@ class ViewSelector:
 
     #Combines all semantically dependent columns and aggregates multiple-valued entries to JSON strings, while handling column comments shifting
     #Parameters: listOfTuples - MySQL returned list of tuples of raw view
-    #Returns: tuple (newTable, listOfComments, listMask):
+    #Returns: tuple (newTable, listOfComments):
     #         newTable - table with concatenated columns and JSON serialized lists
     #         listOfComments - list with comments to each column in newTable
-    #         listMask - list with binary mask, where True corresponds to columns with JSON strings, Flase otherwise
-    def convolvedColumnsView(self, listOfTuples: [tuple]) -> ([list], list, list):
-        newTable = ViewSelector.convertConcat(listOfTuples, [[15, 16, 17, 18], [19, 20, 21, 22], [10, 11], [6, 7] , [3, 4]])
-        newTable = ViewSelector.convertToJson(newTable, [19]) #TODO
+    def convolvedColumnsView(self, listOfTuples: list[tuple]) -> tuple[list[list], list]:
+        t = ViewSelector.rangify(listOfTuples, [(21, 22), (17, 18), (10, 11), (6, 7), (4, 3)], "; ") #What a hecking order
+        #newTable = ViewSelector.convertConcat(listOfTuples, [[15, 16, 17, 18], [19, 20, 21, 22], [10, 11], [6, 7] , [3, 4]])
+        #newTable = ViewSelector.convertToJson(newTable, [19]) #TODO
         
         #TODO listOfComments
 
-        #TODO listMask
-
-        return ([], [], [])
-
+        return t
 
