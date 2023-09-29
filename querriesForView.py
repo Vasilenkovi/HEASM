@@ -41,8 +41,14 @@ class ViewSelector:
             "impact": "Импакт фактор"
         }
 
-        self.convolvedColumnComments = ["Формула продукта", "Идентификатор продукта внутри базы", "DOI", "Значение параметра А кубической фазы", "Метод смешивания", "Значение времени смешивания сырья, часы", "Метод синтеза/или метод проведения теоретических исследований", "Защитный газ", "Значение времени синтеза, минуты", "Признак работы", "ФИО вписавшего", "Комментарии", "Параметры синтеза", "Параметры измерений", "Список ингредиентов", "Ключевые слова", "Страны публикации", "Внутренний шифр", "Ссылка", "Год выхода", "Журнал", "Импакт фактор"]
-
+        self.convolvedColumnComments = ["Формула продукта", "Идентификатор продукта внутри базы", "DOI",
+                                        "Значение параметра А кубической фазы", "Метод смешивания",
+                                        "Значение времени смешивания сырья, часы",
+                                        "Метод синтеза/или метод проведения теоретических исследований", "Защитный газ",
+                                        "Значение времени синтеза, минуты", "Признак работы", "ФИО вписавшего",
+                                        "Комментарии", "Параметры синтеза", "Параметры измерений",
+                                        "Список ингредиентов", "Ключевые слова", "Страны публикации", "Внутренний шифр",
+                                        "Ссылка", "Год выхода", "Журнал", "Импакт фактор"]
 
     def selectInfo(self, listOfColumns):  # querry to get all columns in list
         if (len(listOfColumns) == 0):
@@ -62,31 +68,33 @@ class ViewSelector:
 
     def getAllColumns(self):  # get list of all collumns
         return self.allColumns
+
     def convertCells(self, lst):
-        #print(lst)
+        # print(lst)
         length = len(lst)
         first = 'None'
         second = 'None'
 
-        if (lst[length-1].replace('.','').replace(' ','').replace('-','').isdigit()):
-            second = float(lst[length-1])
-            #print(second)
-        if (lst[length-2].replace('.','').replace(' ','').replace('-','').isdigit()):
-            first = float(lst[length-2])
-            #print(first)
+        if (lst[length - 1].replace('.', '').replace(' ', '').replace('-', '').isdigit()):
+            second = float(lst[length - 1])
+            # print(second)
+        if (lst[length - 2].replace('.', '').replace(' ', '').replace('-', '').isdigit()):
+            first = float(lst[length - 2])
+            # print(first)
         if (first == 'None' and second == 'None'):
-            lst[length-2] = ""
+            lst[length - 2] = ""
         elif (first == 'None' and second != 'None'):
-            lst[length-2] = str(second)
+            lst[length - 2] = str(second)
         elif (first != 'None' and second == 'None'):
-            lst[length-2] = str(first)
-        elif (first != 'None' and second != 'None' and first==second):
+            lst[length - 2] = str(first)
+        elif (first != 'None' and second != 'None' and first == second):
             lst[length - 2] = str(first)
         elif (first != 'None' and second != 'None'):
-            lst[length-2] = "["+str(min(second,first))+ "," +str(max(second,first))+"]"
-        lst.pop(length-1)
-        #print(lst)
+            lst[length - 2] = "[" + str(min(second, first)) + "," + str(max(second, first)) + "]"
+        lst.pop(length - 1)
+        # print(lst)
         return lst
+
     def convertConcat(self, matrix,
                       lstToConcat):  # unites columns and converts resulting cells into json WARNING: returns array of arrays
         matrix = [list(i) for i in matrix]
@@ -116,7 +124,7 @@ class ViewSelector:
                     tempStr = [u for u in tempStr if u != ""]
                     tmpLst.append(list(tempStr))
                     tempStr = ""
-                #print(tmpLst)
+                # print(tmpLst)
                 result = [self.convertCells(tmpLst[t]) for t in range(len(tmpLst))]
                 if len(result)==1 and len(result[0])==1:
                     result = result[0][0]
@@ -130,10 +138,8 @@ class ViewSelector:
     def concatIngWord(self, matrix,
                       lst):  # converts cells with multiple values to json WARNING: returns array of arrays
         matrix = [list(i) for i in matrix]
-        print(matrix)
         for i in lst:
             for k in range(len(matrix)):
-                #print(matrix[k][i])
                 tmpLst = matrix[k][i].split(';')
                 matrix[k][i] = [[k] for k in tmpLst]
         return matrix
@@ -146,38 +152,38 @@ class ViewSelector:
     def convolvedColumnsView(self, listOfTuples: list[tuple]) -> (list[list], list):
         matrix = self.convertConcat(listOfTuples, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])
         matrix = self.concatIngWord(matrix, [15, 14])
-        
+
         return matrix, self.convolvedColumnComments
 
-#example
+
+# example
 try:
     with connect(
             host="localhost",
             user="root",
-            password="Sciilotv2003!",
+            password="password",
     ) as connection:
         show_db_query = "use heasm;"
         cursor = connection.cursor()
         cursor.execute(show_db_query)
         cursor.execute("select * from main_view;")
         matrix = cursor.fetchall()
-        #print(matrix[7])
-        #print()
-                  # The second parameter of this function
-                  # is an array of arrays, where within each there are columns to be combined.
-                  # Moreover, the elements of the left array must be greater than the values of the right arrays.
-                  # Also, each array must be sorted in ascending order.
+        print(matrix[7])
+        print()
+        # The second parameter of this function
+        # is an array of arrays, where within each there are columns to be combined.
+        # Moreover, the elements of the left array must be greater than the values of the right arrays.
+        # Also, each array must be sorted in ascending order.
 
-        Vs = ViewSelector()# Now in order to use convertConcat and concatIngWord you must create and instance of ViewSelector
-        matrix = Vs.convertConcat(matrix, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]]) #
-        #print(matrix)
-        matrix = Vs.concatIngWord(matrix, [15, 14])#you should use concatIngWord ONLY after  convertConcat
-                  # The second parameter of this function is an array with indexes of column with multiple values.
-                  # The order of the values is not important. WARNING: Take into account that convertConcat deletes odd columns
-                  # For example after previous function call columns 18, 17, 16, 4 had been removed.
+        Vs = ViewSelector()  # Now in order to use convertConcat and concatIngWord you must create and instance of ViewSelector
+        matrix = Vs.convertConcat(matrix, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])  #
+        print(matrix)
+        matrix = Vs.concatIngWord(matrix, [15, 14])  # you should use concatIngWord ONLY after  convertConcat
+        # The second parameter of this function is an array with indexes of column with multiple values.
+        # The order of the values is not important. WARNING: Take into account that convertConcat deletes odd columns
+        # For example after previous function call columns 18, 17, 16, 4 had been removed.
         print(matrix)
 except Error as e:
     print(e)
-
 
 
