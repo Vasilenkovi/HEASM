@@ -141,7 +141,7 @@ class ViewSelector:
     #         listOfComments - list with comments to each column in newTable
     def convolvedColumnsView(self, listOfTuples: list[tuple]) -> (list[list], list):
         matrix = self.convertConcat(listOfTuples, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])
-        matrix = self.concatIngWord(listOfTuples, [15, 14])
+        matrix = self.concatIngWord(matrix, [15, 14])
         
         return matrix, self.convolvedColumnComments
 
