@@ -118,6 +118,8 @@ class ViewSelector:
                     tempStr = ""
                 #print(tmpLst)
                 result = [self.convertCells(tmpLst[t]) for t in range(len(tmpLst))]
+                if len(result)==1 and len(result[0])==1:
+                    result = result[0][0]
                 matrix[j][i[0]] = result
         for i in range(len(lstToConcat)):
             for j in range(len(lstToConcat[i]) - 1, 0, -1):
@@ -128,8 +130,10 @@ class ViewSelector:
     def concatIngWord(self, matrix,
                       lst):  # converts cells with multiple values to json WARNING: returns array of arrays
         matrix = [list(i) for i in matrix]
+        print(matrix)
         for i in lst:
             for k in range(len(matrix)):
+                #print(matrix[k][i])
                 tmpLst = matrix[k][i].split(';')
                 matrix[k][i] = [[k] for k in tmpLst]
         return matrix
@@ -150,15 +154,15 @@ try:
     with connect(
             host="localhost",
             user="root",
-            password="password",
+            password="Sciilotv2003!",
     ) as connection:
         show_db_query = "use heasm;"
         cursor = connection.cursor()
         cursor.execute(show_db_query)
         cursor.execute("select * from main_view;")
         matrix = cursor.fetchall()
-        print(matrix[7])
-        print()
+        #print(matrix[7])
+        #print()
                   # The second parameter of this function
                   # is an array of arrays, where within each there are columns to be combined.
                   # Moreover, the elements of the left array must be greater than the values of the right arrays.
@@ -166,7 +170,7 @@ try:
 
         Vs = ViewSelector()# Now in order to use convertConcat and concatIngWord you must create and instance of ViewSelector
         matrix = Vs.convertConcat(matrix, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]]) #
-        print(matrix)
+        #print(matrix)
         matrix = Vs.concatIngWord(matrix, [15, 14])#you should use concatIngWord ONLY after  convertConcat
                   # The second parameter of this function is an array with indexes of column with multiple values.
                   # The order of the values is not important. WARNING: Take into account that convertConcat deletes odd columns
