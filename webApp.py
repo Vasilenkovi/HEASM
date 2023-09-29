@@ -64,7 +64,7 @@ def auth():
         return redirect("/", code=302)
 
 #Authentification processing
-@app.route("/deauth", methods=['POST'])
+@app.route("/deauth", methods=['GET'])
 def deauth():
 
     MyWebApp._config["user"] = ""
@@ -83,12 +83,12 @@ def data():
     result = MyWebApp._execute(query)
     
     
-    MyWebApp._viewQuery.convolvedColumnsView(result)
+    result = MyWebApp._viewQuery.convolvedColumnsView(result)
 
 
-    #data = {"shown": comments, "results": result}
+    data = {"shown": {}, "results": result}
 
-    return render_template('data.html', data={})
+    return render_template('data.html', data=data)
 
 if __name__ == "__main__": #If not executed as module
     app.run(host="127.0.0.1", port=8080, debug=True) #Run app
