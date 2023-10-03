@@ -68,12 +68,13 @@
                             {% if data.results[entry][atr].__class__.__name__ == 'list' %}
                             <div class="multipleValueSwitcher">
                                 <div class="multipleValueDiv">{{data.results[entry][atr]}}</div>
-                                <div class="multipleValueDivFull">
-                                    <table class="bordered">
+                                <div class="multipleValueDivFull" tabindex="0">
+                                    <div class="minimizer">скрыть</div>
+                                    <table class="bordered multipleHolder">
                                         {% for subEntry in range(data.results[entry][atr]| length) %}
                                         <tr class="bordered">
                                             {% for subAtr in range(data.results[entry][atr][subEntry]| length) %}
-                                            <td class="bordered">
+                                            <td class="bordered multipleHolder">
                                                 <input class="userInputSub" type="text" value="{{data.results[entry][atr][subEntry][subAtr]}}" data-prior="{{data.results[entry][atr][subEntry][subAtr]}}" data-row="{{entry}}" data-cell="{{atr}}" data-subRow="{{subEntry}}" data-subCell="{{subAtr}}">
                                             </td>
                                             {% endfor %}

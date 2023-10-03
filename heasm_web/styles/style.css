@@ -351,6 +351,7 @@ tr.bordered {
 table.bordered {
     margin: 28px 68px 69px 20px;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 td.bordered {
@@ -372,6 +373,9 @@ td.bordered {
     border-style: solid;
     border-color: black;
     /*border-collapse: collapse;*/
+    height: 4em;
+    position: relative;
+    width: 10vw;
 }
 
 table.bordered1 {
@@ -386,15 +390,29 @@ tr.bordered1 {
     font-weight: 500;
     line-height: normal;
     vertical-align: top;
+    height: 4em;
+    position: relative;
 }
 
 th.bordered {
     border-style: solid;
     border-color: black;
+    height: 100%;
+    width: 10vw;
 }
 
 td {
+    height: 100%;
+    width: 10vw;
+}
+
+td input {
     padding: 19px;
+    height: 100%;
+}
+
+td input:focus {
+    border-color: #5bbc38;
 }
 
 th.bordered {
@@ -406,4 +424,41 @@ th.bordered {
 
 div.multipleValueDivFull {
     display: none;
+    height: 100%;
+    position: absolute;
+    z-index: 10;
+}
+
+div.multipleValueDiv {
+    height: 100%;
+}
+
+div.multipleValueSwitcher {
+    height: 100%;
+    overflow-y: auto;
+}
+
+table.multipleHolder {
+    margin: 0px;
+    border-style: solid;
+    border-color: #869980;
+    border-width: 1px;
+}
+
+td.multipleHolder {
+    border-style: solid;
+    border-color: #869980;
+    border-width: 1px;
+}
+
+div.minimizer {
+    color: #000;
+    text-align: right;
+    width: 100%;
+    border-style: solid;
+    border-color: #4f524e;
+    border-width: 1px;
+    background-color: #869980;
+    z-index: 10;
+    padding-right: 1em;
 }

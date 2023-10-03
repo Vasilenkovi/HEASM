@@ -11,22 +11,23 @@ function logChanges(e) {
 
 function logChangesSub(e) {
     if (e.target.dataset.prior != e.target.value) {
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subRow, e.target.dataset.subCell, e.target.value]
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value]
         console.log(changes)
     }
 }
 
 function focusFull(e) {
-    full = e.target.nextSibling()
+    full = e.target.nextElementSibling
     full.focus()
     full.style.display = "block"
     e.target.style.display = "none"
 }
 
 function focusSmall(e) {
-    small = e.target.previousSibling()
+    parent = e.target.parentNode
+    small = parent.previousElementSibling
     small.style.display = "block"
-    e.target.style.display = "none"
+    parent.style.display = "none"
 }
 
 window.onload = () => {
@@ -44,10 +45,14 @@ window.onload = () => {
         tag.addEventListener("blur", logChangesSub)
     }
 
-    inputsMult = document.getElementsByClassName("multipleValueSwitcher")
+    inputsMult = document.getElementsByClassName("multipleValueDiv")
+    inputsMultFull = document.getElementsByClassName("minimizer")
 
     for (tag of inputsMult) {
-        tag.childNodes[0].addEventListener("focus", logPrior)
-        tag.childNodes[1].addEventListener("blur", logPrior)
+        tag.addEventListener("click", focusFull)
+    }
+
+    for (tag of inputsMultFull) {
+        tag.addEventListener("click", focusSmall)
     }
 }
