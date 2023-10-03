@@ -20,40 +20,8 @@
     </header>
     <div class="content__area">
         <div class="content">
-            <p class="content__question__description">Выберите что показать</p>
             <p class="content__answer__description">Результаты поиска</p>
 
-            <div class="content__question__form">
-
-                <span class="triangle" style="margin-top: 30px; margin-left: 5px;">▼</span>
-                <select class="content__question__form__type_select">
-                <option value="group" selected>Выбрать группу критериев </option>
-                <option value="one">Выбрать один критерий</option>
-
-            </select>
-
-                <div class="content__question__form__settings_area">
-                    <input class="content__question__form__settings_area__show_radio" type="radio" name="show">
-                    <input class="content__question__form__settings_area__sort_radio" type="radio" name="sort">
-                    <input class="content__question__form__settings_area__choose_radio" type="radio" name="choose">
-                    <input class="content__question__form__settings_area__max_radio" type="radio" name="max">
-                    <input class="content__question__form__settings_area__min_radio" type="radio" name="min">
-
-                    <p class="content__question__form__settings_area__show">показать</p>
-                    <p class="content__question__form__settings_area__sort">не сортировать</p>
-                    <p class="content__question__form__settings_area__choose">не отобрать</p>
-                    <p class="content__question__form__settings_area__max">по возрастанию</p>
-                    <p class="content__question__form__settings_area__min">по убыванию</p>
-
-                    <input class="content__question__form__settings_area__operator_input" placeholder="оператор" />
-                    <input class="content__question__form__settings_area__expression_input" placeholder="выражение" />
-
-                    <select class="content__question__form__settings_area__min_value">
-                    <option value="min" selected>минимальное значение параметра</option>
-                    <option value="max">максимальное значение параметра</option>
-                </select>
-                </div>
-            </div>
             <div class="content__answer">
                 <table class="bordered">
                     <tr class="bordered">
@@ -61,6 +29,16 @@
                         <th class="bordered">{{i}}</th>
                         {% endfor %}
                     </tr>
+
+                    <tr class="bordered">
+                        {% for i in data.shown %}
+                        <td class="bordered">
+                            <div class="filterIcon"></div>
+                            <input class="userFilter" type="text" value="отобрать записи">
+                        </td>
+                        {% endfor %}
+                    </tr>
+
                     {% for entry in range(data.results| length) %}
                     <tr class="bordered">
                         {% for atr in range(data.results[entry]| length) %}
@@ -91,7 +69,6 @@
                     {% endfor %}
                 </table>
             </div>
-            <button class="button">Применить</button>
         </div>
     </div>
 </body>

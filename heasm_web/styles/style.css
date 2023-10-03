@@ -72,9 +72,10 @@ body {
     max-width: 1875px;
     height: 885px;
     display: grid;
-    grid-template-columns: minmax(5px, 40px) 605px minmax(5px, 64px) minmax(700px, 1120px) minmax(5px, 40px);
     grid-template-rows: 30px max-content 24px max-content 20px max-content;
-    grid-template-areas: "... ..................... ... ................... ..." "... question__description ... answer__description ..." "... ..................... ... ................... ..." "... question__form        ... answer              ..." "... ..................... ... ................... ..." "... button                ... ................... ...";
+    grid-template-columns: minmax(5px, 64px) 100% minmax(5px, 40px);
+    grid-template-areas: "... ................... ..." "... answer__description ..." "... ................... ..." "... answer              ..." "... ................... ..." "... ................... ...";
+    padding-left: 33px;
 }
 
 .content__question__description {
@@ -115,7 +116,7 @@ body {
 
 .content__answer {
     grid-area: answer;
-    max-width: 1120px;
+    max-width: 1800px;
     height: 685px;
     border-radius: 20px;
     background: #eaeaea;
@@ -352,6 +353,7 @@ table.bordered {
     margin: 28px 68px 69px 20px;
     border-collapse: collapse;
     table-layout: fixed;
+    width: 260vw;
 }
 
 td.bordered {
@@ -398,21 +400,23 @@ th.bordered {
     border-style: solid;
     border-color: black;
     height: 100%;
-    width: 10vw;
+    background-color: #90967c;
+    width: 25%;
 }
 
 td {
     height: 100%;
-    width: 10vw;
 }
 
 td input {
     padding: 19px;
     height: 100%;
+    width: 100%;
 }
 
 td input:focus {
     border-color: #5bbc38;
+    width: 100%;
 }
 
 th.bordered {
@@ -443,6 +447,8 @@ table.multipleHolder {
     border-style: solid;
     border-color: #869980;
     border-width: 1px;
+    table-layout: fixed;
+    width: 30vw;
 }
 
 td.multipleHolder {
@@ -461,4 +467,21 @@ div.minimizer {
     background-color: #869980;
     z-index: 10;
     padding-right: 1em;
+}
+
+input.userFilter {
+    color: #a0a0a0;
+    padding-left: 2.5em;
+    padding-right: 0;
+    width: 100%;
+}
+
+div.filterIcon {
+    position: absolute;
+    top: 1.2em;
+    left: 0.7em;
+    width: 1.5em;
+    height: 1.5em;
+    clip-path: polygon(10% 10%, 90% 10%, 90% 30%, 60% 50%, 60% 90%, 40% 90%, 40% 50%, 10% 30%);
+    background-color: #bdbdbd;
 }
