@@ -45,7 +45,9 @@
                         <td class="bordered">
                             {% if data.results[entry][atr].__class__.__name__ == 'list' %}
                             <div class="multipleValueSwitcher">
-                                <div class="multipleValueDiv">{{data.results[entry][atr]}}</div>
+                                <div class="multipleValueDiv">{{data.results[entry][atr]}}
+                                    <div class="expandIcon"></div>
+                                </div>
                                 <div class="multipleValueDivFull" tabindex="0">
                                     <div class="minimizer">скрыть</div>
                                     <table class="bordered multipleHolder">
