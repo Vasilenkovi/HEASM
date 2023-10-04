@@ -156,34 +156,4 @@ class ViewSelector:
         return matrix, self.convolvedColumnComments
 
 
-# example
-try:
-    with connect(
-            host="localhost",
-            user="root",
-            password="password",
-    ) as connection:
-        show_db_query = "use heasm;"
-        cursor = connection.cursor()
-        cursor.execute(show_db_query)
-        cursor.execute("select * from main_view;")
-        matrix = cursor.fetchall()
-        print(matrix[7])
-        print()
-        # The second parameter of this function
-        # is an array of arrays, where within each there are columns to be combined.
-        # Moreover, the elements of the left array must be greater than the values of the right arrays.
-        # Also, each array must be sorted in ascending order.
-
-        Vs = ViewSelector()  # Now in order to use convertConcat and concatIngWord you must create and instance of ViewSelector
-        matrix = Vs.convertConcat(matrix, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])  #
-        print(matrix)
-        matrix = Vs.concatIngWord(matrix, [15, 14])  # you should use concatIngWord ONLY after  convertConcat
-        # The second parameter of this function is an array with indexes of column with multiple values.
-        # The order of the values is not important. WARNING: Take into account that convertConcat deletes odd columns
-        # For example after previous function call columns 18, 17, 16, 4 had been removed.
-        print(matrix)
-except Error as e:
-    print(e)
-
 
