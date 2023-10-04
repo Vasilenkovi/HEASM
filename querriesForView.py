@@ -56,7 +56,7 @@ class ViewSelector:
         querry = "SELECT "
         for i in listOfColumns:
             querry += i + ', '
-        querry = querry[0: len(querry) - 2] + " FROM MAIN_VIEW;"
+        querry = querry[0: len(querry) - 2] + " FROM main_view;"
         return querry
 
     def querryTableInfo(self):  # querry to get general info about table
@@ -64,7 +64,7 @@ class ViewSelector:
         return querry
 
     def querryForComments(self):  # querry to get comments to the table
-        return "SELECT table_comment     FROM INFORMATION_SCHEMA.TABLES     WHERE table_schema=\'heasm\'         AND table_name=\'MAIN_VIEW\';"
+        return "SELECT table_comment     FROM INFORMATION_SCHEMA.TABLES     WHERE table_schema=\'heasm\'         AND table_name=\'main_view\';"
 
     def getAllColumns(self):  # get list of all collumns
         return self.allColumns
