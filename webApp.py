@@ -97,16 +97,12 @@ def logs():
         flash("Неверные данные")
         return redirect("/", code=302)
 
-    query = MyWebApp._viewQuery.selectInfo(MyWebApp._viewQuery.getAllColumns())
+    query, comments = MyWebApp._viewQuery.logQuery()
     result = MyWebApp._execute(query)
-    
-    
-    result, comments = MyWebApp._viewQuery.convolvedColumnsView(result)
-
 
     data = {"shown": comments, "results": result}
 
-    return render_template('data.html', data=data)
+    return render_template('logs.html', data=data)
 
 if __name__ == "__main__": #If not executed as module
     app.run(host="127.0.0.1", port=8080, debug=True) #Run app

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}" />
+    <title>TPU</title>
+    <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
+</head>
+
+<body>
+    <header class="header">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" />
+        <nav>
+            <a href="/data">работа с данными</a>
+            <a href="/logs">журнал событий</a>
+            <a href="/deauth">Выход</a>
+        </nav>
+    </header>
+    <div class="content__area">
+        <div class="content">
+            <p class="content__answer__description">Результаты поиска</p>
+
+            <div class="content__answer">
+                <table class="bordered logTable">
+                    <tr class="bordered">
+                        {% for i in data.shown %}
+                        <th class="bordered">{{i}}</th>
+                        {% endfor %}
+                    </tr>
+
+                    <tr class="bordered">
+                        {% for i in data.shown %}
+                        <td class="bordered">
+                            <div class="filterIcon"></div>
+                            <input class="userFilter" type="text" value="отобрать записи">
+                        </td>
+                        {% endfor %}
+                    </tr>
+
+                    {% for entry in range(data.results| length) %}
+                    <tr class="bordered">
+                        {% for atr in range(data.results[entry]| length) %}
+                        <td class="bordered logCell">
+                            {{data.results[entry][atr]}}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

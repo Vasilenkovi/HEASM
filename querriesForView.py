@@ -155,5 +155,6 @@ class ViewSelector:
 
         return matrix, self.convolvedColumnComments
 
-
+    def logQuery(self) -> str:
+        return "SELECT * FROM logs", ("Дата", "Время", "ПОльзователь", "Действие")
 
