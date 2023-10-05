@@ -56,7 +56,7 @@ class ViewSelector:
         querry = "SELECT "
         for i in listOfColumns:
             querry += i + ', '
-        querry = querry[0: len(querry) - 2] + " FROM MAIN_VIEW;"
+        querry = querry[0: len(querry) - 2] + " FROM main_view;"
         return querry
 
     def querryTableInfo(self):  # querry to get general info about table
@@ -64,7 +64,7 @@ class ViewSelector:
         return querry
 
     def querryForComments(self):  # querry to get comments to the table
-        return "SELECT table_comment     FROM INFORMATION_SCHEMA.TABLES     WHERE table_schema=\'heasm\'         AND table_name=\'MAIN_VIEW\';"
+        return "SELECT table_comment     FROM INFORMATION_SCHEMA.TABLES     WHERE table_schema=\'heasm\'         AND table_name=\'main_view\';"
 
     def getAllColumns(self):  # get list of all collumns
         return self.allColumns
@@ -155,35 +155,5 @@ class ViewSelector:
 
         return matrix, self.convolvedColumnComments
 
-
-# example
-try:
-    with connect(
-            host="localhost",
-            user="root",
-            password="password",
-    ) as connection:
-        show_db_query = "use heasm;"
-        cursor = connection.cursor()
-        cursor.execute(show_db_query)
-        cursor.execute("select * from main_view;")
-        matrix = cursor.fetchall()
-        print(matrix[7])
-        print()
-        # The second parameter of this function
-        # is an array of arrays, where within each there are columns to be combined.
-        # Moreover, the elements of the left array must be greater than the values of the right arrays.
-        # Also, each array must be sorted in ascending order.
-
-        Vs = ViewSelector()  # Now in order to use convertConcat and concatIngWord you must create and instance of ViewSelector
-        matrix = Vs.convertConcat(matrix, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])  #
-        print(matrix)
-        matrix = Vs.concatIngWord(matrix, [15, 14])  # you should use concatIngWord ONLY after  convertConcat
-        # The second parameter of this function is an array with indexes of column with multiple values.
-        # The order of the values is not important. WARNING: Take into account that convertConcat deletes odd columns
-        # For example after previous function call columns 18, 17, 16, 4 had been removed.
-        print(matrix)
-except Error as e:
-    print(e)
 
 
