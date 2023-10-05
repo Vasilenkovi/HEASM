@@ -73,8 +73,26 @@ def deauth():
     return redirect("/", code=302)
 
 #Data table page
-@app.route("/data", methods=['GET', 'POST'])
+@app.route("/data", methods=['GET'])
 def data():
+    if not MyWebApp._checkSession():
+        flash("Неверные данные")
+        return redirect("/", code=302)
+
+    query = MyWebApp._viewQuery.selectInfo(MyWebApp._viewQuery.getAllColumns())
+    result = MyWebApp._execute(query)
+    
+    
+    result, comments = MyWebApp._viewQuery.convolvedColumnsView(result)
+
+
+    data = {"shown": comments, "results": result}
+
+    return render_template('data.html', data=data)
+
+#Data table page
+@app.route("/logs", methods=['GET'])
+def logs():
     if not MyWebApp._checkSession():
         flash("Неверные данные")
         return redirect("/", code=302)
