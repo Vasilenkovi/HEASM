@@ -83,10 +83,10 @@ def data():
     result = MyWebApp._execute(query)
     
     
-    result, comments = MyWebApp._viewQuery.convolvedColumnsView(result)
+    result, comments, mask = MyWebApp._viewQuery.convolvedColumnsView(result)
 
 
-    data = {"shown": comments, "results": result}
+    data = {"shown": comments, "results": result, "mask": mask}
 
     return render_template('data.html', data=data)
 
@@ -97,10 +97,10 @@ def logs():
         flash("Неверные данные")
         return redirect("/", code=302)
 
-    query, comments = MyWebApp._viewQuery.logQuery()
+    query, comments, mask = MyWebApp._viewQuery.logQuery()
     result = MyWebApp._execute(query)
 
-    data = {"shown": comments, "results": result}
+    data = {"shown": comments, "results": result, "mask": mask}
 
     return render_template('logs.html', data=data)
 

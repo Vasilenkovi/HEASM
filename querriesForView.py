@@ -49,6 +49,11 @@ class ViewSelector:
                                         "Комментарии", "Параметры синтеза", "Параметры измерений",
                                         "Список ингредиентов", "Ключевые слова", "Страны публикации", "Внутренний шифр",
                                         "Ссылка", "Год выхода", "Журнал", "Импакт фактор"]
+        self.logsComments = ("Дата", "Время", "ПОльзователь", "Действие")
+
+
+        self.dataMask = ["txt", "num", "txt", "num", "txt", "num", "txt", "txt", "num", "txt", "txt", "txt", ["txt", "txt", "num"], ["txt", "txt", "num"], ["txt"], ["txt"], "txt", "txt", "txt", "num", "txt", "num"]
+        self.logMask = ["txt", "txt", "txt", "txt"]
 
     def selectInfo(self, listOfColumns):  # querry to get all columns in list
         if (len(listOfColumns) == 0):
@@ -149,12 +154,12 @@ class ViewSelector:
     # Returns: tuple (newTable, listOfComments, listMask):
     #         newTable - table with concatenated columns and JSON serialized lists
     #         listOfComments - list with comments to each column in newTable
-    def convolvedColumnsView(self, listOfTuples: list[tuple]) -> (list[list], list):
+    def convolvedColumnsView(self, listOfTuples: list[tuple]) -> tuple[list[list], list, list]:
         matrix = self.convertConcat(listOfTuples, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])
         matrix = self.concatIngWord(matrix, [15, 14])
 
-        return matrix, self.convolvedColumnComments
+        return matrix, self.convolvedColumnComments, self.dataMask
 
-    def logQuery(self) -> str:
-        return "SELECT * FROM logs", ("Дата", "Время", "ПОльзователь", "Действие")
+    def logQuery(self) -> tuple[str, tuple, tuple]:
+        return "SELECT * FROM logs", ("Дата", "Время", "ПОльзователь", "Действие"), self.logMask
 

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}" />
     <title>TPU</title>
-    <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
 </head>
 
 <body>
@@ -34,7 +33,7 @@
                         {% for i in data.shown %}
                         <td class="bordered">
                             <div class="filterIcon"></div>
-                            <input class="userFilter" type="text" value="отобрать записи">
+                            <input class="userFilter" type="text" placeholder="отобрать записи">
                         </td>
                         {% endfor %}
                     </tr>

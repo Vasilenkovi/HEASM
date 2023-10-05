@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}" />
     <title>TPU</title>
+    <script>
+        var fullTable = JSON.parse("{{data.results| tojson}}")
+    </script>
     <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
 </head>
 
@@ -31,16 +34,16 @@
                     </tr>
 
                     <tr class="bordered">
-                        {% for i in data.shown %}
+                        {% for i in range(data.shown| length) %}
                         <td class="bordered">
                             <div class="filterIcon"></div>
-                            <input class="userFilter" type="text" value="отобрать записи">
+                            <input class="userFilter" type="text" placeholder="отобрать записи" data-column="{{i}}" data-columnType="{{data.mask[i] |tojson}}">
                         </td>
                         {% endfor %}
                     </tr>
 
                     {% for entry in range(data.results| length) %}
-                    <tr class="bordered">
+                    <tr class="bordered hideableRow">
                         {% for atr in range(data.results[entry]| length) %}
                         <td class="bordered">
                             {% if data.results[entry][atr].__class__.__name__ == 'list' %}
