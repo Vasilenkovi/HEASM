@@ -1,16 +1,17 @@
 class FilterString {
 
     static txtReLike = /(like)\s*["'](.*)["']/
-    static compRe = /(=|<|>)\s*([\w]*)/
+    static compRe = /(=|<|>)\s*(.*)/
+    static rangeRe = /\[([0-9\.]+)\s*,\s*([0-9\.]+)\]/
 
     static parseConstruction(str) {
         return str.split(";")
     }
 
     static parseString(str) {
-        parsed = str.match(FilterString.txtReLike)
+        let parsed = str.match(FilterString.txtReLike)
         if (parsed == null) {
-            parsed = str.match(FilterString.compRe)
+            let parsed = str.match(FilterString.compRe)
             if (parsed == null) {
                 console.log("Invalid syntax")
                 return null
@@ -32,27 +33,58 @@ class FilterString {
         }
     }
 
+    static checkRange(str) {
+        let res = str.match(FilterString.rangeRe)
+        if (res) {
+            return [res[1], res[2]]
+        } else {
+            return null
+        }
+    }
+
     static txtCallback(rawString) {
-        parsered = FilterString.parseString(rawString.toLowerCase())
+        let parsered = FilterString.parseString(rawString.toLowerCase().trim())
         if (parsered[0] == "like") {
-            return (elem) => { return elem.includes(parsered[1]) }
+            return (elem) => { return elem.toLowerCase().includes(parsered[1]) }
         } else if (parsered[0] == "=") {
-            return (elem) => { return elem == parsered[1] }
+            console.log(parsered[1])
+            return (elem) => { return elem.toLowerCase().trim() == parsered[1] }
         } else {
             console.log("Invalid semantics for txt column")
         }
     }
 
     static numCallback(rawString) {
-        parsered = FilterString.parseString(rawString.toLowerCase())
+        let parsered = FilterString.parseString(rawString.toLowerCase().trim())
         if (parsered[0] == "like") {
             console.log("Invalid semantics for num column, 'like'")
         } else if (parsered[0] == "=") {
-            return (elem) => { return elem = Number(parsered[1]) }
+            return (elem) => {
+                let pElem = FilterString.checkRange(elem)
+                if (pElem) {
+                    return (Number(parsered[1]) >= Number(pElem[0])) && (Number(parsered[1]) <= Number(pElem[1]))
+                } else {
+                    return elem == Number(parsered[1])
+                }
+            }
         } else if (parsered[0] == ">") {
-            return (elem) => { return elem > Number(parsered[1]) }
+            return (elem) => {
+                let pElem = FilterString.checkRange(elem)
+                if (pElem) {
+                    return (elem > Number(pElem[0])) && (elem > Number(pElem[1]))
+                } else {
+                    return elem > Number(parsered[1])
+                }
+            }
         } else if (parsered[0] == "<") {
-            return (elem) => { return elem < Number(parsered[1]) }
+            return (elem) => {
+                let pElem = FilterString.checkRange(elem)
+                if (pElem) {
+                    return (elem < Number(pElem[0])) && (elem < Number(pElem[1]))
+                } else {
+                    return elem < Number(parsered[1])
+                }
+            }
         } else {
             console.log("Invalid semantics for num column, how did we even get here?")
         }
@@ -99,9 +131,10 @@ function applyFilter(e) {
     rawString = e.target.value
     if (rawString.trim()) {
         columnNumber = Number(e.target.dataset.column)
-        columnType = JSON.parse(e.target.dataset.columnType)
+        columnType = colFormat[columnNumber]
 
         callbackFn = (elem) => {}
+        callbackFnArray = []
 
         if (columnType == "txt") {
             callbackFn = FilterString.txtCallback(rawString)
@@ -110,12 +143,10 @@ function applyFilter(e) {
         } else if (Array.isArray(columnType)) {
 
             preParsed = FilterString.parseConstruction(rawString)
-            callbackFnArray = []
 
-            for (condition in zip(preParsed, columnType)) {
-
+            for (condition of zip(preParsed, columnType)) {
                 if (!condition[0].trim()) {
-                    callbackFnArray.push((elem) => { return True })
+                    callbackFnArray.push((elem) => { return true })
                     continue
                 }
 
@@ -130,11 +161,11 @@ function applyFilter(e) {
 
             callbackFn = (elem) => {
 
-                for (subRow in elem) {
+                for (subRow of elem) {
                     acceptableSubRow = true
 
-                    for (i = 0; i < subRow.length; i++) {
-                        acceptableSubRow &= callbackFnArray[i](subRow[i])
+                    for (let i = 0; i < subRow.length; i++) {
+                        acceptableSubRow = acceptableSubRow && callbackFnArray[i](subRow[i])
                     }
 
                     if (acceptableSubRow) {
@@ -144,23 +175,26 @@ function applyFilter(e) {
 
                 return false
             }
+
         } else {
             console.log("unsupported column type")
         }
 
+        console.log(callbackFnArray)
         presentationRows = document.getElementsByClassName("hideableRow")
-        for (i = 0; i < fullTable.length; i++) {
-            if (callbackFn(fullTable[i])) {
-                presentationRows[1].style.display = "none"
-            } else {
-                presentationRows[1].style.display = "initial"
+        for (let j = 0; j < fullTable.length; j++) {
+            console.log(j)
+            let t = callbackFn(fullTable[j][columnNumber])
+            if (!t) {
+                presentationRows[j].style.display = "none"
             }
         }
+
     } else {
         presentationRows = document.getElementsByClassName("hideableRow")
 
-        for (row in presentationRows) {
-            row.style.display = "initial"
+        for (row of presentationRows) {
+            row.style.display = "table-row"
         }
     }
 }
@@ -189,5 +223,11 @@ window.onload = () => {
 
     for (tag of inputsMultFull) {
         tag.addEventListener("click", focusSmall)
+    }
+
+    inputsFilter = document.getElementsByClassName("userFilter")
+
+    for (tag of inputsFilter) {
+        tag.addEventListener("blur", applyFilter)
     }
 }

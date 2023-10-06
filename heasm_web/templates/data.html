@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}" />
     <title>TPU</title>
     <script>
-        var fullTable = JSON.parse("{{data.results| tojson}}")
+        var fullTable = JSON.parse('{{data.results| tojson}}')
+        const colFormat = JSON.parse('{{data.mask| tojson}}')
     </script>
     <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
 </head>
@@ -37,7 +38,7 @@
                         {% for i in range(data.shown| length) %}
                         <td class="bordered">
                             <div class="filterIcon"></div>
-                            <input class="userFilter" type="text" placeholder="отобрать записи" data-column="{{i}}" data-columnType="{{data.mask[i] |tojson}}">
+                            <input class="userFilter" type="text" placeholder="отобрать записи" data-column="{{i}}" data-columnType="{{data.mask[i]| tojson}}">
                         </td>
                         {% endfor %}
                     </tr>

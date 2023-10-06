@@ -33,13 +33,13 @@
                         {% for i in data.shown %}
                         <td class="bordered">
                             <div class="filterIcon"></div>
-                            <input class="userFilter" type="text" placeholder="отобрать записи">
+                            <input class="userFilter" type="text" placeholder="отобрать записи" autocomplete="disabled">
                         </td>
                         {% endfor %}
                     </tr>
 
                     {% for entry in range(data.results| length) %}
-                    <tr class="bordered">
+                    <tr class="bordered hideableRow">
                         {% for atr in range(data.results[entry]| length) %}
                         <td class="bordered logCell">
                             {{data.results[entry][atr]}}
