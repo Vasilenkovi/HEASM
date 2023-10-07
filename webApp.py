@@ -131,18 +131,36 @@ def singleChanges(data):
         info = colDict[col]
         info = info.split()
         if(len(info)==2):
-            query = "UPDATE "+ info[0] + " SET "+ info[1]+"="+data['data'][3]+" WHERE "+ info[1]+"="+data['data'][3]+" and "
+            typ = data['data'][2]
+            typo = typ.replace('.', "")
+            if(not(typo.isdigit())):
+                typ= '`'+typ+'`'
+            typpr = data['data'][3]
+            typopr = typ.replace('.', "")
+            if (not (typopr.isdigit())):
+                typpr = '`' + typpr + '`'
+            query += "UPDATE "+ info[0] + " SET "+ info[1]+"="+typ+" WHERE "+ info[1]+"="+typpr+" and "
             if(info[0] in ("synthesis_product", "ingredients")):
                 query+=" product_id="+str(prodId)+";"
             elif(info[0]=="bibliography"):
-                query += " doi=\`" + str(doi) + "\`;"
+                query += " doi=`" + str(doi) + "`;"
             elif(info[0]=="bib_source"):
-                query += " journal=\`" + str(doi) + "\`;"
+                query += " journal=`" + str(doi) + "`;"
             elif (info[0] == "countries"):
-                query += " doi=\`" + str(doi) + "\`;"
+                query += " doi=`" + str(doi) + "`;"
             print(query)
         elif(len(info)==3):
             incoming = data['data'][3]
+            incoming = incoming.replace('[','')
+            incoming = incoming.replace(']', '')
+            incoming = incoming.split(',')
+            lst = []
+            if(len(incoming)==2):
+                lst = incoming
+            else:
+                lst.append(incoming[0])
+                lst.append(incoming[0])
+            #query += "UPDATE " + info[0] + " SET " + info[1] + "=" + typ + " WHERE " + info[1] + "=" + typpr + " and "
 
 @socketio.on("multipleChanges")
 def singleChanges(data):
