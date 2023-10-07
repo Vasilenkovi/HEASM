@@ -115,9 +115,40 @@ def connect(data):
 @socketio.on("singleChanges")
 def singleChanges(data):
     socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
+    print(data['data'])
+    col = int(data['data'][1])
+    query = ""
+    table = ""
+    prodId = None
+    doi = None
+    colDict = {0:"synthesis_product product", 1: "Forbidden", 2: "bibliography doi", 3: "synthesis_product a_parameter_max a_parameter_min",
+               4:"synthesis_product mixing_method", 5:"synthesis_product SOURCE_MIX_TIME_MIN SOURCE_MIX_TIME_MAX",
+               6:"synthesis_product method", 7:"synthesis_product gas", 8:"synthesis_product SYNTHESIS_TIME_MIN SYNTHESIS_TIME_MAX",
+               9:"synthesis_product feature", 10:"synthesis_product contributor", 11:"synthesis_product comments",
+               16:"countries country", 17:"bibliography internal_cipher", 18:"bibliography url",
+               19:"bib_source year", 20:"bib_source journal", 21:"bib_source impact"}
+    if(colDict[col]!="Forbidden"):
+        info = colDict[col]
+        info = info.split()
+        if(len(info)==2):
+            query = "UPDATE "+ info[0] + " SET "+ info[1]+"="+data['data'][3]+" WHERE "+ info[1]+"="+data['data'][3]+" and "
+            if(info[0] in ("synthesis_product", "ingredients")):
+                query+=" product_id="+str(prodId)+";"
+            elif(info[0]=="bibliography"):
+                query += " doi=\`" + str(doi) + "\`;"
+            elif(info[0]=="bib_source"):
+                query += " journal=\`" + str(doi) + "\`;"
+            elif (info[0] == "countries"):
+                query += " doi=\`" + str(doi) + "\`;"
+            print(query)
+        elif(len(info)==3):
+            incoming = data['data'][3]
+
 @socketio.on("multipleChanges")
 def singleChanges(data):
     socketio.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
+    print(data['data'])
+
 @socketio.on("Commit")
 def commit(data):
     # TODO unpack data

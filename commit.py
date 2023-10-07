@@ -1,11 +1,6 @@
 from mysql.connector import connect, Error
-def commit(username, password):
-    try:
-        with connect(
-                host="localhost",
-                user=username,
-                password=password
-        ) as connection:
-            print(connection)
-    except Error as e:
-        print(e)
+def commit(app):
+    queryOfQueries = app._execute("select * from change_log;")
+    for i in queryOfQueries:
+        r = app._execute(i[1])
+    app._execute("delete from change_log")
