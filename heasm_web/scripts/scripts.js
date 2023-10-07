@@ -101,7 +101,7 @@ function logPrior(e) {
 
 function logChanges(e) {
     if (e.target.dataset.prior != e.target.value) {
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.value]
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.value, e.target.dataset.prior]
         console.log(changes)
         socket.emit("singleChanges", {data: changes});
     }
@@ -109,7 +109,7 @@ function logChanges(e) {
 
 function logChangesSub(e) {
     if (e.target.dataset.prior != e.target.value) {
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value]
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value, e.target.dataset.prior]
         console.log(changes)
         socket.emit("multipleChanges", {data: changes});
     }
