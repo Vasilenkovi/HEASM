@@ -140,6 +140,12 @@ body {
     outline: none;
 }
 
+.buttonHolder {
+    display: flex;
+    justify-content: center;
+    margin: 2em;
+}
+
 .content__question__form__type_select {
     grid-area: type;
     appearance: none;
