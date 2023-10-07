@@ -85,11 +85,10 @@ def data():
     query = MyWebApp._viewQuery.selectInfo(MyWebApp._viewQuery.getAllColumns())
     result = MyWebApp._execute(query)
     
-    
     result, comments, mask = MyWebApp._viewQuery.convolvedColumnsView(result)
 
-
-    data = {"shown": comments, "results": result, "mask": mask}
+    rowIdValues = {"doi": 2, "journal": 20}
+    data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues}
 
     return render_template('data.html', data=data)
 
