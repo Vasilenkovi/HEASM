@@ -4,6 +4,7 @@ from markupsafe import escape
 from querriesForView import ViewSelector
 import mysql.connector
 import secrets
+from flask_socketio import SocketIO, join_room, leave_room, send
 
 HOST = '127.0.0.1' #HOST for db connection. Currently localhost
 PORT = 3306 #PORT for db connection. 3306 by default
@@ -37,6 +38,8 @@ class MyWebApp(Flask):
     
 app = MyWebApp(__name__, template_folder='heasm_web/templates', static_folder='heasm_web') #App initialization
 app.secret_key = secrets.token_urlsafe(64) #Secret key preserves the session
+
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 #Root page with authentification form
 @app.route("/", methods=['GET', 'POST'])
@@ -104,5 +107,23 @@ def logs():
 
     return render_template('logs.html', data=data)
 
+@socketio.on("connect")
+def connect(data):
+    name = app._config["user"]
+    room = "DataRoom"
+    join_room(room)
+@socketio.on("singleChanges")
+def singleChanges(data):
+    socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
+@socketio.on("multipleChanges")
+def singleChanges(data):
+    socketio.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
+@socketio.on("Commit")
+def commit(data):
+    # TODO unpack data
+    pass
+
+
 if __name__ == "__main__": #If not executed as module
-    app.run(host="127.0.0.1", port=8080, debug=True) #Run app
+   #app.run(host="127.0.0.1", port=8080, debug=True) #Run app
+    socketio.run(app=app, host="127.0.0.1", port=8080, debug=True, allow_unsafe_werkzeug=True)
