@@ -47,7 +47,6 @@ class FilterString {
         if (parsered[0] == "like") {
             return (elem) => { return elem.toLowerCase().includes(parsered[1]) }
         } else if (parsered[0] == "=") {
-            console.log(parsered[1])
             return (elem) => { return elem.toLowerCase().trim() == parsered[1] }
         } else {
             console.log("Invalid semantics for txt column")
@@ -95,6 +94,18 @@ function zip(a, b) {
     return a.map((k, i) => [k, b[i]])
 }
 
+function updateRowDataset(row, dict) {
+    if ("doi" in dict) {
+        row.dataset.doi = dict.doi
+    }
+    if ("journal" in dict) {
+        row.dataset.journal = dict.journal
+    }
+    if ("productid" in dict) {
+        row.dataset.productid = dict.productid
+    }
+}
+
 function logPrior(e) {
     e.target.dataset.prior = e.target.value
 }
@@ -102,8 +113,16 @@ function logPrior(e) {
 function logChanges(e) {
     if (e.target.dataset.prior != e.target.value) {
         rowInfo = e.target.parentNode.parentNode
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal]
-        console.log(changes)
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal, rowInfo.dataset.productid]
+
+        for (key in IDcols) {
+            if (IDcols[key] == e.target.dataset.cell) {
+                changeDict = {}
+                changeDict[key] = e.target.value
+                updateRowDataset(rowInfo, changeDict)
+            }
+        }
+
         socket.emit("singleChanges", { data: changes });
     }
 }
@@ -114,8 +133,16 @@ function logChangesSub(e) {
         for (let i = 0; i < 8; i++) {
             rowInfo = rowInfo.parentNode
         }
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal]
-        console.log(changes)
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal, rowInfo.dataset.productid]
+
+        for (key in IDcols) {
+            if (IDcols[key] == e.target.dataset.cell) {
+                changeDict = {}
+                changeDict[key] = e.target.value
+                updateRowDataset(rowInfo, changeDict)
+            }
+        }
+
         socket.emit("multipleChanges", { data: changes });
     }
 }
@@ -187,10 +214,8 @@ function applyFilter(e) {
             console.log("unsupported column type")
         }
 
-        console.log(callbackFnArray)
         presentationRows = document.getElementsByClassName("hideableRow")
         for (let j = 0; j < fullTable.length; j++) {
-            console.log(j)
             let t = callbackFn(fullTable[j][columnNumber])
             if (!t) {
                 presentationRows[j].style.display = "none"

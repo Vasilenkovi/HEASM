@@ -9,6 +9,7 @@
     <script>
         var fullTable = JSON.parse('{{data.results| tojson}}')
         const colFormat = JSON.parse('{{data.mask| tojson}}')
+        const IDcols = JSON.parse('{{data.rowIdValues| tojson}}')
     </script>
     <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
@@ -61,7 +62,7 @@
                     </tr>
 
                     {% for entry in range(data.results| length) %}
-                    <tr class="bordered hideableRow" data-doi="{{data.results[entry][data.rowIdValues.doi]}}" data-journal="{{data.results[entry][data.rowIdValues.journal]}}">
+                    <tr class="bordered hideableRow" data-doi="{{data.results[entry][data.rowIdValues.doi]}}" data-productid="{{data.results[entry][data.rowIdValues.productid]}}" data-journal="{{data.results[entry][data.rowIdValues.journal]}}">
                         {% for atr in range(data.results[entry]| length) %}
                         <td class="bordered">
                             {% if data.results[entry][atr].__class__.__name__ == 'list' %}
