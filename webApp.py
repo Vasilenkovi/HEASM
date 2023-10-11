@@ -114,12 +114,8 @@ def connect(data):
 @socketio.on("singleChanges")
 def singleChanges(data):
     socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
-    print(data['data'])
     col = int(data['data'][1])
     query = ""
-    table = ""
-    prodId = None
-    doi = None
     colDict = {0:"synthesis_product product", 1: "Forbidden", 2: "bibliography doi", 3: "synthesis_product a_parameter_max a_parameter_min",
                4:"synthesis_product mixing_method", 5:"synthesis_product SOURCE_MIX_TIME_MIN SOURCE_MIX_TIME_MAX",
                6:"synthesis_product method", 7:"synthesis_product gas", 8:"synthesis_product SYNTHESIS_TIME_MIN SYNTHESIS_TIME_MAX",
@@ -167,13 +163,11 @@ def singleChanges(data):
             queryList.append(query)
             query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + data['data'][-1] + ";"
             queryList.append(query)
-    print(queryList)
 
 
 @socketio.on("multipleChanges")
 def singleChanges(data):
     socketio.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
-    print(data['data'])
 
 @socketio.on("Commit")
 def commit(data):

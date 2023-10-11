@@ -157,7 +157,6 @@ class ViewSelector:
     def convolvedColumnsView(self, listOfTuples: list[tuple]) -> tuple[list[list], list, list]:
         matrix = self.convertConcat(listOfTuples, [[19, 20, 21, 22], [15, 16, 17, 18], [10, 11], [6, 7], [3, 4]])
         matrix = self.concatIngWord(matrix, [16, 15, 14])
-        print(matrix)
         return matrix, self.convolvedColumnComments, self.dataMask
 
     def logQuery(self) -> tuple[str, tuple, tuple]:
