@@ -127,8 +127,12 @@ def singleChanges(data):
                16:"countries country", 17:"bibliography internal_cipher", 18:"bibliography url",
                19:"bib_source year", 20:"bib_source journal", 21:"bib_source impact"}
     if(colDict[col]!="Forbidden"):
+        queryList = []
         info = colDict[col]
         info = info.split()
+        doi=data['data'][4]
+        journal = data['data'][5]
+        prodId = data['data'][6]
         if(len(info)==2):
             typ = data['data'][2]
             typo = typ.replace('.', "")
@@ -140,16 +144,16 @@ def singleChanges(data):
                 typpr = '`' + typpr + '`'
             query += "UPDATE "+ info[0] + " SET "+ info[1]+"="+typ+" WHERE "+ info[1]+"="+typpr+" and "
             if(info[0] in ("synthesis_product", "ingredients")):
-                query+=" product_id="+str(prodId)+";"
+                query+=" product_id="+prodId+";"
             elif(info[0]=="bibliography"):
-                query += " doi=`" + str(doi) + "`;"
+                query += " doi=`" + doi + "`;"
             elif(info[0]=="bib_source"):
-                query += " journal=`" + str(doi) + "`;"
+                query += " journal=`" + journal + "`;"
             elif (info[0] == "countries"):
-                query += " doi=`" + str(doi) + "`;"
-            print(query)
+                query += " doi=`" + doi + "`;"
+            queryList.append(query)
         elif(len(info)==3):
-            incoming = data['data'][3]
+            incoming = data['data'][2]
             incoming = incoming.replace('[','')
             incoming = incoming.replace(']', '')
             incoming = incoming.split(',')
@@ -159,7 +163,12 @@ def singleChanges(data):
             else:
                 lst.append(incoming[0])
                 lst.append(incoming[0])
-            #query += "UPDATE " + info[0] + " SET " + info[1] + "=" + typ + " WHERE " + info[1] + "=" + typpr + " and "
+            query = "UPDATE " + info[0] + " SET " + info[2] + "=" + str(lst[0]) + " WHERE " +  " product_id="+data['data'][-1]+";"
+            queryList.append(query)
+            query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + data['data'][-1] + ";"
+            queryList.append(query)
+    print(queryList)
+
 
 @socketio.on("multipleChanges")
 def singleChanges(data):
