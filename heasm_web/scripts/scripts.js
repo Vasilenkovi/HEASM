@@ -170,11 +170,7 @@ function applyFilter(e) {
         callbackFn = (elem) => {}
         callbackFnArray = []
 
-        if (columnType == "txt") {
-            callbackFn = FilterString.txtCallback(rawString)
-        } else if (columnType == "num") {
-            callbackFn = FilterString.numCallback(rawString)
-        } else if (Array.isArray(columnType)) {
+        if (Array.isArray(columnType)) {
 
             preParsed = FilterString.parseConstruction(rawString)
 
@@ -210,6 +206,10 @@ function applyFilter(e) {
                 return false
             }
 
+        } else if (columnType == "txt") {
+            callbackFn = FilterString.txtCallback(rawString)
+        } else if (columnType == "num") {
+            callbackFn = FilterString.numCallback(rawString)
         } else {
             console.log("unsupported column type")
         }
