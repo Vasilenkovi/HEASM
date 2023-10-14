@@ -52,7 +52,7 @@ class ViewSelector:
         self.logsComments = ("Дата", "Время", "ПОльзователь", "Действие")
 
 
-        self.dataMask = ["txt", "num", "txt", "num", "txt", "num", "txt", "txt", "num", "txt", "txt", "txt", ["txt", "txt", "num"], ["txt", "txt", "num"], ["txt"], ["txt"], "txt", "txt", "txt", "num", "txt", "num"]
+        self.dataMask = ["txt", "num", "txt", "num", "txt", "num", "txt", "txt", "num", "txt", "txt", "txt", ["txt", "txt", "num"], ["txt", "txt", "num"], ["txt"], ["txt"], ["txt"], "txt", "txt", "num", "txt", "num"]
         self.logMask = ["txt", "txt", "txt", "txt"]
 
     def selectInfo(self, listOfColumns):  # querry to get all columns in list
