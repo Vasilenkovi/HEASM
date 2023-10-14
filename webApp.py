@@ -30,7 +30,7 @@ class MyWebApp(Flask):
         cursor.reset() #Clear old result and prepare for execution
         cursor.execute(query) #Probing query to check connection status
         r = cursor.fetchall() #Retrieving all results from cursor
-
+        cursor.execute("commit")
         cursor.close()
         connection.close()
 
@@ -163,11 +163,56 @@ def singleChanges(data):
             queryList.append(query)
             query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + data['data'][-1] + ";"
             queryList.append(query)
+        for i in queryList:
+            res = MyWebApp._execute("select MAX(id) from change_log;")
+            newID = res[0][0]
+            if(newID==None):
+                newID=0
+            newID+=1
+            MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
+def range_decomposition(st):
+    st = st.replace('[', '')
+    st = st.replace(']', '')
+    st = st.split(',')
+    if len(st)==1:
+        st.append(st[0])
+    return st
 
 @socketio.on("multipleChanges")
 def singleChanges(data):
     socketio.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
+    dictCols = { 12:["synthesis_parameter", "synthesis_parameter", "SYNTHESIS_UNIT", ["SYNTHESIS_MIN_VALUE", "SYNTHESIS_MAX_VALUE"]],
+                 13:["measurements", ["measured_parameter"], "MEASURED_UNIT", ["MEASURED_MIN_VALUE", "MEASURED_MAX_VALUE"]],
+                 14:["ingredients", "ingredient"], 15:["countries", "country"]}
+    query = ""
+    queryList = []
+    upd = "update {0} set {1}= {2} where product_id = {3} and {4} = {5}"
+    changedTable = dictCols[int(data['data'][1])][0]
+    changedCol = dictCols[int(data['data'][1])][int(data['data'][3])+1]
+    newValue = data['data'][4]
+    oldValue = data['data'][5]
+    prod_id = data['data'][-1]
+    if len(changedCol)==2:
+        newValue = range_decomposition(newValue)
+        oldValue = range_decomposition(oldValue)
+        for i in range(len(changedCol)):
+            query = upd.format(changedTable, changedCol[i], newValue[i], prod_id, changedCol[i], oldValue[i])
+            queryList.append(query)
+    else:
+        query = upd.format(changedTable, changedCol, "\'"+newValue+"\'", prod_id, changedCol, "\'"+oldValue+"\'")
+        queryList.append(query)
+    for i in queryList:
+        res = MyWebApp._execute("select MAX(id) from change_log;")
+        newID = res[0][0]
+        if(newID==None):
+            newID=0
+        newID+=1
+        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
+
+
+
+
 
 @socketio.on("Commit")
 def commit(data):
