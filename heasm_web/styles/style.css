@@ -513,3 +513,13 @@ table.logTable {
     table-layout: fixed;
     width: 80vw;
 }
+
+td.psa {
+    text-align: center;
+    padding-top: 1.25em;
+}
+
+td.multipsa {
+    text-align: center;
+    padding-top: 1.25em;
+}
