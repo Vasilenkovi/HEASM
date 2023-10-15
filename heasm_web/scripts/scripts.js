@@ -231,6 +231,102 @@ function applyFilter(e) {
     }
 }
 
+function addRowSub(e) {
+    columnNumber = Number(e.target.colspan)
+    row = document.createElement("tr")
+    for (let i = 0; i < columnNumber; i++) {
+        cell = document.createElement("td")
+        cell.classList.add("bordered")
+
+        inp = document.createElement("input")
+        inp.classList.add("userInput")
+        inp.type = "text"
+        inp.value = ""
+        inp.dataset.prior = ""
+        inp.dataset.row = fullTable.length
+        inp.dataset.cell = i
+        inp.addEventListener("focus", logPrior)
+        inp.addEventListener("blur", logChanges)
+        cell.appendChild(inp)
+
+        row.appendChild(cell)
+    }
+
+    table = e.target.parentNode.parentNode
+    table.appendChild(row)
+}
+
+function addRow(e) {
+    columnNumber = Number(e.target.colspan)
+    row = document.createElement("tr")
+    for (let i = 0; i < columnNumber; i++) {
+        cell = document.createElement("td")
+        cell.classList.add("bordered")
+
+        if (Array.isArray(colFormat[i])) {
+            mainDiv = document.createElement("div")
+            mainDiv.classList.add("multipleValueSwitcher")
+
+            smallDiv = document.createElement("div")
+            smallDiv.classList.add("multipleValueDiv")
+            smallDiv.textContent = "[Множественные значения]"
+            smallDiv.addEventListener("click", focusFull)
+
+            expandDiv = document.createElement("div")
+            expandDiv.classList.add("expandIcon")
+            smallDiv.appendChild(expandDiv)
+
+            mainDiv.appendChild(smallDiv)
+
+            bigDiv = document.createElement("div")
+            bigDiv.classList.add("multipleValueDivFull")
+            bigDiv.tabindex = ""
+
+            minDiv = document.createElement("div")
+            minDiv.classList.add("minimizer")
+            minDiv.addEventListener("click", focusSmall)
+            bigDiv.appendChild(minDiv)
+
+            tableTag = document.createElement("table")
+            tableTag.classList.add("bordered")
+            tableTag.classList.add("multipleHolder")
+
+            trPsa = document.createElement("tr")
+            trPsa.classList.add("bordered")
+
+            tdPsa = document.createElement("td")
+            tdPsa.classList.add("bordered")
+            tdPsa.classList.add("multipsa")
+            tdPsa.colspan = colFormat[i].length
+            tdPsa.textContent = "Добавить запись"
+
+            trPsa.appendChild(tdPsa)
+            tableTag.appendChild(trPsa)
+
+            bigDiv.appendChild(tableTag)
+            mainDiv.appendChild(bigDiv)
+
+            cell.appendChild(mainDiv)
+
+        } else {
+            inp = document.createElement("input")
+            inp.classList.add("userInput")
+            inp.type = "text"
+            inp.value = ""
+            inp.dataset.prior = ""
+            inp.dataset.row = fullTable.length
+            inp.dataset.cell = i
+            inp.addEventListener("focus", logPrior)
+            inp.addEventListener("blur", logChanges)
+            cell.appendChild(inp)
+        }
+
+        row.appendChild(cell)
+    }
+
+    table = e.target.parentNode.parentNode
+    table.appendChild(row)
+}
 
 function commit1() {
     socket.emit("commit", { data: "changes" });

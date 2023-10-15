@@ -82,6 +82,11 @@
                                             {% endfor %}
                                         </tr>
                                         {% endfor %}
+                                        <tr class="bordered">
+                                            <td class="bordered multipsa" colspan="{{data.mask[atr]| length}}">
+                                                Добавить запись
+                                            </td>
+                                        </tr>
                                     </table>
                                 </div>
                             </div>
@@ -91,6 +96,11 @@
                         {% endfor %}
                     </tr>
                     {% endfor %}
+                    <tr class="bordered">
+                        <td class="bordered psa" colspan="{{data.shown| length}}">
+                            Добавить запись
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>
