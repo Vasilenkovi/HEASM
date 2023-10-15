@@ -263,3 +263,4 @@ window.onload = () => {
         tag.addEventListener("blur", applyFilter)
     }
 }
+
