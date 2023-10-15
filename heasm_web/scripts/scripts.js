@@ -234,7 +234,6 @@ function applyFilter(e) {
 
 function commit1() {
     socket.emit("commit", { data: "changes" });
-    console.log("work")
 }
 
 window.onload = () => {
