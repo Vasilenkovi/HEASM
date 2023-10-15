@@ -87,7 +87,7 @@ def data():
     
     result, comments, mask = MyWebApp._viewQuery.convolvedColumnsView(result)
 
-    rowIdValues = {"doi": 2, "journal": 20, "productid": 1}
+    rowIdValues = {"productid": 1, "doi": 2, "year": 19, "journal": 20}
     data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues}
 
     return render_template('data.html', data=data)

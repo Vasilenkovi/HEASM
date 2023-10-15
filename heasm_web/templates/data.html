@@ -62,7 +62,7 @@
                     </tr>
 
                     {% for entry in range(data.results| length) %}
-                    <tr class="bordered hideableRow" data-doi="{{data.results[entry][data.rowIdValues.doi]}}" data-productid="{{data.results[entry][data.rowIdValues.productid]}}" data-journal="{{data.results[entry][data.rowIdValues.journal]}}">
+                    <tr class="bordered hideableRow" data-doi="{{data.results[entry][data.rowIdValues.doi]}}" data-productid="{{data.results[entry][data.rowIdValues.productid]}}" data-year="{{data.results[entry][data.rowIdValues.year]}}" data-journal="{{data.results[entry][data.rowIdValues.journal]}}">
                         {% for atr in range(data.results[entry]| length) %}
                         <td class="bordered">
                             {% if data.results[entry][atr].__class__.__name__ == 'list' %}

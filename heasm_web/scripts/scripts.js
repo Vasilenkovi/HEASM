@@ -104,6 +104,9 @@ function updateRowDataset(row, dict) {
     if ("productid" in dict) {
         row.dataset.productid = dict.productid
     }
+    if ("year" in dict) {
+        row.dataset.year = dict.year
+    }
 }
 
 function logPrior(e) {
@@ -113,7 +116,7 @@ function logPrior(e) {
 function logChanges(e) {
     if (e.target.dataset.prior != e.target.value) {
         rowInfo = e.target.parentNode.parentNode
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal, rowInfo.dataset.productid]
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal, rowInfo.dataset.productid, rowInfo.dataset.year]
 
         for (key in IDcols) {
             if (IDcols[key] == e.target.dataset.cell) {
@@ -133,7 +136,7 @@ function logChangesSub(e) {
         for (let i = 0; i < 8; i++) {
             rowInfo = rowInfo.parentNode
         }
-        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal, rowInfo.dataset.productid]
+        changes = [e.target.dataset.row, e.target.dataset.cell, e.target.dataset.subrow, e.target.dataset.subcell, e.target.value, e.target.dataset.prior, rowInfo.dataset.doi, rowInfo.dataset.journal, rowInfo.dataset.productid, rowInfo.dataset.year]
 
         for (key in IDcols) {
             if (IDcols[key] == e.target.dataset.cell) {
