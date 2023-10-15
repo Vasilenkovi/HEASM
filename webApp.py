@@ -2,6 +2,7 @@ from os import PathLike
 from flask import Flask, session, request, render_template, redirect, flash
 from markupsafe import escape
 from querriesForView import ViewSelector
+from addQuery import AddQuery
 import mysql.connector
 import secrets
 from flask_socketio import SocketIO, join_room, leave_room, send
@@ -12,6 +13,7 @@ DATABASE = 'heasm' #DB name on server
 
 class MyWebApp(Flask):
     _viewQuery = ViewSelector()
+    _addQuery = AddQuery()
     _config = {"user": "", "password": "", "host":HOST, "port":PORT, "database":DATABASE, "use_pure":True} #Connection configuration
     
     def __init__(self, import_name: str, static_url_path: str | None = None, static_folder: str | PathLike | None = "static", static_host: str | None = None, host_matching: bool = False, subdomain_matching: bool = False, template_folder: str | PathLike | None = "templates", instance_path: str | None = None, instance_relative_config: bool = False, root_path: str | None = None):
@@ -82,13 +84,14 @@ def data():
         flash("Неверные данные")
         return redirect("/", code=302)
 
+    addMainCols, addOtherCols = MyWebApp._addQuery.getAddCols()
     query = MyWebApp._viewQuery.selectInfo(MyWebApp._viewQuery.getAllColumns())
     result = MyWebApp._execute(query)
     
     result, comments, mask = MyWebApp._viewQuery.convolvedColumnsView(result)
 
     rowIdValues = {"productid": 1, "doi": 2, "year": 19, "journal": 20}
-    data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues}
+    data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues, "addMainCols": addMainCols, "addOtherCols": addOtherCols}
 
     return render_template('data.html', data=data)
 

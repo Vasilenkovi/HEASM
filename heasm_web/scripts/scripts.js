@@ -235,7 +235,7 @@ function applyFilter(e) {
 }
 
 function addRowSub(e) {
-    columnNumber = Number(e.target.colspan)
+    columnNumber = Number(e.target.colSpan)
     row = document.createElement("tr")
     for (let i = 0; i < columnNumber; i++) {
         cell = document.createElement("td")
@@ -255,12 +255,13 @@ function addRowSub(e) {
         row.appendChild(cell)
     }
 
+    rowTarget = e.target.parentNode
     table = e.target.parentNode.parentNode
-    table.appendChild(row)
+    table.insertBefore(row, rowTarget)
 }
 
 function addRow(e) {
-    columnNumber = Number(e.target.colspan)
+    columnNumber = Number(e.target.colSpan)
     row = document.createElement("tr")
     for (let i = 0; i < columnNumber; i++) {
         cell = document.createElement("td")
@@ -335,6 +336,22 @@ function commit1() {
     socket.emit("commit", { data: "changes" });
 }
 
+function addPopup() {
+    bodyTag = document.getElementById("trueBody")
+    bodyTag.style.opacity = 0.2
+
+    bodyTag = document.getElementById("popup")
+    bodyTag.style.display = "block"
+}
+
+function popupClose() {
+    bodyTag = document.getElementById("trueBody")
+    bodyTag.style.opacity = 1
+
+    bodyTag = document.getElementById("popup")
+    bodyTag.style.display = "none"
+}
+
 window.onload = () => {
     inputs = document.getElementsByClassName("userInput")
 
@@ -368,6 +385,16 @@ window.onload = () => {
     }
 
     saveBtn = document.getElementById("saveButton")
-
     saveBtn.addEventListener("click", commit1)
+
+    addRowBtn = document.getElementById("addRow")
+    addRowBtn.addEventListener("click", addPopup)
+
+    popupCloseBtn = document.getElementById("popupClose")
+    popupCloseBtn.addEventListener("click", popupClose)
+
+    multipsaTag = document.getElementsByClassName("multipsa")
+    for (tag of multipsaTag) {
+        tag.addEventListener("click", addRowSub)
+    }
 }

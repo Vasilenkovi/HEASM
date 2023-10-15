@@ -29,79 +29,129 @@
 </head>
 
 <body>
-    <header class="header">
-        <img src="{{ url_for('static', filename='images/logo.svg') }}" />
-        <nav>
-            <a href="/data">работа с данными</a>
-            <a href="/logs">журнал событий</a>
-            <a href="/deauth">Выход</a>
-        </nav>
-    </header>
-    <div class="content__area">
-        <div class="buttonHolder">
-            <button class="button" id="saveButton">Сохранить</button>
+    <div id="popup">
+        <div class="popupHeader">
+            <div id="popupClose">
+                <div id="popupCloseIcon"></div>
+            </div>
         </div>
-        <div class="content">
-            <p class="content__answer__description">Результаты поиска</p>
-
-            <div class="content__answer">
-                <table class="bordered">
-                    <tr class="bordered">
-                        {% for i in data.shown %}
-                        <th class="bordered">{{i}}</th>
-                        {% endfor %}
-                    </tr>
-
-                    <tr class="bordered">
-                        {% for i in range(data.shown| length) %}
-                        <td class="bordered">
-                            <div class="filterIcon"></div>
-                            <input class="userFilter" type="text" placeholder="отобрать записи" data-column="{{i}}" data-columnType="{{data.mask[i]| tojson}}">
-                        </td>
-                        {% endfor %}
-                    </tr>
-
-                    {% for entry in range(data.results| length) %}
-                    <tr class="bordered hideableRow" data-doi="{{data.results[entry][data.rowIdValues.doi]}}" data-productid="{{data.results[entry][data.rowIdValues.productid]}}" data-year="{{data.results[entry][data.rowIdValues.year]}}" data-journal="{{data.results[entry][data.rowIdValues.journal]}}">
-                        {% for atr in range(data.results[entry]| length) %}
-                        <td class="bordered">
-                            {% if data.results[entry][atr].__class__.__name__ == 'list' %}
-                            <div class="multipleValueSwitcher">
-                                <div class="multipleValueDiv">[Множественные значения]
-                                    <div class="expandIcon"></div>
-                                </div>
-                                <div class="multipleValueDivFull" tabindex="0">
-                                    <div class="minimizer">скрыть</div>
-                                    <table class="bordered multipleHolder">
-                                        {% for subEntry in range(data.results[entry][atr]| length) %}
-                                        <tr class="bordered">
-                                            {% for subAtr in range(data.results[entry][atr][subEntry]| length) %}
-                                            <td class="bordered multipleHolder">
-                                                <input class="userInputSub" type="text" value="{{data.results[entry][atr][subEntry][subAtr]}}" data-prior="{{data.results[entry][atr][subEntry][subAtr]}}" data-row="{{entry}}" data-cell="{{atr}}" data-subRow="{{subEntry}}" data-subCell="{{subAtr}}">
-                                            </td>
-                                            {% endfor %}
-                                        </tr>
-                                        {% endfor %}
-                                        <tr class="bordered">
-                                            <td class="bordered multipsa" colspan="{{data.mask[atr]| length}}">
-                                                Добавить запись
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                            {% else %}
-                            <input class="userInput" type="text" value="{{data.results[entry][atr]}}" data-prior="{{data.results[entry][atr]}}" data-row="{{entry}}" data-cell="{{atr}}"> {% endif %}
-                        </td>
-                        {% endfor %}
-                    </tr>
+        <div class="popupContent">
+            <div>Основные данные:</div>
+            <table class="bordered">
+                <tr class="bordered">
+                    {% for i in data.addMainCols %}
+                    <th class="bordered">{{data.shown[i]}}</th>
                     {% endfor %}
-                    <tr class="bordered">
-                        <td class="bordered psa" colspan="{{data.shown| length}}">
-                            Добавить запись
-                        </td>
-                    </tr>
-                </table>
+                </tr>
+                <tr class="bordered">
+                    {% for i in data.addMainCols %}
+                    <td class="bordered">
+                        <input type="text">
+                    </td>
+                    {% endfor %}
+                </tr>
+            </table>
+
+            {% for tup in data.addOtherCols %}
+            <div>{{tup[0]}}</div>
+            <table class="bordered">
+                <tr class="bordered">
+                    {% for i in tup[1] %}
+                    <th class="bordered">{{i}}</th>
+                    {% endfor %}
+                </tr>
+                <tr class="bordered">
+                    {% for i in tup[1] %}
+                    <td class="bordered">
+                        <input type="text">
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr class="bordered">
+                    <td class="bordered multipsa" colspan="{{tup[1]| length}}">
+                        Добавить запись
+                    </td>
+                </tr>
+            </table>
+            {% endfor %}
+
+        </div>
+    </div>
+    <div id="trueBody">
+        <header class="header">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" />
+            <nav>
+                <a href="/data">работа с данными</a>
+                <a href="/logs">журнал событий</a>
+                <a href="/deauth">Выход</a>
+            </nav>
+        </header>
+        <div class="content__area">
+            <div class="buttonHolder">
+                <button class="button" id="saveButton">Сохранить</button>
+            </div>
+            <div class="content">
+                <p class="content__answer__description">Результаты поиска</p>
+
+                <div class="content__answer">
+                    <table class="bordered">
+                        <tr class="bordered">
+                            {% for i in data.shown %}
+                            <th class="bordered">{{i}}</th>
+                            {% endfor %}
+                        </tr>
+
+                        <tr class="bordered">
+                            {% for i in range(data.shown| length) %}
+                            <td class="bordered">
+                                <div class="filterIcon"></div>
+                                <input class="userFilter" type="text" placeholder="отобрать записи" data-column="{{i}}" data-columnType="{{data.mask[i]| tojson}}">
+                            </td>
+                            {% endfor %}
+                        </tr>
+
+                        {% for entry in range(data.results| length) %}
+                        <tr class="bordered hideableRow" data-doi="{{data.results[entry][data.rowIdValues.doi]}}" data-productid="{{data.results[entry][data.rowIdValues.productid]}}" data-year="{{data.results[entry][data.rowIdValues.year]}}" data-journal="{{data.results[entry][data.rowIdValues.journal]}}">
+                            {% for atr in range(data.results[entry]| length) %}
+                            <td class="bordered">
+                                {% if data.results[entry][atr].__class__.__name__ == 'list' %}
+                                <div class="multipleValueSwitcher">
+                                    <div class="multipleValueDiv">[Множественные значения]
+                                        <div class="expandIcon"></div>
+                                    </div>
+                                    <div class="multipleValueDivFull" tabindex="0">
+                                        <div class="minimizer">скрыть</div>
+                                        <table class="bordered multipleHolder">
+                                            {% for subEntry in range(data.results[entry][atr]| length) %}
+                                            <tr class="bordered">
+                                                {% for subAtr in range(data.results[entry][atr][subEntry]| length) %}
+                                                <td class="bordered multipleHolder">
+                                                    <input class="userInputSub" type="text" value="{{data.results[entry][atr][subEntry][subAtr]}}" data-prior="{{data.results[entry][atr][subEntry][subAtr]}}" data-row="{{entry}}" data-cell="{{atr}}" data-subRow="{{subEntry}}" data-subCell="{{subAtr}}">
+                                                </td>
+                                                {% endfor %}
+                                            </tr>
+                                            {% endfor %}
+                                            <tr class="bordered">
+                                                <td class="bordered multipsa" colspan="{{data.mask[atr]| length}}">
+                                                    Добавить запись
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <input class="userInput" type="text" value="{{data.results[entry][atr]}}" data-prior="{{data.results[entry][atr]}}" data-row="{{entry}}" data-cell="{{atr}}"> {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        <tr class="bordered">
+                            <td id="addRow" class="bordered psa" colspan="{{data.shown| length}}">
+                                Добавить запись
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
