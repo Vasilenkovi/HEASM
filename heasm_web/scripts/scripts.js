@@ -231,6 +231,12 @@ function applyFilter(e) {
     }
 }
 
+
+function commit1() {
+    socket.emit("commit", { data: "changes" });
+    console.log("work")
+}
+
 window.onload = () => {
     inputs = document.getElementsByClassName("userInput")
 
@@ -262,5 +268,8 @@ window.onload = () => {
     for (tag of inputsFilter) {
         tag.addEventListener("blur", applyFilter)
     }
-}
 
+    saveBtn = document.getElementById("saveButton")
+
+    saveBtn.addEventListener("click", commit1)
+}

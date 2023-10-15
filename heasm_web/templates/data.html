@@ -39,7 +39,7 @@
     </header>
     <div class="content__area">
         <div class="buttonHolder">
-            <button class="button" id="saveButton" onclick="commit1()">Сохранить</button>
+            <button class="button" id="saveButton">Сохранить</button>
         </div>
         <div class="content">
             <p class="content__answer__description">Результаты поиска</p>
@@ -96,11 +96,5 @@
         </div>
     </div>
 </body>
-<script>
-    function commit1()
-    {
-        socket.emit("commit", { data: "changes" });
 
-    }
-</script>
 </html>
