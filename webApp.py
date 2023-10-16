@@ -217,7 +217,9 @@ def singleChanges(data):
     print(queryList)
 
 
-
+@socketio.on("addRows")
+def addRows(data):
+    insert_statements = AddQuery.form_insert_queries(data)
 
 @socketio.on("commit")
 def commitBut(data):

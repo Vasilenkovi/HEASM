@@ -237,6 +237,7 @@ function applyFilter(e) {
 function addRowSub(e) {
     columnNumber = Number(e.target.colSpan)
     row = document.createElement("tr")
+    row.classList.add("consumableRow")
     for (let i = 0; i < columnNumber; i++) {
         cell = document.createElement("td")
         cell.classList.add("bordered")
@@ -350,6 +351,39 @@ function popupClose() {
 
     bodyTag = document.getElementById("popup")
     bodyTag.style.display = "none"
+
+    rowsToDlt = document.getElementsByClassName("consumableRow")
+
+    while (rowsToDlt.length > 0) {
+        rowsToDlt[0].remove()
+    }
+}
+
+function collectInputs(e) {
+    addDict = {}
+
+    mainArr = []
+    main = document.getElementById("popupMain").children[0].children[1] //skip header
+    for (td of main.children) {
+        mainArr.push(td.children[0].value)
+    }
+    addDict["main"] = mainArr
+
+    for (tableId of addExtra) {
+        tableArr = []
+        extraTableRows = document.getElementById(tableId[0]).children[0].children
+        for (i = 1; i < extraTableRows.length - 1; i++) {
+            newRow = []
+            extraRowTd = extraTableRows[i].children
+            for (td of extraRowTd) {
+                newRow.push(td.children[0].value)
+            }
+            tableArr.push(newRow)
+        }
+        addDict[tableId[0]] = tableArr
+    }
+
+    socket.emit("addRows", addDict);
 }
 
 window.onload = () => {
@@ -392,6 +426,9 @@ window.onload = () => {
 
     popupCloseBtn = document.getElementById("popupClose")
     popupCloseBtn.addEventListener("click", popupClose)
+
+    popupAddBtn = document.getElementById("popupAdd")
+    popupAddBtn.addEventListener("click", collectInputs)
 
     multipsaTag = document.getElementsByClassName("multipsa")
     for (tag of multipsaTag) {

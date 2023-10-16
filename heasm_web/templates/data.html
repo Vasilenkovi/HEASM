@@ -10,6 +10,7 @@
         var fullTable = JSON.parse('{{data.results| tojson}}')
         const colFormat = JSON.parse('{{data.mask| tojson}}')
         const IDcols = JSON.parse('{{data.rowIdValues| tojson}}')
+        const addExtra = JSON.parse('{{data.addOtherCols| tojson}}')
     </script>
     <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
@@ -37,7 +38,7 @@
         </div>
         <div class="popupContent">
             <div>Основные данные:</div>
-            <table class="bordered">
+            <table class="bordered" id="popupMain">
                 <tr class="bordered">
                     {% for i in data.addMainCols %}
                     <th class="bordered">{{data.shown[i]}}</th>
@@ -54,7 +55,7 @@
 
             {% for tup in data.addOtherCols %}
             <div>{{tup[0]}}</div>
-            <table class="bordered">
+            <table class="bordered" id="{{tup[0]}}">
                 <tr class="bordered">
                     {% for i in tup[1] %}
                     <th class="bordered">{{i}}</th>
@@ -74,7 +75,7 @@
                 </tr>
             </table>
             {% endfor %}
-
+            <button class="button" id="popupAdd">Завершить</button>
         </div>
     </div>
     <div id="trueBody">
