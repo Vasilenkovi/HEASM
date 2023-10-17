@@ -148,7 +148,7 @@ def singleChanges(data):
             elif(info[0]=="bibliography"):
                 query += " doi=\\\'" + doi + "\\\';"
             elif(info[0]=="bib_source"):
-                query += " journal=\\\'" + journal + "\\\';"
+                query += " journal=\\\'" + journal + "\\\' and year="+str(data['data'][7    ])+";"
             elif (info[0] == "countries"):
                 query += " doi=\\\'" + doi + "\\\';"
             queryList.append(query)
@@ -163,9 +163,9 @@ def singleChanges(data):
             else:
                 lst.append(incoming[0])
                 lst.append(incoming[0])
-            query = "UPDATE " + info[0] + " SET " + info[2] + "=" + str(lst[0]) + " WHERE " +  " product_id="+data['data'][-1]+";"
+            query = "UPDATE " + info[0] + " SET " + info[2] + "=" + str(lst[0]) + " WHERE " +  " product_id="+prodId+";"
             queryList.append(query)
-            query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + data['data'][-1] + ";"
+            query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + prodId + ";"
             queryList.append(query)
         for i in queryList:
             res = MyWebApp._execute("select MAX(id) from change_log;")
@@ -197,7 +197,7 @@ def singleChanges(data):
     changedCol = dictCols[int(data['data'][1])][int(data['data'][3])+1]
     newValue = data['data'][4]
     oldValue = data['data'][5]
-    prod_id = data['data'][-1]
+    prod_id = data['data'][6]
     if len(changedCol)==2:
         newValue = range_decomposition(newValue)
         oldValue = range_decomposition(oldValue)
