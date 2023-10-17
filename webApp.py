@@ -214,7 +214,7 @@ def singleChanges(data):
             newID=0
         newID+=1
         MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
-    print(queryList)
+
 
 
 @socketio.on("addRows")
