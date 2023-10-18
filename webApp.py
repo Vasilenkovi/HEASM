@@ -215,6 +215,7 @@ def singleChanges(data):
         newID+=1
         MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
+
 @socketio.on("addRowsSub")
 def addRowSub(data):
     insert_statements = AddQuery.form_insert_queries_sub(data)
