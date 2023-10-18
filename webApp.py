@@ -84,14 +84,14 @@ def data():
         flash("Неверные данные")
         return redirect("/", code=302)
 
-    addMainCols, addOtherCols = MyWebApp._addQuery.getAddCols()
+    addMainCols, addOtherCols, addOtherPos = MyWebApp._addQuery.getAddCols()
     query = MyWebApp._viewQuery.selectInfo(MyWebApp._viewQuery.getAllColumns())
     result = MyWebApp._execute(query)
     
     result, comments, mask = MyWebApp._viewQuery.convolvedColumnsView(result)
 
     rowIdValues = {"productid": 1, "doi": 2, "year": 19, "journal": 20}
-    data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues, "addMainCols": addMainCols, "addOtherCols": addOtherCols}
+    data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues, "addMainCols": addMainCols, "addOtherCols": addOtherCols, "addOtherPos": addOtherPos}
 
     return render_template('data.html', data=data)
 
@@ -114,7 +114,7 @@ def connect(data):
     name = app._config["user"]
     room = "DataRoom"
     join_room(room)
-    commit(MyWebApp)
+    #commit(MyWebApp)
 @socketio.on("singleChanges")
 def singleChanges(data):
     socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
@@ -148,7 +148,7 @@ def singleChanges(data):
             elif(info[0]=="bibliography"):
                 query += " doi=\\\'" + doi + "\\\';"
             elif(info[0]=="bib_source"):
-                query += " journal=\\\'" + journal + "\\\';"
+                query += " journal=\\\'" + journal + "\\\' and year="+str(data['data'][7    ])+";"
             elif (info[0] == "countries"):
                 query += " doi=\\\'" + doi + "\\\';"
             queryList.append(query)
@@ -163,9 +163,9 @@ def singleChanges(data):
             else:
                 lst.append(incoming[0])
                 lst.append(incoming[0])
-            query = "UPDATE " + info[0] + " SET " + info[2] + "=" + str(lst[0]) + " WHERE " +  " product_id="+data['data'][-1]+";"
+            query = "UPDATE " + info[0] + " SET " + info[2] + "=" + str(lst[0]) + " WHERE " +  " product_id="+prodId+";"
             queryList.append(query)
-            query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + data['data'][-1] + ";"
+            query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + prodId + ";"
             queryList.append(query)
         for i in queryList:
             res = MyWebApp._execute("select MAX(id) from change_log;")
@@ -197,7 +197,7 @@ def singleChanges(data):
     changedCol = dictCols[int(data['data'][1])][int(data['data'][3])+1]
     newValue = data['data'][4]
     oldValue = data['data'][5]
-    prod_id = data['data'][-1]
+    prod_id = data['data'][6]
     if len(changedCol)==2:
         newValue = range_decomposition(newValue)
         oldValue = range_decomposition(oldValue)
@@ -214,8 +214,10 @@ def singleChanges(data):
             newID=0
         newID+=1
         MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
-    print(queryList)
 
+@socketio.on("addRowsSub")
+def addRowSub(data):
+    insert_statements = AddQuery.form_insert_queries_sub(data)
 
 @socketio.on("addRows")
 def addRows(data):
@@ -224,8 +226,6 @@ def addRows(data):
 @socketio.on("commit")
 def commitBut(data):
     commit(MyWebApp)
-
-
 
 if __name__ == "__main__": #If not executed as module
    #app.run(host="127.0.0.1", port=8080, debug=True) #Run app

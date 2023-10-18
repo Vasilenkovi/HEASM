@@ -234,41 +234,52 @@ function applyFilter(e) {
     }
 }
 
-function addRowSub(e) {
-    columnNumber = Number(e.target.colSpan)
-    row = document.createElement("tr")
-    row.classList.add("consumableRow")
-    for (let i = 0; i < columnNumber; i++) {
-        cell = document.createElement("td")
-        cell.classList.add("bordered")
+function newRowSub(recArray, targetRow, targetCell) {
+    tBodySub = document.getElementById("mainTable").children[0].children[Number(targetRow) + 2].children[Number(targetCell)].children[0].children[1].children[1].children[0]
 
-        inp = document.createElement("input")
-        inp.classList.add("userInput")
-        inp.type = "text"
-        inp.value = ""
-        inp.dataset.prior = ""
-        inp.dataset.row = fullTable.length
-        inp.dataset.cell = i
-        inp.addEventListener("focus", logPrior)
-        inp.addEventListener("blur", logChanges)
-        cell.appendChild(inp)
+    for (let i = 0; i < recArray.length; i++) {
+        row = document.createElement("tr")
 
-        row.appendChild(cell)
+        for (let j = 0; j < recArray[i].length; j++) {
+            cell = document.createElement("td")
+
+            inp = document.createElement("input")
+            inp.classList.add("userInput")
+            inp.type = "text"
+            inp.value = recArray[i][j]
+            inp.dataset.prior = ""
+            inp.dataset.row = targetRow
+            inp.dataset.cell = targetCell
+            inp.dataset.subrow = i
+            inp.dataset.subcell = j
+            inp.addEventListener("focus", logPrior)
+            inp.addEventListener("blur", logChanges)
+            cell.appendChild(inp)
+
+            row.appendChild(cell)
+        }
+
+        tBodySub.insertBefore(row, tBodySub.children[tBodySub.children.length - 1])
+
+        fullTable[targetRow][targetCell].push(recArray[i])
     }
 
-    rowTarget = e.target.parentNode
-    table = e.target.parentNode.parentNode
-    table.insertBefore(row, rowTarget)
 }
 
-function addRow(e) {
-    columnNumber = Number(e.target.colSpan)
+function newRowf(recArray) {
+    let trueRowArray = [] //Cancerous tumor 2
+
     row = document.createElement("tr")
-    for (let i = 0; i < columnNumber; i++) {
+    row.classList.add("bordered")
+    rowId = fullTable.length
+
+    let typeid = 0
+    let cellid = 0
+    for (elem of recArray) {
         cell = document.createElement("td")
         cell.classList.add("bordered")
 
-        if (Array.isArray(colFormat[i])) {
+        if (Array.isArray(elem)) {
             mainDiv = document.createElement("div")
             mainDiv.classList.add("multipleValueSwitcher")
 
@@ -289,6 +300,7 @@ function addRow(e) {
 
             minDiv = document.createElement("div")
             minDiv.classList.add("minimizer")
+            minDiv.textContent = "скрыть"
             minDiv.addEventListener("click", focusSmall)
             bigDiv.appendChild(minDiv)
 
@@ -296,14 +308,48 @@ function addRow(e) {
             tableTag.classList.add("bordered")
             tableTag.classList.add("multipleHolder")
 
+            tbodyTagS = document.createElement("tbody")
+            tableTag.appendChild(tbodyTagS)
+
+            for (let i = 0; i < recArray.length; i++) {
+                rows = document.createElement("tr")
+                rows.classList.add("consumableRow")
+
+                for (let j = 0; j < recArray[i].length; j++) {
+                    cells = document.createElement("td")
+                    cells.classList.add("bordered")
+
+                    inp = document.createElement("input")
+                    inp.classList.add("userInput")
+                    inp.type = "text"
+                    inp.value = recArray[i][j]
+                    inp.dataset.prior = ""
+                    inp.dataset.row = rowId
+                    inp.dataset.cell = cellid
+                    inp.dataset.subrow = i
+                    inp.dataset.subcell = j
+                    inp.addEventListener("focus", logPrior)
+                    inp.addEventListener("blur", logChanges)
+                    cells.appendChild(inp)
+
+                    rows.appendChild(cells)
+                }
+
+                tbodyTagS.appendChild(rows)
+            }
+
             trPsa = document.createElement("tr")
             trPsa.classList.add("bordered")
 
             tdPsa = document.createElement("td")
             tdPsa.classList.add("bordered")
             tdPsa.classList.add("multipsa")
-            tdPsa.colspan = colFormat[i].length
+            tdPsa.colSpan = Number(elem[0].length)
+            tdPsa.dataset.popuptype = Number(typeid - 12)
+            tdPsa.dataset.row = rowId
+            tdPsa.dataset.cell = typeid
             tdPsa.textContent = "Добавить запись"
+            tdPsa.addEventListener("click", addPopupSub)
 
             trPsa.appendChild(tdPsa)
             tableTag.appendChild(trPsa)
@@ -313,24 +359,33 @@ function addRow(e) {
 
             cell.appendChild(mainDiv)
 
+            trueRowArray.push([])
+
         } else {
             inp = document.createElement("input")
             inp.classList.add("userInput")
             inp.type = "text"
-            inp.value = ""
+            inp.value = elem
             inp.dataset.prior = ""
             inp.dataset.row = fullTable.length
-            inp.dataset.cell = i
+            inp.dataset.cell = cellid
             inp.addEventListener("focus", logPrior)
             inp.addEventListener("blur", logChanges)
             cell.appendChild(inp)
+
+            trueRowArray.push("")
         }
 
+        typeid += 1
+        cellid += 1
         row.appendChild(cell)
     }
 
-    table = e.target.parentNode.parentNode
-    table.appendChild(row)
+    tbodyTag = document.getElementById("mainTable").children[0]
+    rowTarget = document.getElementById("addRow").parentNode
+    tbodyTag.insertBefore(row, rowTarget)
+
+    fullTable.push(trueRowArray)
 }
 
 function commit1() {
@@ -341,16 +396,16 @@ function addPopup() {
     bodyTag = document.getElementById("trueBody")
     bodyTag.style.opacity = 0.2
 
-    bodyTag = document.getElementById("popup")
-    bodyTag.style.display = "block"
+    popupTag = document.getElementById("popup")
+    popupTag.style.display = "block"
 }
 
 function popupClose() {
     bodyTag = document.getElementById("trueBody")
     bodyTag.style.opacity = 1
 
-    bodyTag = document.getElementById("popup")
-    bodyTag.style.display = "none"
+    popupTag = document.getElementById("popup")
+    popupTag.style.display = "none"
 
     rowsToDlt = document.getElementsByClassName("consumableRow")
 
@@ -359,16 +414,121 @@ function popupClose() {
     }
 }
 
+function popupCloseSub() {
+    bodyTag = document.getElementById("trueBody")
+    bodyTag.style.opacity = 1
+
+    popupTag = document.getElementById("popupSub")
+    popupTag.style.display = "none"
+}
+
+function addPopupSub(e) {
+
+    priorTable = document.getElementById("popupSubTable")
+    if (priorTable) {
+        priorTable.remove()
+    }
+
+    bodyTag = document.getElementById("trueBody")
+    bodyTag.style.opacity = 0.2
+
+    popupTag = document.getElementById("popupSub")
+    popupTag.style.display = "block"
+
+    popupType = Number(e.target.dataset.popuptype)
+    tableInfo = addExtra[popupType]
+    tableMount = popupTag.children[1]
+    popupTag.dataset.popupType = tableInfo[0]
+
+    rowInfo = e.target
+    for (let i = 0; i < 7; i++) {
+        rowInfo = rowInfo.parentNode
+    }
+
+    popupTag.dataset.pid = rowInfo.dataset.productid
+    popupTag.dataset.doi = rowInfo.dataset.doi
+    popupTag.dataset.row = e.target.dataset.row
+    popupTag.dataset.cell = e.target.dataset.cell
+
+    tableTag = document.createElement("table")
+    tableTag.id = "popupSubTable"
+    tableTag.classList.add("bordered")
+    rowTag = document.createElement("tr")
+    rowTag.classList.add("bordered")
+
+    for (col of tableInfo[1]) {
+        tdTag = document.createElement("th")
+        tdTag.classList.add("bordered")
+        tdTag.textContent = col
+        rowTag.appendChild(tdTag)
+    }
+
+    tableTag.appendChild(rowTag)
+
+    rowTag2 = document.createElement("tr")
+    rowTag2.classList.add("bordered")
+
+    for (col of tableInfo[1]) {
+        tdTag = document.createElement("td")
+        tdTag.classList.add("bordered")
+
+        inp = document.createElement("input")
+        inp.classList.add("userInput")
+        inp.type = "text"
+        inp.value = ""
+        tdTag.appendChild(inp)
+
+        rowTag2.appendChild(tdTag)
+    }
+
+    tableTag.appendChild(rowTag2)
+
+    tableMount.prepend(tableTag)
+}
+
+function collectSubInputs(e) {
+    logicalArray = []
+    addDict = {}
+    main = Array(17).fill("")
+
+    popupTag = document.getElementById("popupSub")
+    subType = popupTag.dataset.popupType
+
+    main[1] = popupTag.dataset.pid
+    main[2] = popupTag.dataset.doi
+    targetRow = popupTag.dataset.row
+    targetCell = popupTag.dataset.cell
+
+    tdArr = []
+    tr = document.getElementById("popupSubTable").children[1] //skip header
+    for (td of tr.children) {
+        tdArr.push(td.children[0].value)
+    }
+
+    addDict[subType] = tdArr
+    addDict["main"] = main
+    logicalArray.push(tdArr)
+
+    newRowSub(logicalArray, targetRow, targetCell)
+
+    socket.emit("addRowsSubClient", logicalArray);
+    socket.emit("addRowsSub", addDict);
+    popupCloseSub()
+}
+
 function collectInputs(e) {
+    logicalArray = []
     addDict = {}
 
     mainArr = []
     main = document.getElementById("popupMain").children[0].children[1] //skip header
     for (td of main.children) {
         mainArr.push(td.children[0].value)
+        logicalArray.push(td.children[0].value)
     }
     addDict["main"] = mainArr
 
+    let j = 12 //Cancerous tumor
     for (tableId of addExtra) {
         tableArr = []
         extraTableRows = document.getElementById(tableId[0]).children[0].children
@@ -381,9 +541,16 @@ function collectInputs(e) {
             tableArr.push(newRow)
         }
         addDict[tableId[0]] = tableArr
+        logicalArray.splice(j, 0, tableArr) //Cancerous tumor
+        j += 1 //Cancerous tumor
     }
 
+    newRowf(logicalArray)
+
+    socket.emit("addRowsClient", logicalArray);
     socket.emit("addRows", addDict);
+
+    popupClose()
 }
 
 window.onload = () => {
@@ -424,14 +591,20 @@ window.onload = () => {
     addRowBtn = document.getElementById("addRow")
     addRowBtn.addEventListener("click", addPopup)
 
-    popupCloseBtn = document.getElementById("popupClose")
+    popupCloseBtn = document.getElementById("popupCloseBtn")
     popupCloseBtn.addEventListener("click", popupClose)
+
+    popupCloseSubBtn = document.getElementById("popupCloseSub")
+    popupCloseSubBtn.addEventListener("click", popupCloseSub)
 
     popupAddBtn = document.getElementById("popupAdd")
     popupAddBtn.addEventListener("click", collectInputs)
 
+    popupAddSubBtn = document.getElementById("popupAddSub")
+    popupAddSubBtn.addEventListener("click", collectSubInputs)
+
     multipsaTag = document.getElementsByClassName("multipsa")
     for (tag of multipsaTag) {
-        tag.addEventListener("click", addRowSub)
+        tag.addEventListener("click", addPopupSub)
     }
 }
