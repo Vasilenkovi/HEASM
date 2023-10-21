@@ -117,10 +117,13 @@ class AddQuery:
         return outQueries
 
     def decompose_range(possibleRange: str) -> list:
-        possibleRange = possibleRange.strip()
-        if possibleRange[0] == '[':
-            possibleRange = possibleRange[1:-1]
-            return list(map(str.strip, possibleRange.split(',')))
-        else:
+        if len(possibleRange) > 0:
             possibleRange = possibleRange.strip()
-            return possibleRange, possibleRange
+            if possibleRange[0] == '[':
+                possibleRange = possibleRange[1:-1]
+                return list(map(str.strip, possibleRange.split(',')))
+            else:
+                possibleRange = possibleRange.strip()
+                return possibleRange, possibleRange
+        else:
+            return "", ""
