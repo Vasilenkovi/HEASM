@@ -114,7 +114,8 @@ def connect(data):
     name = app._config["user"]
     room = "DataRoom"
     join_room(room)
-    #commit(MyWebApp)
+    commit(MyWebApp, socketio)
+
 @socketio.on("singleChanges")
 def singleChanges(data):
     socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
@@ -173,7 +174,6 @@ def singleChanges(data):
             if(newID==None):
                 newID=0
             newID+=1
-            print("Insert into change_log(id, querry) values("+str(newID)+", \\\'"+i+"\\\');")
             MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
 def range_decomposition(st):
@@ -220,13 +220,23 @@ def singleChanges(data):
 def addRowSub(data):
     insert_statements = AddQuery.form_insert_queries_sub(data)
 
+
 @socketio.on("addRows")
 def addRows(data):
     insert_statements = AddQuery.form_insert_queries(data)
 
+@socketio.on("addRowsClient")
+def updateNewRow(data):
+    socketio.emit("updateNewRows", data)
+
+@socketio.on("addRowsSubClient")
+def updateNewSubRow(data):
+    socketio.emit("updateNewSubRows", data)
+
 @socketio.on("commit")
 def commitBut(data):
-    commit(MyWebApp)
+    commit(MyWebApp, socketio)
+
 
 if __name__ == "__main__": #If not executed as module
    #app.run(host="127.0.0.1", port=8080, debug=True) #Run app

@@ -26,6 +26,17 @@
             var changes = document.querySelector('[class="userInputSub"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]' + '[data-subrow="' + data['data'][2] + '"]' + '[data-subcell="' + data['data'][3] + '"]')
             changes.value = data['data'][4]
         });
+         socket.on('updateNewRows', (data) => {
+            console.log(data)
+            newRowf(data)
+        });
+        socket.on('updateNewSubRows', (data) => {
+            console.log(data)
+            newRowSub(data['logArr'], data['tarRow'], data['tarCell'])
+        });
+        socket.on('update', (data) => {
+            location.reload()
+        });
     </script>
 </head>
 

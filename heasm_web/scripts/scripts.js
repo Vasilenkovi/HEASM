@@ -509,9 +509,9 @@ function collectSubInputs(e) {
     addDict["main"] = main
     logicalArray.push(tdArr)
 
-    newRowSub(logicalArray, targetRow, targetCell)
+    //newRowSub(logicalArray, targetRow, targetCell)
 
-    socket.emit("addRowsSubClient", logicalArray);
+    socket.emit("addRowsSubClient", {'logArr': logicalArray, 'tarRow': targetRow, 'tarCell': targetCell});
     socket.emit("addRowsSub", addDict);
     popupCloseSub()
 }
@@ -545,7 +545,6 @@ function collectInputs(e) {
         j += 1 //Cancerous tumor
     }
 
-    newRowf(logicalArray)
 
     socket.emit("addRowsClient", logicalArray);
     socket.emit("addRows", addDict);
