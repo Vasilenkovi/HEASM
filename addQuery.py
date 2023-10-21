@@ -3,7 +3,7 @@ class AddQuery:
     WEB_VIEW_COMPOSITES = [["Параметры синтеза:", ["Параметр", "Еденица измерения", "Значение"]], ["Параметры измерений:", ["Параметр", "Еденица измерения", "Значение"]], ["Ингредиенты:", ["Ингредиент"]], ["Ключевые слова:", ["Ключевое слово"]], ["Страны публикации:", ["Страна"]]]
     WEB_VIEW_COMPOSITES_COL_POS = {12: 0, 13: 1, 14: 2, 15: 3, 16: 4}
     DATA_DICT_MAIN_ID = {"productID": 1, "doi": 2, "year": 14, "journal": 15}
-    DATA_DICT_MAIN_STRUCT = {"product": 0, "productID": 1, "doi": 2, "a_param": 3, "mix_method": 4, "mix_time": 5, "method": 6, "gas": 7, "synth_time": 8, "feature": 9, "contributor": 10, "comment": 11, "cipher": 12, "url": 13, "year": 14, "journal": 15, "impact": 16}
+    DATA_DICT_MAIN_STRUCT = {"product": 0, "productID": 1, "doi": 2, "a_param": 3, "mix_method": 4, "mix_time": 5, "method": 6, "gas": 7, "synth_time": 8, "feature": 9, "contributor": 10, "comments": 11, "cipher": 12, "url": 13, "year": 14, "journal": 15, "impact": 16}
 
     def getAddCols(self) -> tuple[list, list[list]]:
         return AddQuery.WEB_VIEW_BASE_INFO, AddQuery.WEB_VIEW_COMPOSITES, AddQuery.WEB_VIEW_COMPOSITES_COL_POS
