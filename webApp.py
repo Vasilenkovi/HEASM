@@ -236,7 +236,10 @@ def updateNewSubRow(data):
 @socketio.on("commit")
 def commitBut(data):
     commit(MyWebApp, socketio)
-
+@socketio.on("getId")
+def getNewID():
+    newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');')[0][0]
+    socketio.emit('SendID', newId)
 
 if __name__ == "__main__": #If not executed as module
    #app.run(host="127.0.0.1", port=8080, debug=True) #Run app
