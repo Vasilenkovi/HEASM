@@ -259,4 +259,5 @@ def getNewID():
 
 if __name__ == "__main__": #If not executed as module
    #app.run(host="127.0.0.1", port=8080, debug=True) #Run app
-    socketio.run(app=app, host="127.0.0.1", port=8080)
+   socketio = SocketIO(app)
+   socketio.init_app(app, cors_allowed_origins="*")
