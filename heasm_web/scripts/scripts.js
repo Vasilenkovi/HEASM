@@ -1,6 +1,3 @@
-io.configure('development', function(){
-  io.set('transports', ['xhr-polling']);
-});
 class FilterString {
 
     static txtReLike = /(like)\s*["'](.*)["']/
