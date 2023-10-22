@@ -251,7 +251,7 @@ def updateNewSubRow(data):
 def commitBut(data):
     commit(MyWebApp, socketio)
 @socketio.on("getId")
-def getNewID(data):
+def getNewID():
     newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');')[0][0]
     print(newId)
     return newId
