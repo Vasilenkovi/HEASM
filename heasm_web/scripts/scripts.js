@@ -563,7 +563,7 @@ function collectInputs(e) {
 
 window.onload = () => {
             var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
-        transports: ['websocket']});
+        transports: ['websocket'], secure: true}});
         socket.on('dataChanged', (data) => {
             console.log(data['data'])
             var changes = document.querySelector('[class="userInput"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]')
