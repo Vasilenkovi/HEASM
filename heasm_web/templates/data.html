@@ -37,9 +37,10 @@
         socket.on('update', (data) => {
             location.reload()
         });
+        console.log(1)
+        console.log(socket)
     </script>
-    <script src="{{ url_for('static', filename='scripts/scripts.js') }}">var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
-        transports: ['websocket']});</script>
+    <script src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
 
 </head>
 
