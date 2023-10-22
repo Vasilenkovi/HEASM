@@ -1,28 +1,5 @@
 
-        var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
-        transports: ['websocket']});
-        socket.on('dataChanged', (data) => {
-            console.log(data['data'])
-            var changes = document.querySelector('[class="userInput"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]')
-            changes.value = data['data'][2]
-        });
-        socket.on('dataMultChanged', (data) => {
-            console.log(data['data'])
-            var changes = document.querySelector('[class="userInputSub"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]' + '[data-subrow="' + data['data'][2] + '"]' + '[data-subcell="' + data['data'][3] + '"]')
-            changes.value = data['data'][4]
-        });
-         socket.on('updateNewRows', (data) => {
-            console.log(data)
-            newRowf(data)
-        });
-        socket.on('updateNewSubRows', (data) => {
-            console.log(data)
-            newRowSub(data['logArr'], data['tarRow'], data['tarCell'])
-        });
-        socket.on('update', (data) => {
-            location.reload()
-        });cla
-ss FilterString {
+class FilterString {
 
     static txtReLike = /(like)\s*["'](.*)["']/
     static compRe = /(=|<|>)\s*(.*)/
