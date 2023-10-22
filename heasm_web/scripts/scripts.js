@@ -21,6 +21,9 @@
         socket.on('update', (data) => {
             location.reload()
         });
+        socket.on("connect_error", (err) => {
+  console.log(`connect_error due to ${err.message}`);
+});
 class FilterString {
 
     static txtReLike = /(like)\s*["'](.*)["']/
