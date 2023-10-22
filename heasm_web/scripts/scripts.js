@@ -1,4 +1,4 @@
- var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
+ var socket = io.connect('https://heas.main.tpu.ru/data', {forceNew: true,
          secure: true});
         socket.on('dataChanged', (data) => {
             console.log(data['data'])
