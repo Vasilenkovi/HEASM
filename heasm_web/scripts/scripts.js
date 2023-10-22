@@ -1,4 +1,4 @@
- var socket = io('https://heas.main.tpu.ru/', {forceNew: true,
+ var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
         transports: ['websocket', 'pooling'], secure: true});
         socket.on('dataChanged', (data) => {
             console.log(data['data'])
