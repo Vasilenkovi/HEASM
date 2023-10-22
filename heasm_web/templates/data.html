@@ -25,6 +25,7 @@ const io = require("socket.io")(httpServer, {
        forceNew: true,
    transports: ["polling"],
   }
+  {secure: true}
 });
 
 // client-side
