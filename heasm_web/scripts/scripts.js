@@ -1,5 +1,5 @@
  var socket = io('https://heas.main.tpu.ru', {forceNew: true,
-        transports: ['polling'], secure: true});
+        transports: ["websocket", 'polling'], secure: true});
         socket.on('dataChanged', (data) => {
             console.log(data['data'])
             var changes = document.querySelector('[class="userInput"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]')
