@@ -1,5 +1,4 @@
-var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
-        transports: ['websocket']});
+
 class FilterString {
 
     static txtReLike = /(like)\s*["'](.*)["']/
