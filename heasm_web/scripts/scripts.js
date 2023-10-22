@@ -395,9 +395,16 @@ function commit1() {
 function addPopup() {
     bodyTag = document.getElementById("trueBody")
     bodyTag.style.opacity = 0.2
-    socket.emit('getId')
+
+    socket.emit('getId', addPopupId)
+
     popupTag = document.getElementById("popup")
     popupTag.style.display = "block"
+}
+
+function addPopupId(idVal) {
+    document.getElementById("pid")
+    pid.value = idVal
 }
 
 function popupClose() {
@@ -512,7 +519,7 @@ function collectSubInputs(e) {
 
     //newRowSub(logicalArray, targetRow, targetCell)
 
-    socket.emit("addRowsSubClient", {'logArr': logicalArray, 'tarRow': targetRow, 'tarCell': targetCell});
+    socket.emit("addRowsSubClient", { 'logArr': logicalArray, 'tarRow': targetRow, 'tarCell': targetCell });
     socket.emit("addRowsSub", addDict);
     popupCloseSub()
 }
@@ -607,4 +614,7 @@ window.onload = () => {
     for (tag of multipsaTag) {
         tag.addEventListener("click", addPopupSub)
     }
+
+    popupIdTag = document.getElementById("popupMain").children[0].children[1].children[1].children[0]
+    popupIdTag.id = "pid"
 }

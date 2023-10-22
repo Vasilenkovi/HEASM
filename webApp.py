@@ -219,11 +219,25 @@ def singleChanges(data):
 @socketio.on("addRowsSub")
 def addRowSub(data):
     insert_statements = AddQuery.form_insert_queries_sub(data)
+    for i in insert_statements:
+        res = MyWebApp._execute("select MAX(id) from change_log;")
+        newID = res[0][0]
+        if(newID==None):
+            newID=0
+        newID+=1
+        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
 
 @socketio.on("addRows")
 def addRows(data):
     insert_statements = AddQuery.form_insert_queries(data)
+    for i in insert_statements:
+        res = MyWebApp._execute("select MAX(id) from change_log;")
+        newID = res[0][0]
+        if(newID==None):
+            newID=0
+        newID+=1
+        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
 @socketio.on("addRowsClient")
 def updateNewRow(data):
@@ -237,9 +251,11 @@ def updateNewSubRow(data):
 def commitBut(data):
     commit(MyWebApp, socketio)
 @socketio.on("getId")
-def getNewID():
+def getNewID(data):
     newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');')[0][0]
-    socketio.emit('SendID', newId)
+    print(newId)
+    return newId
+    #socketio.emit('SendID', newId)
 
 if __name__ == "__main__": #If not executed as module
    #app.run(host="127.0.0.1", port=8080, debug=True) #Run app
