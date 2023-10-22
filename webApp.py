@@ -41,7 +41,7 @@ class MyWebApp(Flask):
 app = MyWebApp(__name__, template_folder='heasm_web/templates', static_folder='heasm_web') #App initialization
 app.secret_key = secrets.token_urlsafe(64) #Secret key preserves the session
 
-socketio1 = SocketIO(app, cors_allowed_origins='*')
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 #Root page with authentification form
 @app.route("/", methods=['GET', 'POST'])
@@ -109,16 +109,16 @@ def logs():
 
     return render_template('logs.html', data=data)
 
-@socketio1.on("connect")
+@socketio.on("connect")
 def connect(data):
     name = app._config["user"]
     room = "DataRoom"
     join_room(room)
-    commit(MyWebApp, socketio1)
+    commit(MyWebApp, socketio)
 
-@socketio1.on("singleChanges")
+@socketio.on("singleChanges")
 def singleChanges(data):
-    socketio1.emit("dataChanged", {'data': data['data']}, to="DataRoom")
+    socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
     col = int(data['data'][1])
     query = ""
     colDict = {0:"synthesis_product product", 1: "Forbidden", 2: "bibliography doi", 3: "synthesis_product a_parameter_max a_parameter_min",
@@ -184,9 +184,9 @@ def range_decomposition(st):
         st.append(st[0])
     return st
 
-@socketio1.on("multipleChanges")
+@socketio.on("multipleChanges")
 def singleChanges(data):
-    socketio1.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
+    socketio.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
     dictCols = { 12:["synthesis_parameter", "synthesis_parameter", "SYNTHESIS_UNIT", ["SYNTHESIS_MIN_VALUE", "SYNTHESIS_MAX_VALUE"]],
                  13:["measurements", ["measured_parameter"], "MEASURED_UNIT", ["MEASURED_MIN_VALUE", "MEASURED_MAX_VALUE"]],
                  14:["ingredients", "ingredient"], 15:["countries", "country"]}
@@ -216,7 +216,7 @@ def singleChanges(data):
         MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
 
-@socketio1.on("addRowsSub")
+@socketio.on("addRowsSub")
 def addRowSub(data):
     insert_statements = AddQuery.form_insert_queries_sub(data)
     for i in insert_statements:
@@ -228,7 +228,7 @@ def addRowSub(data):
         MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
 
-@socketio1.on("addRows")
+@socketio.on("addRows")
 def addRows(data):
     insert_statements = AddQuery.form_insert_queries(data)
     for i in insert_statements:
@@ -239,18 +239,18 @@ def addRows(data):
         newID+=1
         MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
 
-@socketio1.on("addRowsClient")
+@socketio.on("addRowsClient")
 def updateNewRow(data):
-    socketio1.emit("updateNewRows", data)
+    socketio.emit("updateNewRows", data)
 
-@socketio1.on("addRowsSubClient")
+@socketio.on("addRowsSubClient")
 def updateNewSubRow(data):
-    socketio1.emit("updateNewSubRows", data)
+    socketio.emit("updateNewSubRows", data)
 
-@socketio1.on("commit")
+@socketio.on("commit")
 def commitBut(data):
-    commit(MyWebApp, socketio1)
-@socketio1.on("getId")
+    commit(MyWebApp, socketio)
+@socketio.on("getId")
 def getNewID():
     newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');')[0][0]
     print(newId)
@@ -260,4 +260,4 @@ def getNewID():
 if __name__ == "__main__": #If not executed as module
    #app.run(host="127.0.0.1", port=8080, debug=True) #Run app
 
-    socketio1.run(app=app, host="127.0.0.1", port=8080, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app=app, host="127.0.0.1", port=8080, debug=True, allow_unsafe_werkzeug=True)
