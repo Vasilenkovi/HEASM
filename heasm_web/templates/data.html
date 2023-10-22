@@ -18,7 +18,6 @@
     transports: ['websocket']});
     </script>
     <script type="text/javascript" charset="utf-8">
-        var socket = io();
         socket.on('dataChanged', (data) => {
             console.log(data['data'])
             var changes = document.querySelector('[class="userInput"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]')
