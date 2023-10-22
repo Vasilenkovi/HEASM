@@ -1,4 +1,4 @@
-var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
+var socket = io('https://localhost:8080/data', {forceNew: true,
         transports: ['websocket']});
 class FilterString {
 
