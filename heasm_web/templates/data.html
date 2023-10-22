@@ -23,7 +23,7 @@
 // server-side
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "https://example.com",
+    origin: "https://heas.main.tpu.ru/data",
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true
@@ -32,7 +32,7 @@ const io = require("socket.io")(httpServer, {
 
 // client-side
 const io = require("socket.io-client");
-const socket = io("https://api.example.com", {
+const socket = io("https://heas.main.tpu.ru/data", {
   withCredentials: true,
   extraHeaders: {
     "my-custom-header": "abcd"
