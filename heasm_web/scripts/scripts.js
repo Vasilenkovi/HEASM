@@ -562,7 +562,7 @@ function collectInputs(e) {
 }
 
 window.onload = () => {
-            var socket = io('https://locahost:8080/data', {forceNew: true,
+            var socket = io('https://localhost:8080/data', {forceNew: true,
         transports: ['websocket'], secure: true});
         socket.on('dataChanged', (data) => {44
             console.log(data['data'])
