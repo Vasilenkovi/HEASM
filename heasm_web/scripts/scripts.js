@@ -1,5 +1,5 @@
- var socket = io('wss://heas.main.tpu.ru/data', {forceNew: true,
-        transports: ['websocket', 'pooling'], secure: true});
+ var socket = io('https://heas.main.tpu.ru/data', {forceNew: true,
+         secure: true});
         socket.on('dataChanged', (data) => {
             console.log(data['data'])
             var changes = document.querySelector('[class="userInput"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]')
