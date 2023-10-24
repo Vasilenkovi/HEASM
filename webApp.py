@@ -189,7 +189,7 @@ def singleChanges(data):
             query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + prodId + ";"
             queryList.append(query)
         for i in queryList:
-            res = MyWebApp._execute("select MAX(id) from change_log;, login, password")
+            res = MyWebApp._execute("select MAX(id) from change_log;", login, password)
             newID = res[0][0]
             if(newID==None):
                 newID=0
