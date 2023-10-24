@@ -40,8 +40,8 @@ class MyWebApp(Flask):
     
 app = MyWebApp(__name__, template_folder='heasm_web/templates', static_folder='heasm_web') #App initialization
 app.secret_key = secrets.token_urlsafe(64) #Secret key preserves the session
-
 socketio = SocketIO(app, cors_allowed_origins='*')
+
 
 #Root page with authentification form
 @app.route("/", methods=['GET', 'POST'])
@@ -62,6 +62,7 @@ def auth():
         return redirect("/data", code=302)
     
     except mysql.connector.errors.Error as e:
+        print(e)
         if e.errno == 1045: #Connector access denied
             flash("Неверные данные")
         else:
