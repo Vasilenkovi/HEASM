@@ -94,6 +94,8 @@ def data():
     rowIdValues = {"productid": 1, "doi": 2, "year": 19, "journal": 20}
     data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues, "addMainCols": addMainCols, "addOtherCols": addOtherCols, "addOtherPos": addOtherPos}
 
+    print(app._config)
+    
     return render_template('data.html', data=data)
 
 #Data table page
@@ -108,6 +110,8 @@ def logs():
 
     data = {"shown": comments, "results": result, "mask": mask}
 
+    print(app._config)
+    
     return render_template('logs.html', data=data)
 
 @socketio.on("connect")
