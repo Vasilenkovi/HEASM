@@ -19,13 +19,16 @@ class MyWebApp(Flask):
     def __init__(self, import_name: str, static_url_path: str | None = None, static_folder: str | PathLike | None = "static", static_host: str | None = None, host_matching: bool = False, subdomain_matching: bool = False, template_folder: str | PathLike | None = "templates", instance_path: str | None = None, instance_relative_config: bool = False, root_path: str | None = None):
         super().__init__(import_name, static_url_path, static_folder, static_host, host_matching, subdomain_matching, template_folder, instance_path, instance_relative_config, root_path)
 
-    def _checkSession() -> bool:
-        if "" in (MyWebApp._config.get("user"), MyWebApp._config.get("password")):
+    def _checkSession(session: dict) -> bool:
+        if "" in (session.get("user"), session.get("password")):
             return False
         else:
             return True
 
-    def _execute(query: str) -> list:
+    def _execute(query: str, userLogin: str, userPassword: str) -> list:
+        MyWebApp._config["user"] = userLogin
+        MyWebApp._config["password"] = userPassword
+
         connection = mysql.connector.connect(**MyWebApp._config)
         cursor = connection.cursor()
 
@@ -35,6 +38,9 @@ class MyWebApp(Flask):
         cursor.execute("commit")
         cursor.close()
         connection.close()
+
+        MyWebApp._config["user"] = ""
+        MyWebApp._config["password"] = ""
 
         return r
     
@@ -54,10 +60,11 @@ def auth():
     login = str(escape(request.form.get("login", ""))) #Safely parsing login info
     password = str(escape(request.form.get("password", ""))) #Safely parsing password info
 
-    MyWebApp._config["user"] = login #Add login to connection config
-    MyWebApp._config["password"] = password #Add password to connection config
+    session["user"] = login
+    session["password"] = password
+
     try:        
-        MyWebApp._execute("SELECT VERSION();")
+        MyWebApp._execute("SELECT VERSION();", login, password)
 
         return redirect("/data", code=302)
     
@@ -73,56 +80,64 @@ def auth():
 @app.route("/deauth", methods=['GET'])
 def deauth():
 
-    MyWebApp._config["user"] = ""
-    MyWebApp._config["password"] = ""
+    session["user"] = ""
+    session["password"] = ""
     
     return redirect("/", code=302)
 
 #Data table page
 @app.route("/data", methods=['GET'])
 def data():
-    if not MyWebApp._checkSession():
+    if not MyWebApp._checkSession(session):
         flash("Неверные данные")
         return redirect("/", code=302)
+    
+    login = session.get("user")
+    password = session.get("password")
 
     addMainCols, addOtherCols, addOtherPos = MyWebApp._addQuery.getAddCols()
     query = MyWebApp._viewQuery.selectInfo(MyWebApp._viewQuery.getAllColumns())
-    result = MyWebApp._execute(query)
+    result = MyWebApp._execute(query, login, password)
     
     result, comments, mask = MyWebApp._viewQuery.convolvedColumnsView(result)
 
     rowIdValues = {"productid": 1, "doi": 2, "year": 19, "journal": 20}
     data = {"shown": comments, "results": result, "mask": mask, "rowIdValues": rowIdValues, "addMainCols": addMainCols, "addOtherCols": addOtherCols, "addOtherPos": addOtherPos}
-
-    print(app._config)
     
     return render_template('data.html', data=data)
 
 #Data table page
 @app.route("/logs", methods=['GET'])
 def logs():
-    if not MyWebApp._checkSession():
+    if not MyWebApp._checkSession(session):
         flash("Неверные данные")
         return redirect("/", code=302)
+    
+    login = session.get("user")
+    password = session.get("password")
 
     query, comments, mask = MyWebApp._viewQuery.logQuery()
-    result = MyWebApp._execute(query)
+    result = MyWebApp._execute(query, login, password)
 
     data = {"shown": comments, "results": result, "mask": mask}
-
-    print(app._config)
     
     return render_template('logs.html', data=data)
 
 @socketio.on("connect")
 def connect(data):
-    name = app._config["user"]
+    login = session.get("user")
+    password = session.get("password")
+
+    #name = app._config["user"]
     room = "DataRoom"
     join_room(room)
-    commit(MyWebApp, socketio)
+    commit(MyWebApp, socketio, login, password)
 
 @socketio.on("singleChanges")
 def singleChanges(data):
+    login = session.get("user")
+    password = session.get("password")
+
     socketio.emit("dataChanged", {'data': data['data']}, to="DataRoom")
     col = int(data['data'][1])
     query = ""
@@ -174,12 +189,12 @@ def singleChanges(data):
             query = "UPDATE " + info[0] + " SET " + info[1] + "=" + str(lst[1]) + " WHERE "  +  " product_id=" + prodId + ";"
             queryList.append(query)
         for i in queryList:
-            res = MyWebApp._execute("select MAX(id) from change_log;")
+            res = MyWebApp._execute("select MAX(id) from change_log;, login, password")
             newID = res[0][0]
             if(newID==None):
                 newID=0
             newID+=1
-            MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
+            MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');", login, password)
 
 def range_decomposition(st):
     st = st.replace('[', '')
@@ -191,6 +206,9 @@ def range_decomposition(st):
 
 @socketio.on("multipleChanges")
 def singleChanges(data):
+    login = session.get("user")
+    password = session.get("password")
+
     socketio.emit("dataMultChanged", {'data': data['data']}, to="DataRoom")
     dictCols = { 12:["synthesis_parameter", "synthesis_parameter", "SYNTHESIS_UNIT", ["SYNTHESIS_MIN_VALUE", "SYNTHESIS_MAX_VALUE"]],
                  13:["measurements", ["measured_parameter"], "MEASURED_UNIT", ["MEASURED_MIN_VALUE", "MEASURED_MAX_VALUE"]],
@@ -213,36 +231,42 @@ def singleChanges(data):
         query = upd.format(changedTable, changedCol, "\\\'"+newValue+"\\\'", prod_id, changedCol, "\\\'"+oldValue+"\\\'")
         queryList.append(query)
     for i in queryList:
-        res = MyWebApp._execute("select MAX(id) from change_log;")
+        res = MyWebApp._execute("select MAX(id) from change_log;, login, password")
         newID = res[0][0]
         if(newID==None):
             newID=0
         newID+=1
-        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
+        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');", login, password)
 
 
 @socketio.on("addRowsSub")
 def addRowSub(data):
+    login = session.get("user")
+    password = session.get("password")
+
     insert_statements = AddQuery.form_insert_queries_sub(data)
     for i in insert_statements:
-        res = MyWebApp._execute("select MAX(id) from change_log;")
+        res = MyWebApp._execute("select MAX(id) from change_log;", login, password)
         newID = res[0][0]
         if(newID==None):
             newID=0
         newID+=1
-        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
+        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');", login, password)
 
 
 @socketio.on("addRows")
 def addRows(data):
+    login = session.get("user")
+    password = session.get("password")
+
     insert_statements = AddQuery.form_insert_queries(data)
     for i in insert_statements:
-        res = MyWebApp._execute("select MAX(id) from change_log;")
+        res = MyWebApp._execute("select MAX(id) from change_log;", login, password)
         newID = res[0][0]
         if(newID==None):
             newID=0
         newID+=1
-        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');")
+        MyWebApp._execute("Insert into change_log(id, querry) values("+str(newID)+", \'"+i+"\');", login, password)
 
 @socketio.on("addRowsClient")
 def updateNewRow(data):
@@ -254,10 +278,16 @@ def updateNewSubRow(data):
 
 @socketio.on("commit")
 def commitBut(data):
-    commit(MyWebApp, socketio)
+    login = session.get("user")
+    password = session.get("password")
+
+    commit(MyWebApp, socketio, login, password)
 @socketio.on("getId")
 def getNewID():
-    newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');')[0][0]
+    login = session.get("user")
+    password = session.get("password")
+
+    newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');', login, password)[0][0]
     print(newId)
     return newId
     #socketio.emit('SendID', newId)
