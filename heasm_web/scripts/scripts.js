@@ -1,4 +1,3 @@
-
 class FilterString {
 
     static txtReLike = /(like)\s*["'](.*)["']/
@@ -397,7 +396,7 @@ function addPopup() {
     bodyTag = document.getElementById("trueBody")
     bodyTag.style.opacity = 0.2
 
-    socket.emit('getId', addPopupId)
+    socket.emit('getId', {}, addPopupId)
 
     popupTag = document.getElementById("popup")
     popupTag.style.display = "block"
@@ -502,7 +501,6 @@ function collectSubInputs(e) {
     popupTag = document.getElementById("popupSub")
     subType = popupTag.dataset.popupType
 
-    main[1] = popupTag.dataset.pid
     main[1] = popupTag.dataset.pid
     main[2] = popupTag.dataset.doi
     targetRow = popupTag.dataset.row

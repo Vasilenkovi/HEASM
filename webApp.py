@@ -20,10 +20,10 @@ class MyWebApp(Flask):
         super().__init__(import_name, static_url_path, static_folder, static_host, host_matching, subdomain_matching, template_folder, instance_path, instance_relative_config, root_path)
 
     def _checkSession(session: dict) -> bool:
-        if "" in (session.get("user"), session.get("password")):
-            return False
-        else:
+        if session.get("user") and session.get("password"):
             return True
+        else:
+            return False
 
     def _execute(query: str, userLogin: str, userPassword: str) -> list:
         MyWebApp._config["user"] = userLogin
@@ -283,9 +283,10 @@ def commitBut(data):
 
     commit(MyWebApp, socketio, login, password)
 @socketio.on("getId")
-def getNewID():
+def getNewID(data):
     login = session.get("user")
     password = session.get("password")
+    print(login, password)
 
     newId = MyWebApp._execute('SELECT nextval(\'my_sequence\');', login, password)[0][0]
     print(newId)
