@@ -311,18 +311,18 @@ function newRowf(recArray) {
             tbodyTagS = document.createElement("tbody")
             tableTag.appendChild(tbodyTagS)
 
-            for (let i = 0; i < recArray.length; i++) {
+            for (let i = 0; i < elem.length; i++) {
                 rows = document.createElement("tr")
                 rows.classList.add("consumableRow")
 
-                for (let j = 0; j < recArray[i].length; j++) {
+                for (let j = 0; j < elem[i].length; j++) {
                     cells = document.createElement("td")
                     cells.classList.add("bordered")
 
                     inp = document.createElement("input")
                     inp.classList.add("userInput")
                     inp.type = "text"
-                    inp.value = recArray[i][j]
+                    inp.value = elem[i][j]
                     inp.dataset.prior = ""
                     inp.dataset.row = rowId
                     inp.dataset.cell = cellid
@@ -490,11 +490,23 @@ function addPopupSub(e) {
 
     tableTag.appendChild(rowTag2)
 
+    rowTag3 = document.createElement("tr")
+    rowTag3.classList.add("bordered")
+
+    tdTag3 = document.createElement("td")
+    tdTag3.classList.add("bordered")
+    tdTag3.classList.add("multirow")
+    tdTag3.addEventListener("click", addMultiRow)
+    tdTag3.colSpan = tableInfo[1].length
+    tdTag3.textContent = "Добавить строку"
+
+    rowTag3.appendChild(tdTag3)
+    tableTag.appendChild(rowTag3)
+
     tableMount.prepend(tableTag)
 }
 
 function collectSubInputs(e) {
-    logicalArray = []
     addDict = {}
     main = Array(17).fill("")
 
@@ -506,19 +518,22 @@ function collectSubInputs(e) {
     targetRow = popupTag.dataset.row
     targetCell = popupTag.dataset.cell
 
-    tdArr = []
-    tr = document.getElementById("popupSubTable").children[1] //skip header
-    for (td of tr.children) {
-        tdArr.push(td.children[0].value)
+    outArr = []
+    trs = document.getElementById("popupSubTable").children
+    for (let i = 1; i < trs.length - 1; i++) {
+        trArr = []
+        for (td of trs[i].children) {
+            trArr.push(td.children[0].value)
+        }
+        outArr.push(trArr)
     }
 
-    addDict[subType] = [tdArr]
+    addDict[subType] = outArr
     addDict["main"] = main
-    logicalArray.push(tdArr)
 
     //newRowSub(logicalArray, targetRow, targetCell)
 
-    socket.emit("addRowsSubClient", { 'logArr': logicalArray, 'tarRow': targetRow, 'tarCell': targetCell });
+    socket.emit("addRowsSubClient", { 'logArr': outArr, 'tarRow': targetRow, 'tarCell': targetCell });
     socket.emit("addRowsSub", addDict);
 
     console.log(addDict)
@@ -554,13 +569,36 @@ function collectInputs(e) {
         j += 1 //Cancerous tumor
     }
 
-
     socket.emit("addRowsClient", logicalArray);
     socket.emit("addRows", addDict);
 
     console.log(addDict)
 
     popupClose()
+}
+
+function addMultiRow(e) {
+    tbodyTag = e.target.parentNode.parentNode
+    colNum = Number(e.target.colSpan)
+
+    rowTag = document.createElement("tr")
+    rowTag.classList.add("bordered")
+
+    for (let i = 0; i < colNum; i++) {
+        tdTag = document.createElement("td")
+        tdTag.classList.add("bordered")
+
+        inp = document.createElement("input")
+        inp.classList.add("userInput")
+        inp.type = "text"
+        inp.value = ""
+        tdTag.appendChild(inp)
+
+        rowTag.appendChild(tdTag)
+    }
+
+    buttonTag = tbodyTag.children[tbodyTag.children.length - 1]
+    tbodyTag.insertBefore(rowTag, buttonTag)
 }
 
 window.onload = () => {
@@ -616,6 +654,11 @@ window.onload = () => {
     multipsaTag = document.getElementsByClassName("multipsa")
     for (tag of multipsaTag) {
         tag.addEventListener("click", addPopupSub)
+    }
+
+    multirowTag = document.getElementsByClassName("multirow")
+    for (tag of multirowTag) {
+        tag.addEventListener("click", addMultiRow)
     }
 
     popupIdTag = document.getElementById("popupMain").children[0].children[1].children[1].children[0]

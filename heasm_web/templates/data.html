@@ -26,7 +26,7 @@
             var changes = document.querySelector('[class="userInputSub"]' + '[data-row="' + data['data'][0] + '"]' + '[data-cell="' + data['data'][1] + '"]' + '[data-subrow="' + data['data'][2] + '"]' + '[data-subcell="' + data['data'][3] + '"]')
             changes.value = data['data'][4]
         });
-         socket.on('updateNewRows', (data) => {
+        socket.on('updateNewRows', (data) => {
             console.log(data)
             newRowf(data)
         });
@@ -80,7 +80,7 @@
                     {% endfor %}
                 </tr>
                 <tr class="bordered">
-                    <td class="bordered multipsa" colspan="{{tup[1]| length}}">
+                    <td class="bordered multirow" colspan="{{tup[1]| length}}">
                         Добавить запись
                     </td>
                 </tr>
