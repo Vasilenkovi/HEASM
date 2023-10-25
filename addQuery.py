@@ -19,19 +19,19 @@ class AddQuery:
         key_words = dataDict.get("Ключевые слова:")
         if key_words and doi:
             for row in key_words:
-                keyWrd = "INSERT INTO key_word(DOI, WORD) VALUES ('{DOI}', '{WORD}');".format(DOI = doi, WORD = row[0])
+                keyWrd = "INSERT INTO key_word(DOI, WORD) VALUES (\\'{DOI}\\', \\'{WORD}\\');".format(DOI = doi, WORD = row[0])
                 outQueries.append(keyWrd)
 
         ings = dataDict.get("Ингредиенты:")
         if ings and pid:
             for row in ings:
-                indredients = "INSERT INTO ingredients(PRODUCT_ID, INGREDIENT) VALUES ({PRODUCT_ID}, '{INGREDIENT}');".format(PRODUCT_ID = pid, INGREDIENT = row[0])
+                indredients = "INSERT INTO ingredients(PRODUCT_ID, INGREDIENT) VALUES ({PRODUCT_ID}, \\'{INGREDIENT}\\');".format(PRODUCT_ID = pid, INGREDIENT = row[0])
                 outQueries.append(indredients)
 
         countries = dataDict.get("Страны публикации:")
         if countries and doi:
             for row in countries:
-                count = "INSERT INTO countries(DOI, COUNTRY) VALUES ('{DOI}', '{COUNTRY}');".format(DOI = doi, COUNTRY = row[0])
+                count = "INSERT INTO countries(DOI, COUNTRY) VALUES (\\'{DOI}\\', \\'{COUNTRY}\\');".format(DOI = doi, COUNTRY = row[0])
                 outQueries.append(count)
 
         meas = dataDict.get("Параметры измерений:")
@@ -39,7 +39,7 @@ class AddQuery:
             for row in meas:
                 if row[0]:
                     val_min, val_max = AddQuery.decompose_range(row[2])
-                    measurement = "INSERT INTO measurements(PRODUCT_ID, MEASURED_PARAMETER, MEASURED_UNIT, MEASURED_MIN_VALUE, MEASURED_MAX_VALUE) VALUES ({PRODUCT_ID}, '{MEASURED_PARAMETER}', '{MEASURED_UNIT}', {MEASURED_MIN_VALUE}, {MEASURED_MAX_VALUE});".format(
+                    measurement = "INSERT INTO measurements(PRODUCT_ID, MEASURED_PARAMETER, MEASURED_UNIT, MEASURED_MIN_VALUE, MEASURED_MAX_VALUE) VALUES ({PRODUCT_ID}, \\'{MEASURED_PARAMETER}\\', \\'{MEASURED_UNIT}\\', {MEASURED_MIN_VALUE}, {MEASURED_MAX_VALUE});".format(
                         PRODUCT_ID = pid,
                         MEASURED_PARAMETER = row[0],
                         MEASURED_UNIT = row[1],
@@ -53,7 +53,7 @@ class AddQuery:
             for row in synth:
                 if row[0]:
                     val_min, val_max = AddQuery.decompose_range(row[2])
-                    parameter = "INSERT INTO synthesis_parameter(PRODUCT_ID, SYNTHESIS_PARAMETER, SYNTHESIS_UNIT, SYNTHESIS_MIN_VALUE, SYNTHESIS_MAX_VALUE) VALUES ({PRODUCT_ID}, '{SYNTHESIS_PARAMETER}', '{SYNTHESIS_UNIT}', {SYNTHESIS_MIN_VALUE}, {SYNTHESIS_MAX_VALUE});".format(
+                    parameter = "INSERT INTO synthesis_parameter(PRODUCT_ID, SYNTHESIS_PARAMETER, SYNTHESIS_UNIT, SYNTHESIS_MIN_VALUE, SYNTHESIS_MAX_VALUE) VALUES ({PRODUCT_ID}, \\'{SYNTHESIS_PARAMETER}\\', \\'{SYNTHESIS_UNIT}\\', {SYNTHESIS_MIN_VALUE}, {SYNTHESIS_MAX_VALUE});".format(
                         PRODUCT_ID = pid,
                         SYNTHESIS_PARAMETER = row[0],
                         SYNTHESIS_UNIT = row[1],
@@ -74,11 +74,11 @@ class AddQuery:
         journal = main[AddQuery.DATA_DICT_MAIN_ID["journal"]]
 
         if journal and year:
-            bib_source = "INSERT INTO bib_source(JOURNAL, YEAR, IMPACT) VALUES ('{journal}', {year}, {impact});".format(journal = journal, year = year, impact = main[AddQuery.DATA_DICT_MAIN_STRUCT["impact"]])
+            bib_source = "INSERT INTO bib_source(JOURNAL, YEAR, IMPACT) VALUES (\\'{journal}\\', {year}, {impact});".format(journal = journal, year = year, impact = main[AddQuery.DATA_DICT_MAIN_STRUCT["impact"]])
             outQueries.append(bib_source)
 
         if doi:
-            bibliography = "INSERT INTO bibliography(DOI, INTERNAL_CIPHER, URL, YEAR, JOURNAL) VALUES ('{DOI}', '{INTERNAL_CIPHER}', '{URL}', {YEAR}, '{JOURNAL}');".format(
+            bibliography = "INSERT INTO bibliography(DOI, INTERNAL_CIPHER, URL, YEAR, JOURNAL) VALUES (\\'{DOI}\\', \\'{INTERNAL_CIPHER}\\', \\'{URL}\\', {YEAR}, \\'{JOURNAL}\\');".format(
                 DOI = doi,
                 INTERNAL_CIPHER = main[AddQuery.DATA_DICT_MAIN_STRUCT["cipher"]], 
                 URL = main[AddQuery.DATA_DICT_MAIN_STRUCT["url"]], 
@@ -94,7 +94,7 @@ class AddQuery:
             a_min, a_max = AddQuery.decompose_range(main[AddQuery.DATA_DICT_MAIN_STRUCT["a_param"]])
             src_mix_min, src_mix_max = AddQuery.decompose_range(main[AddQuery.DATA_DICT_MAIN_STRUCT["mix_time"]])
             synth_time_min, synth_time_max = AddQuery.decompose_range(main[AddQuery.DATA_DICT_MAIN_STRUCT["synth_time"]])
-            synth_prod = "INSERT INTO synthesis_product (PRODUCT, PRODUCT_ID, DOI, A_PARAMETER_MAX, A_PARAMETER_MIN, MIXING_METHOD, SOURCE_MIX_TIME_MIN, SOURCE_MIX_TIME_MAX, METHOD, GAS, SYNTHESIS_TIME_MIN, SYNTHESIS_TIME_MAX, FEATURE, CONTRIBUTOR, COMMENTS) VALUES ('{PRODUCT}', {PRODUCT_ID}, '{DOI}', {A_PARAMETER_MAX}, {A_PARAMETER_MIN}, '{MIXING_METHOD}', {SOURCE_MIX_TIME_MIN}, {SOURCE_MIX_TIME_MAX}, '{METHOD}', '{GAS}', {SYNTHESIS_TIME_MIN}, {SYNTHESIS_TIME_MAX}, '{FEATURE}', '{CONTRIBUTOR}', '{COMMENTS}');".format(
+            synth_prod = "INSERT INTO synthesis_product (PRODUCT, PRODUCT_ID, DOI, A_PARAMETER_MAX, A_PARAMETER_MIN, MIXING_METHOD, SOURCE_MIX_TIME_MIN, SOURCE_MIX_TIME_MAX, METHOD, GAS, SYNTHESIS_TIME_MIN, SYNTHESIS_TIME_MAX, FEATURE, CONTRIBUTOR, COMMENTS) VALUES (\\'{PRODUCT}\\', {PRODUCT_ID}, \\'{DOI}\\', {A_PARAMETER_MAX}, {A_PARAMETER_MIN}, \\'{MIXING_METHOD}\\', {SOURCE_MIX_TIME_MIN}, {SOURCE_MIX_TIME_MAX}, \\'{METHOD}\\', \\'{GAS}\\', {SYNTHESIS_TIME_MIN}, {SYNTHESIS_TIME_MAX}, \\'{FEATURE}\\', \\'{CONTRIBUTOR}\\', \\'{COMMENTS}\\');".format(
                 PRODUCT = main[AddQuery.DATA_DICT_MAIN_STRUCT["product"]], 
                 PRODUCT_ID = pid,
                 DOI = doi,

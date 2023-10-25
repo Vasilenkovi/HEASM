@@ -512,7 +512,7 @@ function collectSubInputs(e) {
         tdArr.push(td.children[0].value)
     }
 
-    addDict[subType] = tdArr
+    addDict[subType] = [tdArr]
     addDict["main"] = main
     logicalArray.push(tdArr)
 
@@ -520,6 +520,8 @@ function collectSubInputs(e) {
 
     socket.emit("addRowsSubClient", { 'logArr': logicalArray, 'tarRow': targetRow, 'tarCell': targetCell });
     socket.emit("addRowsSub", addDict);
+
+    console.log(addDict)
     popupCloseSub()
 }
 
@@ -555,6 +557,8 @@ function collectInputs(e) {
 
     socket.emit("addRowsClient", logicalArray);
     socket.emit("addRows", addDict);
+
+    console.log(addDict)
 
     popupClose()
 }

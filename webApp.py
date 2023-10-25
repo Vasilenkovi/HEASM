@@ -29,18 +29,21 @@ class MyWebApp(Flask):
         MyWebApp._config["user"] = userLogin
         MyWebApp._config["password"] = userPassword
 
-        connection = mysql.connector.connect(**MyWebApp._config)
-        cursor = connection.cursor()
+        try:
+            connection = mysql.connector.connect(**MyWebApp._config)
+            cursor = connection.cursor()
 
-        cursor.reset() #Clear old result and prepare for execution
-        cursor.execute(query) #Probing query to check connection status
-        r = cursor.fetchall() #Retrieving all results from cursor
-        cursor.execute("commit")
-        cursor.close()
-        connection.close()
+            cursor.reset() #Clear old result and prepare for execution
+            cursor.execute(query) #Probing query to check connection status
+            r = cursor.fetchall() #Retrieving all results from cursor
+            cursor.execute("commit")
+            cursor.close()
+            connection.close()
 
-        MyWebApp._config["user"] = ""
-        MyWebApp._config["password"] = ""
+            MyWebApp._config["user"] = ""
+            MyWebApp._config["password"] = ""
+        except:
+            return None
 
         return r
     
